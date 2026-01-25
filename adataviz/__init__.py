@@ -8,10 +8,60 @@ import os
 import sys
 from ._version import version as __version__
 from . import tools as tl
-from . import preprocessing as pp
 from . import plotting as pl
 from loguru import logger as logger
+import fire
 
 _ROOT = os.path.abspath(os.path.dirname(__file__))
 logger.remove()
 logger.add(sys.stderr, level="DEBUG")
+
+def adataviz(command=None):
+	"""
+	Usage: adataviz command [options]\n
+
+	Available commands are:
+		plot:	plot adata
+		tool:	Other tools
+
+	Parameters
+	----------
+	command :
+		choice from ['plot', 'tool']
+
+	Returns
+	-------
+
+	"""
+	doc_string="""
+Available subcommands:
+	plot:	plot adata
+	tool:	Other tools
+		"""
+	if command is None:
+		return doc_string
+	command=command.lower()
+	if command == "plot":
+		return {
+			'plot_cluster': pl.plot_cluster,
+			'plot_gene': pl.plot_gene,
+			'plot_genes': pl.plot_genes,
+		}
+	elif command=="tool":
+		return {
+			"to_pseudobulk": tl.to_pseudobulk,
+			'export_pseudobulk_adata': tl.export_pseudobulk_adata,
+			'parse_gtf':tl.parse_gtf,
+			'downsample_adata':tl.downsample_adata,
+		}
+	else:
+		print(doc_string)
+		exit()
+		
+def main():
+	from .utils import serialize
+	fire.core.Display = lambda lines, out: print(*lines, file=out)
+	fire.Fire(adataviz, serialize=serialize)
+
+if __name__=="__main__":
+	main()
