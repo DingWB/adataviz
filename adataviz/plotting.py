@@ -21,7 +21,8 @@ import plotly.express as px
 import plotly.io as pio
 import plotly.graph_objects as go
 from loguru import logger as logger
-logger.add(sys.stderr, level="DEBUG")
+# logger.add(sys.stderr, level="DEBUG")
+logger.add(sys.stderr, level="ERROR")
 
 def get_colors(adata,variable=None,palette_path=None):
 	if not palette_path is None:
@@ -1755,8 +1756,8 @@ def plot_genes(
 	return plot_data,df_cols,cm1
 
 def get_genes_mean_frac(
-		adata,obs=None,group_col='Subclass',modality='RNA',
-		use_raw=True,expression_cutoff='p5', genes=None,
+		adata,obs=None,group_col='Subclass',modality='RNA',layer="mean",
+		use_raw=False,expression_cutoff='p5', genes=None,
 		normalize_per_cell=True,clip_norm_value=10,hypo_score=False,
 		):
 	assert not genes is None, "Please provide genes to plot."
@@ -1822,7 +1823,7 @@ def get_genes_mean_frac(
 				D=frac.stack().to_dict()
 		plot_data['frac']=plot_data.loc[:,[group_col,'Gene']].apply(lambda x:tuple(x.tolist()),axis=1).map(D)
 	else:
-		plot_data=use_adata.to_df().stack().reset_index()
+		plot_data=use_adata.to_df(layer=layer).stack().reset_index()
 		plot_data.columns=[group_col,'Gene','Mean']
 		D=use_adata.to_df(layer='frac').stack().to_dict()
 		plot_data['frac']=plot_data.loc[:,[group_col,'Gene']].apply(lambda x:tuple(x.tolist()),axis=1).map(D)
@@ -1830,7 +1831,7 @@ def get_genes_mean_frac(
 
 def interactive_dotHeatmap(
 		adata=None,obs=None,genes=None,group_col='Subclass',
-		modality="RNA",title=None,use_raw=True,
+		modality="RNA",title=None,use_raw=False,
 		expression_cutoff='p5',normalize_per_cell=True,
 		clip_norm_value=10,
 		width=900,height=700,gene_order=None,colorscale='greens',
@@ -2022,26 +2023,28 @@ def plot_interacrive_boxplot_from_stats(
 				boxpoints=False,
 				marker=dict(color=color),
 				name=str(group),
-				showlegend=False
+				showlegend=True
 			)
 		)
 		# mean as a scatter point with std error bar
-		fig.add_trace(
-			go.Scatter(
-				x=[group],
-				y=[mean],
-				mode='markers',
-				marker=dict(symbol='diamond', size=8, color='black'),
-				error_y=dict(type='data', array=[std], visible=True),
-				name='mean',
-				showlegend=(i==0)
-			)
-		)
+		# fig.add_trace(
+		# 	go.Scatter(
+		# 		x=[group],
+		# 		y=[mean],
+		# 		mode='markers',
+		# 		marker=dict(symbol='diamond', size=8, color='black'),
+		# 		error_y=dict(type='data', array=[std], visible=True),
+		# 		name='mean',
+		# 		showlegend=False
+		# 	)
+		# )
 
+	fig.update_xaxes(tickangle=-90, automargin=True)
 	fig.update_layout(
-		title=f"Boxplot (precomputed stats): {gene} by {variable}",
+		title=f"Boxplot: {gene} by {variable}",
 		xaxis_title=variable,
 		yaxis_title=gene,
+		legend_title=variable,
 		template='plotly_white',
 		width=width,
 		height=height

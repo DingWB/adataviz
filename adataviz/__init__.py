@@ -9,12 +9,9 @@ import sys
 from ._version import version as __version__
 from . import tools as tl
 from . import plotting as pl
-from loguru import logger as logger
 import fire
 
 _ROOT = os.path.abspath(os.path.dirname(__file__))
-logger.remove()
-logger.add(sys.stderr, level="DEBUG")
 
 def adataviz(command=None):
 	"""
