@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0","wheel","setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+version_scheme="post-release" #"guess-next-dev"
+local_scheme="no-local-version"
+write_to = 'adataviz/_version.py'
+
+[project]
+name = "adataviz"
+dynamic = ["version"]
+dependencies = ["matplotlib","numpy","pandas>=1.3.5", 
+                "scipy","loguru","anndata","fire","scanpy"]
+authors = [
+  { name="Wubin Ding", email="ding.wu.bin.gm@gmail.com" },
+]
+description = "A python package to visualize adata"
+keywords = ["adata", "visualization"]
+readme = "README.md"
+requires-python = ">=3.0"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+license = {file = "LICENSE"}
+
+[project.urls]
+"Homepage" = "https://github.com/DingWB/adataviz"
+repository = "https://github.com/DingWB/adataviz"
+"Bug Tracker" = "https://github.com/DingWB/adataviz/issues"
+documentation = "https://dingwb.github.io/adataviz"
