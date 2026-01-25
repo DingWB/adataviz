@@ -46,7 +46,8 @@ def interactive_embedding(
 		adata=None,obs=None,variable=None,gene=None,
 		coord="umap",vmin='p1',vmax='p99',cmap='jet',title=None,
 		width=900,height=750,colors=None,palette_path=None,
-		size=None,show=True,downsample=None,
+		size=None,show=True,downsample=None,target_fill=0.05,
+		normalize_per_cell=True,clip_norm_value=10,
 		renderer="notebook"):
 	"""
 	Plot interactive embedding plot with plotly for a given AnnData object or path of .h5ad.
@@ -115,9 +116,13 @@ def interactive_embedding(
 			use_adata=adata[:,gene].to_memory() # type: ignore
 		else:
 			use_adata=adata[:,gene].copy() # type: ignore
+		if normalize_per_cell:
+			use_adata = normalize_mc_by_cell(
+				use_adata=use_adata, normalize_per_cell=normalize_per_cell,
+				clip_norm_value=clip_norm_value,hypo_score=False)
 	else:
 		if not adata is None:
-			use_adata=adata
+			use_adata=adata # backed
 	if obs is None and use_adata is None:
 		raise ValueError("Either `adata` or `obs` must be provided.")
 	if obs is None:
@@ -168,7 +173,12 @@ def interactive_embedding(
 			if k not in obs[use_col].unique().tolist():
 				del color_discrete_map[k] # type: ignore
 		range_color=None
-	obs=obs.reset_index(names="cell").loc[:,['cell',f'{coord}_0',f'{coord}_1',use_col]]
+	keep_cols=['cell',f'{coord}_0',f'{coord}_1']
+	if not variable is None:
+		keep_cols.append(variable)
+	if not gene is None:
+		keep_cols.append(gene)
+	obs=obs.reset_index(names="cell").loc[:,keep_cols]
 	# Create Plotly interactive scatter plot
 	hover_data={         # Fields to show on hover
 			"cell": True,    # cell ID
@@ -197,7 +207,6 @@ def interactive_embedding(
 
 	if size is None:
 		# Blend an area-based marker estimate with a log-based fallback so total point count and canvas size both matter.
-		target_fill=0.1
 		# Increased target_fill and scaling to make markers bigger
 		marker_diam_area = 2 * np.sqrt((width * height * target_fill) / (np.pi * n_points))
 		marker_diam_log = 16 - 2 * np.log10(n_points)
