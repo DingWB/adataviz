@@ -318,9 +318,8 @@ def stat_pseudobulk(
 			if 'frac' not in data:
 				data['frac'] = []
 			data['frac'].append(pd.Series(frac, name=group,index=header))
-	raw_adata.file.close()
 	X=pd.concat(data['sum'],axis=1).T # sum of raw counts or normalized methylation fraction
-	vc=raw_adata.obs.loc[all_cells][groupby].value_counts().to_frame(name='cell_count')
+	vc=obs[groupby].value_counts().to_frame(name='cell_count')
 	adata = anndata.AnnData(X=X,obs=vc.loc[X.index.tolist()]) # put sum into adata.X
 	for k in data:
 		if k=='sum':
