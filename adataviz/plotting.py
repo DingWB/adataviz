@@ -1860,7 +1860,7 @@ def interactive_dotHeatmap(
 	# x: groups (columns), y: genes (rows)
 	x_labels = plot_data[group_col].unique().tolist()
 	if gene_order is None:
-		y_labels = list(pd.Categorical(plot_data['Gene'], categories=pd.unique(plot_data['Gene'])))
+		y_labels = plot_data['Gene'].unique().tolist()
 	else:
 		y_labels = [g for g in gene_order if g in plot_data['Gene'].unique()]
 
