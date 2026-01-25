@@ -3,7 +3,7 @@
 /.idea/
 **/__pycache__/
 /adataviz.egg-info/
-/notebooks/.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/
 /notebooks/*.pdf
 /dist/
 notebooks/.ipynb_checkpoints/plot-checkpoint.ipynb
