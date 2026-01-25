@@ -113,7 +113,8 @@ def merge_adata_regions(
 	return data # to do next: subset rows (df_bin.index) and columns (cell types order)
 
 def cal_stats(adata_path,obs1,modality="RNA",expression_cutoff=0,
-			  use_raw=True,normalize_per_cell=True,clip_norm_value=10):
+			  use_raw=False,normalize_per_cell=True,
+			  clip_norm_value=10,sum_only=False):
 	raw_adata=anndata.read_h5ad(os.path.expanduser(adata_path),backed='r')
 	adata=raw_adata[obs1.index.tolist(),:].to_memory()
 	raw_adata.file.close()
@@ -131,9 +132,7 @@ def cal_stats(adata_path,obs1,modality="RNA",expression_cutoff=0,
 	df_data=adata.to_df() # rows are cells, columns are genes
 	# Compute per-gene statistics (min, q25, q50, q75, max, sum) across cells.
 	# Use NumPy's nanpercentile and nansum which are fast (uses quickselect under the hood).
-	qs = np.nanpercentile(df_data.values, [0, 25, 50, 75, 100], axis=0)
 	sums = np.nansum(df_data.values, axis=0) # for each column
-	std=np.nanstd(df_data.values,axis=0)
 	# fraction of cells expressing (or hypomethylated) the gene
 	if modality!='RNA': # methylation, cutoff = 1
 		# frac = df_data.apply(lambda x: x[x < 1].shape[0] / x.shape[0])
@@ -143,6 +142,10 @@ def cal_stats(adata_path,obs1,modality="RNA",expression_cutoff=0,
 		# frac = df_data.apply(lambda x: x[x > expression_cutoff].shape[0] / x.shape[0])
 		# vectorized: count values > cutoff per column divided by number of cells
 		frac = (df_data > expression_cutoff).sum(axis=0) / float(df_data.shape[0])
+	if sum_only:
+		return sums,frac,df_data.columns.tolist()
+	qs = np.nanpercentile(df_data.values, [0, 25, 50, 75, 100], axis=0)
+	std=np.nanstd(df_data.values,axis=0)
 	return qs,sums,std,frac,df_data.columns.tolist()
 
 def cal_tpm(adata,target_sum=1e6,length_fillna=1000):
@@ -164,7 +167,103 @@ def cal_tpm(adata,target_sum=1e6,length_fillna=1000):
 	adata.uns['Normalization']='log(TPM)'
 	return adata
 
-def to_pseudobulk(
+def scrna2pseudobulk(
+	adata_path,downsample=2000,
+	obs_path=None,groupby="Group",use_raw=True,
+	n_jobs=1,normalize_per_cell=True,clip_norm_value=10,
+	normalization=None,target_sum=1e6,gtf=None,save=None
+):
+	assert use_raw == True, "For normalization (CPM or TPM), please set use_raw=True"
+	# assert modality=='RNA': # methylation
+	raw_adata=anndata.read_h5ad(os.path.expanduser(adata_path),backed='r')
+	if not obs_path is None:
+		if isinstance(obs_path,str):
+			obs=pd.read_csv(os.path.expanduser(obs_path),
+				sep='\t',index_col=0)
+		else:
+			obs=obs_path.copy()
+		overlapped_cells=list(set(raw_adata.obs_names.tolist()) & set(obs.index.tolist()))
+		obs=obs.loc[overlapped_cells]
+	else:
+		obs=raw_adata.obs.copy()
+		# raw_adata.obs[groupby]=raw_adata.obs.index.to_series().map(obs[groupby].to_dict())
+	raw_adata.file.close()
+	obs=obs.loc[obs[groupby].notna()]
+	if not downsample is None:
+		all_cells = obs.groupby(groupby).apply(
+					lambda x: x.sample(downsample).index.tolist() if x.shape[0] > downsample else x.index.tolist()).sum()
+	else:
+		all_cells=obs.index.tolist()
+	obs=obs.loc[all_cells]
+	data={}
+	if n_jobs==-1:
+		n_jobs=os.cpu_count()
+	with ProcessPoolExecutor(n_jobs) as executor:
+		futures = {}
+		for group in obs[groupby].unique():
+			obs1=obs.loc[obs[groupby]==group]
+			if obs1.shape[0]==0:
+				continue
+			future = executor.submit(
+				cal_stats,adata_path=adata_path,obs1=obs1,
+				use_raw=use_raw,normalize_per_cell=normalize_per_cell,
+				clip_norm_value=clip_norm_value,sum_only=True
+			)
+			futures[future] = group
+		logger.debug(f"Submitted {len(futures)} groups for pseudobulk calculation.")
+		for future in as_completed(futures):
+			group = futures[future]
+			logger.debug(group)
+			sums,frac,header = future.result()
+			if 'sum' not in data:
+				data['sum'] = []
+			data['sum'].append(pd.Series(sums, name=group, index=header))
+			frac.name = group
+			if 'frac' not in data:
+				data['frac'] = []
+			data['frac'].append(pd.Series(frac, name=group,index=header))
+	raw_adata.file.close()
+	X=pd.concat(data['sum'],axis=1).T # sum of raw counts or normalized methylation fraction
+	vc=raw_adata.obs.loc[all_cells][groupby].value_counts().to_frame(name='cell_count')
+	adata = anndata.AnnData(X=X,obs=vc.loc[X.index.tolist()]) # put sum into adata.X
+	adata.layers['frac']=pd.concat(objs=data['frac'],axis=1).T
+	del data
+	adata.raw=adata.copy()
+
+	if not normalization is None and use_raw:
+		# Calculate CPM or TPM only if aggfunc is sum
+		logger.info(f"Normalizing pseudobulk adata using {normalization} method.")
+		if not gtf is None:
+			df_gene = parse_gtf(gtf=gtf)
+			# ['chrom','beg','end','gene_name','gene_id','strand','gene_type']
+			# for genes with duplicated records, only keep the longest gene
+			df_gene['length']=df_gene.end - df_gene.beg
+			df_gene.sort_values('length',ascending=False,inplace=True) # type: ignore
+			df_gene.drop_duplicates('gene_symbol',keep='first',inplace=True) # type: ignore
+			df_gene.set_index('gene_symbol',inplace=True)
+			for col in ['chrom','beg','end','strand','gene_type','gene_id','length']:
+				adata.var[col]=adata.var_names.map(df_gene[col].to_dict())
+
+		if normalization=='CPM':
+			# for new sc-RNA-seq pipeline, CPM is equal to TPM?
+			sc.pp.normalize_total(adata, target_sum=target_sum)
+			sc.pp.log1p(adata) # log(CPM)
+			adata.uns['Normalization']='log(CPM)'
+		else: #TPM
+			assert not gtf is None, "For TPM normalization, please provide gtf file."
+			adata=cal_tpm(adata,target_sum=target_sum,length_fillna=1000)
+	vc_dict=vc.to_dict()['cell_count']
+	adata.layers['mean']=adata.to_df().apply(lambda x:x/vc_dict[x.name],axis=1)
+	if not save is None:
+		outdir=os.path.dirname(os.path.abspath(os.path.expanduser(save)))
+		if not os.path.exists(outdir):
+			os.makedirs(outdir,exist_ok=True)
+		outfile=os.path.expanduser(save)
+		adata.write_h5ad(outfile)
+	else:
+		return adata
+
+def stat_pseudobulk(
 	adata_path,downsample=2000,
 	obs_path=None,groupby="Group",use_raw=False,expression_cutoff=0,
 	modality="RNA",n_jobs=1,normalize_per_cell=True,clip_norm_value=10,

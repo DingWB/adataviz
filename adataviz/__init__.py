@@ -49,7 +49,8 @@ Available subcommands:
 		}
 	elif command=="tool":
 		return {
-			"to_pseudobulk": tl.to_pseudobulk,
+			"scrna2pseudobulk": tl.scrna2pseudobulk,
+			'stat_pseudobulk':tl.stat_pseudobulk,
 			'export_pseudobulk_adata': tl.export_pseudobulk_adata,
 			'parse_gtf':tl.parse_gtf,
 			'downsample_adata':tl.downsample_adata,

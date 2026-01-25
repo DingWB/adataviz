@@ -16,6 +16,7 @@ pip install --upgrade adataviz
 pip install git+https://github.com/DingWB/adataviz
 # reinstall
 pip uninstall -y adataviz && pip install git+https://github.com/DingWB/adataviz
+
 ```
 OR
 ```shell
