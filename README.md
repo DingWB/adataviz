@@ -23,3 +23,9 @@ git clone https://github.com/DingWB/adataviz
 cd adataviz
 python setup.py install
 ```
+
+## Command Line Tools
+### to_pseudobulk
+```shell
+adataviz tool to_pseudobulk  HMBA.Group.downsample_1500.h5ad --groupby="Subclass" --downsample=2000 --use_raw=True -m RNA --n_jobs 16 --normalization CPM -s ~/Projects/BICAN/adata/HMBA_v2/Pseudobulk.Subclass.h5ad
+```
