@@ -1942,7 +1942,7 @@ def has_stats(adata):
 
 def plot_interactive_boxlot_from_data(
 		adata,obs,variable,gene,palette_path=None,
-		width=1100,height=700,
+		width=1100,height=700,title=None,
 		):
 	plot_df = get_boxplot_data(adata,variable,gene,obs=obs)
 	# Preserve existing Y-axis extreme filtering logic (remove 1% and 99% extremes)
@@ -1952,7 +1952,8 @@ def plot_interactive_boxlot_from_data(
 	for k in keys:
 		if not k in plot_df[variable].unique().tolist():
 			del color_discrete_map[k] # type: ignore
-
+	if title is None:
+		title=f"Boxplot: {gene} by {variable}"
 	fig = px.box(
 		plot_df,
 		x=variable,
@@ -1962,7 +1963,7 @@ def plot_interactive_boxlot_from_data(
 		color_discrete_map=color_discrete_map,
 		range_y=range_y,
 		points=False,
-		title=f"Boxplot: {gene} by {variable}",
+		title=title,
 		template="plotly_white"   # keep white background style
 	)
 	fig.update_xaxes(tickangle=-90, automargin=True)
@@ -1983,7 +1984,7 @@ def plot_interactive_boxlot_from_data(
 
 def plot_interacrive_boxplot_from_stats(
 		adata,variable,gene,palette_path=None,
-		width=1100,height=700):
+		title=None,width=1100,height=700):
 	assert isinstance(adata,anndata.AnnData)
 	if adata.isbacked: # type: ignore
 		use_adata=adata[:,gene].to_memory() # type: ignore
@@ -2047,10 +2048,11 @@ def plot_interacrive_boxplot_from_stats(
 		# 		showlegend=False
 		# 	)
 		# )
-
+	if title is None:
+		title=f"Boxplot: {gene} by {variable}"
 	fig.update_xaxes(tickangle=-90, automargin=True)
 	fig.update_layout(
-		title=f"Boxplot: {gene} by {variable}",
+		title=title,
 		xaxis_title=variable,
 		yaxis_title=gene,
 		legend_title=variable,
@@ -2062,7 +2064,7 @@ def plot_interacrive_boxplot_from_stats(
 
 def interactive_boxplot(
 		adata,variable,gene,obs=None,palette_path=None,
-		width=1100,height=700,show=True,renderer='notebook'):
+		title=None,width=1100,height=700,show=True,renderer='notebook'):
 	if not renderer is None:
 		pio.renderers.default = renderer
 	if isinstance(adata,str):
@@ -2074,12 +2076,12 @@ def interactive_boxplot(
 	if not has_stats(adata):
 		fig=plot_interactive_boxlot_from_data(
 		adata,obs,variable,gene,palette_path=palette_path,
-		width=width,height=height
+		title=title,width=width,height=height
 		)
 	else: # pseudobulk level with precomputed stats
 		fig=plot_interacrive_boxplot_from_stats(
 			adata,variable,gene,palette_path=palette_path,
-			width=width,height=height)
+			title=title,width=width,height=height)
 	if show:
 		filename=f"boxplot.{variable}.{gene}"
 		show_fig(fig,filename=filename)
