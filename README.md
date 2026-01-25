@@ -28,5 +28,9 @@ python setup.py install
 ## Command Line Tools
 ### to_pseudobulk
 ```shell
-adataviz tool to_pseudobulk  HMBA.Group.downsample_1500.h5ad --groupby="Subclass" --downsample=2000 --use_raw=True -m RNA --n_jobs 16 --normalization CPM -s ~/Projects/BICAN/adata/HMBA_v2/Pseudobulk.Subclass.h5ad
+# merge single cells raw counts to psuedobulk (sum up raw counts) and run normalization (logCPM or logTPM)
+adataviz tool scrna2pseudobulk  HMBA.Group.downsample_1500.h5ad --groupby="Subclass" --downsample=2000 --use_raw=True -m RNA --n_jobs 16 --normalization CPM -s ~/Projects/BICAN/adata/HMBA_v2/Pseudobulk.Subclass.h5ad
+
+# stat pseudobulk: calculate min,q25, q50, q75, max, mean and std
+adataviz tool stat_pseudobulk  HMBA.Group.downsample_1500.h5ad --groupby="Subclass" --downsample=2000 --use_raw=False -m RNA --n_jobs 16 -s ~/Projects/BICAN/adata/HMBA_v2/Pseudobulk.Subclass.h5ad
 ```

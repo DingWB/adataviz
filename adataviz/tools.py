@@ -170,8 +170,7 @@ def cal_tpm(adata,target_sum=1e6,length_fillna=1000):
 def scrna2pseudobulk(
 	adata_path,downsample=2000,
 	obs_path=None,groupby="Group",use_raw=True,
-	n_jobs=1,normalize_per_cell=True,clip_norm_value=10,
-	normalization=None,target_sum=1e6,gtf=None,save=None
+	n_jobs=1,normalization=None,target_sum=1e6,gtf=None,save=None
 ):
 	assert use_raw == True, "For normalization (CPM or TPM), please set use_raw=True"
 	# assert modality=='RNA': # methylation
@@ -206,8 +205,7 @@ def scrna2pseudobulk(
 				continue
 			future = executor.submit(
 				cal_stats,adata_path=adata_path,obs1=obs1,
-				use_raw=use_raw,normalize_per_cell=normalize_per_cell,
-				clip_norm_value=clip_norm_value,sum_only=True
+				use_raw=use_raw,sum_only=True
 			)
 			futures[future] = group
 		logger.debug(f"Submitted {len(futures)} groups for pseudobulk calculation.")
@@ -267,10 +265,8 @@ def stat_pseudobulk(
 	adata_path,downsample=2000,
 	obs_path=None,groupby="Group",use_raw=False,expression_cutoff=0,
 	modality="RNA",n_jobs=1,normalize_per_cell=True,clip_norm_value=10,
-	normalization=None,target_sum=1e6,gtf=None,save=None
+	save=None
 ):
-	if not normalization is None:
-		assert use_raw == True, "For normalization (CPM or TPM), please set use_raw=True"
 	if modality!='RNA': # methylation
 		assert normalize_per_cell==True, "For methylation, normalize_per_cell should be True"
 	raw_adata=anndata.read_h5ad(os.path.expanduser(adata_path),backed='r')
@@ -331,29 +327,6 @@ def stat_pseudobulk(
 			continue
 		adata.layers[k]=pd.concat(objs=data[k],axis=1).T
 	del data
-
-	if not normalization is None and use_raw:
-		# Calculate CPM or TPM only if aggfunc is sum
-		logger.info(f"Normalizing pseudobulk adata using {normalization} method.")
-		if not gtf is None:
-			df_gene = parse_gtf(gtf=gtf)
-			# ['chrom','beg','end','gene_name','gene_id','strand','gene_type']
-			# for genes with duplicated records, only keep the longest gene
-			df_gene['length']=df_gene.end - df_gene.beg
-			df_gene.sort_values('length',ascending=False,inplace=True) # type: ignore
-			df_gene.drop_duplicates('gene_symbol',keep='first',inplace=True) # type: ignore
-			df_gene.set_index('gene_symbol',inplace=True)
-			for col in ['chrom','beg','end','strand','gene_type','gene_id','length']:
-				adata.var[col]=adata.var_names.map(df_gene[col].to_dict())
-
-		if normalization=='CPM':
-			# for new sc-RNA-seq pipeline, CPM is equal to TPM?
-			sc.pp.normalize_total(adata, target_sum=target_sum)
-			sc.pp.log1p(adata) # log(CPM)
-			adata.uns['Normalization']='log(CPM)'
-		else: #TPM
-			assert not gtf is None, "For TPM normalization, please provide gtf file."
-			adata=cal_tpm(adata,target_sum=target_sum,length_fillna=1000)
 	vc_dict=vc.to_dict()['cell_count']
 	adata.layers['mean']=adata.to_df().apply(lambda x:x/vc_dict[x.name],axis=1)
 	if not save is None:
