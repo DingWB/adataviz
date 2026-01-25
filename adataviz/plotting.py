@@ -101,7 +101,7 @@ def interactive_embedding(
 	"""
 	if not renderer is None:
 		pio.renderers.default = renderer
-	use_col=variable if not variable is None else gene
+	use_col=gene if not gene is None else variable
 	if not gene is None:
 		assert not adata is None, "`gene` provided, `adata` must be provided too."
 	if not adata is None:
@@ -178,7 +178,7 @@ def interactive_embedding(
 	if not variable is None:
 		hover_data[variable]=True # type: ignore # when plotting gene expression, also show cell types when mouse hover
 	if not gene is None:
-		hover_data[gene]=True # type: ignore
+		hover_data[gene]=":.3f" # type: ignore
 	fig = px.scatter(
 		obs,
 		x="umap_0",          # UMAP first dimension → X axis
