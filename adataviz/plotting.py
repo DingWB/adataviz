@@ -1999,14 +1999,15 @@ def plot_interacrive_boxplot_from_stats(
 		df=use_adata.to_df(layer=k)[gene]
 		df.name=k
 		plot_data.append(df)
-	plot_data=pd.concat(plot_data,axis=1)
+	plot_data=pd.concat(plot_data,axis=1) # rows are cell types and columns are stats
+	groups=plot_data.sort_values('q50').index.tolist()
+	plot_data=plot_data.loc[groups]
 
 	# build figure with one Box per group using precomputed quartiles/fences
 	fig = go.Figure()
 	# optional color mapping
 	color_discrete_map=get_colors(adata,variable,palette_path=palette_path)
 	palette = px.colors.qualitative.D3
-	groups = plot_data.index.tolist()
 	color = None
 	for group, row in plot_data.iterrows():
 		i=groups.index(group)
