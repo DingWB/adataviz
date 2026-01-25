@@ -26,6 +26,9 @@ classifiers = [
 ]
 license = {file = "LICENSE"}
 
+[project.scripts]
+adataviz="adataviz:main"
+
 [project.urls]
 "Homepage" = "https://github.com/DingWB/adataviz"
 repository = "https://github.com/DingWB/adataviz"

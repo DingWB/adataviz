@@ -19,6 +19,12 @@ setup(
     install_requires=["matplotlib","numpy","pandas>=1.3.5", 
                       "scipy","loguru","fire","anndata","scanpy"],
     include_package_data=True,
+
+    entry_points={
+            'console_scripts': [
+                'adataviz=adataviz:main',
+                ],
+        }
 )
 
 
