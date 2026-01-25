@@ -130,6 +130,7 @@ def cal_stats(adata_path,obs1,modality="RNA",expression_cutoff=0,
     # Use NumPy's nanpercentile and nansum which are fast (uses quickselect under the hood).
     qs = np.nanpercentile(df_data.values, [0, 25, 50, 75, 100], axis=0)
     sums = np.nansum(df_data.values, axis=0) # for each column
+    std=np.nanstd(df_data.values,axis=0)
 	# fraction of cells expressing (or hypomethylated) the gene
     if modality!='RNA': # methylation, cutoff = 1
         # frac = df_data.apply(lambda x: x[x < 1].shape[0] / x.shape[0])
@@ -139,7 +140,7 @@ def cal_stats(adata_path,obs1,modality="RNA",expression_cutoff=0,
         # frac = df_data.apply(lambda x: x[x > expression_cutoff].shape[0] / x.shape[0])
         # vectorized: count values > cutoff per column divided by number of cells
         frac = (df_data > expression_cutoff).sum(axis=0) / float(df_data.shape[0])
-    return qs,sums,frac,df_data.columns.tolist()
+    return qs,sums,std,frac,df_data.columns.tolist()
 
 def to_pseudobulk(
 	adata_path,downsample=2000,
@@ -147,45 +148,6 @@ def to_pseudobulk(
 	modality="RNA",n_jobs=1,normalize_per_cell=True,clip_norm_value=10,
 	normalization=None,target_sum=1e6,gtf=None,save=None
 ):
-    """
-    _summary_
-
-    Parameters
-    ----------
-    adata_path : _type_
-        _description_
-    downsample : int, optional
-        _description_, by default 2000
-    obs_path : _type_, optional
-        _description_, by default None
-    groupby : str, optional
-        _description_, by default "Group"
-    use_raw : bool, optional
-        _description_, by default True
-    expression_cutoff : int, optional
-        _description_, by default 0
-    modality : str, optional
-        _description_, by default "RNA"
-    n_jobs : int, optional
-        _description_, by default 1
-    normalize_per_cell : bool, optional
-        _description_, by default True
-    clip_norm_value : int, optional
-        _description_, by default 10
-    normalization : _type_, optional
-        _description_, by default None
-    target_sum : _type_, optional
-        _description_, by default 1e6
-    gtf : _type_, optional
-        _description_, by default None
-    save : _type_, optional
-        _description_, by default None
-
-    Returns
-    -------
-    _type_
-        _description_
-    """
     if modality!='RNA': # methylation
         assert normalize_per_cell==True, "For methylation, normalize_per_cell should be True"
     raw_adata=anndata.read_h5ad(os.path.expanduser(adata_path),backed='r')
@@ -228,8 +190,8 @@ def to_pseudobulk(
         for future in as_completed(futures):
             group = futures[future]
             logger.debug(group)
-            qs,sums,frac,header = future.result()
-            for k,v in zip(['min', 'q25', 'q50', 'q75', 'max', 'sum'], qs.tolist() + [sums.tolist()]):
+            qs,sums,std,frac,header = future.result()
+            for k,v in zip(['min', 'q25', 'q50', 'q75', 'max', 'sum','std'], qs.tolist() + [sums.tolist(),std.tolist()]):
                 if k not in data:
                     data[k] = []
                 data[k].append(pd.Series(v, name=group, index=header))
@@ -238,13 +200,11 @@ def to_pseudobulk(
                 data['frac'] = []
             data['frac'].append(pd.Series(frac, name=group,index=header))
     raw_adata.file.close()
-    # for RNA, put sum of raw counts into adata.X
     X=pd.concat(data['sum'],axis=1).T # sum of raw counts or normalized methylation fraction
     vc=raw_adata.obs.loc[all_cells][groupby].value_counts().to_frame(name='cell_count')
     vc_dict=vc.to_dict()['cell_count']
-    if modality!='RNA': # for methylation, put mean methylation level into adata.X
-        X=X.apply(lambda x:x/vc_dict[x.name],axis=1)
-    adata = anndata.AnnData(X=X,obs=vc.loc[X.index.tolist()])
+    adata = anndata.AnnData(X=X,obs=vc.loc[X.index.tolist()]) # put sum into adata.X
+    adata.layers['mean']=X.apply(lambda x:x/vc_dict[x.name],axis=1)
     for k in data:
         if k=='sum':
             continue
