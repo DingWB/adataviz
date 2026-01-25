@@ -1,0 +1,13 @@
+matplotlib
+numpy
+pandas
+scipy
+loguru
+fire
+anndata
+scanpy
+PyComplexHeatmap
+seaborn
+adjustText
+plotly
+ipywidgets

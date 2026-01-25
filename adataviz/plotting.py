@@ -1,7 +1,7 @@
+from re import L
 import os, sys
 import pandas as pd
 import anndata
-import fire
 import matplotlib.pylab as plt
 import numpy as np
 from matplotlib.colors import Normalize
@@ -17,10 +17,245 @@ from .utils import (
 )
 from PyComplexHeatmap import HeatmapAnnotation,anno_label,anno_simple,DotClustermapPlotter
 from .utils import normalize_mc_by_cell
+import plotly.express as px
+import plotly.io as pio
+import plotly.graph_objects as go
+from loguru import logger as logger
+logger.add(sys.stderr, level="DEBUG")
 
-def stacked_barplot(Input="cell_metadata_with_annotation.csv",groupby='Age',
+def get_colors(adata,variable=None,palette_path=None):
+	if not palette_path is None:
+		try:
+			colors=pd.read_excel(palette_path,sheet_name=variable,index_col=0).Hex.to_dict()
+		except:
+			return None
+	else:
+		if adata is None:
+			return None
+		if isinstance(adata,str):
+			adata=anndata.read_h5ad(adata,backed='r')
+		if f'{variable}_colors' not in adata.uns:
+			colors={cluster:color for cluster,color in zip(adata.obs[variable].cat.categories.tolist(),adata.uns[f'{variable}_colors'])}
+		else:
+			colors=None
+	color_discrete_map=colors
+	return color_discrete_map
+
+def interactive_embedding(
+		adata=None,obs=None,variable=None,gene=None,
+		coord="umap",vmin='p1',vmax='p99',cmap='jet',title=None,
+		width=900,height=750,colors=None,palette_path=None,
+		size=None,show=True,downsample=None,
+		renderer="notebook"):
+	"""
+	Plot interactive embedding plot with plotly for a given AnnData object or path of .h5ad.
+
+	Parameters
+	----------
+	adata : _type_
+		_description_
+	obs : _type_, optional
+		_description_, by default None
+	variable : _type_, optional
+		_description_, by default None
+	gene : _type_, optional
+		_description_, by default None
+	coord : str, optional
+		_description_, by default "umap"
+	vmin : str, optional
+		_description_, by default 'p1'
+	vmax : str, optional
+		_description_, by default 'p99'
+	cmap : str, optional
+		_description_, by default 'jet'
+	title : _type_, optional
+		_description_, by default None
+	width : int, optional
+		_description_, by default 1000
+	height : int, optional
+		_description_, by default 800
+	colors : _type_, optional
+		_description_, by default None
+	palette_path : _type_, optional
+		_description_, by default None
+	size : _type_, optional
+		_description_, by default None
+	target_fill : float, optional
+		_description_, by default 0.05
+	show : bool, optional
+		_description_, by default True
+	renderer : str, optional
+		_description_, by default "notebook"
+		Available renderers:
+        ['plotly_mimetype', 'jupyterlab', 'nteract', 'vscode',
+         'notebook', 'notebook_connected', 'kaggle', 'azure', 'colab',
+         'cocalc', 'databricks', 'json', 'png', 'jpeg', 'jpg', 'svg',
+         'pdf', 'browser', 'firefox', 'chrome', 'chromium', 'iframe',
+         'iframe_connected', 'sphinx_gallery', 'sphinx_gallery_png']
+
+	Returns
+	-------
+	_type_
+		_description_
+	"""
+	if not renderer is None:
+		pio.renderers.default = renderer
+	use_col=variable if not variable is None else gene
+	if not gene is None:
+		assert not adata is None, "`gene` provided, `adata` must be provided too."
+	if not adata is None:
+		if isinstance(adata,str):
+			adata=anndata.read_h5ad(adata,backed='r')
+		else:
+			assert isinstance(adata,anndata.AnnData)
+	use_adata=None
+	if not gene is None: # adata is not None
+		if adata.isbacked: # type: ignore
+			use_adata=adata[:,gene].to_memory() # type: ignore
+		else:
+			use_adata=adata[:,gene].copy() # type: ignore
+	else:
+		if not adata is None:
+			use_adata=adata
+	if obs is None and use_adata is None:
+		raise ValueError("Either `adata` or `obs` must be provided.")
+	if obs is None:
+		obs=use_adata.obs.copy() # type: ignore
+	else: # obs not none
+		if isinstance(obs,str):
+			obs_path = os.path.abspath(os.path.expanduser(obs))
+			sep='\t' if obs_path.endswith('.tsv') or obs_path.endswith('.txt') else ','
+			obs = pd.read_csv(obs_path, index_col=0,sep=sep)
+		else:
+			assert isinstance(obs,pd.DataFrame)
+			obs=obs.copy()
+		if not use_adata is None:
+			overlap_idx=obs.index.intersection(use_adata.obs_names)
+			obs=obs.loc[overlap_idx]
+			use_adata=use_adata[overlap_idx,:] # type: ignore
+
+	if not gene is None:
+		obs[gene]=use_adata.to_df()[gene].tolist() # type: ignore
+	cols=set(obs.columns.tolist())
+	if not f'{coord}_0' in cols or not f'{coord}_1' in cols:
+		assert f'X_{coord}' in use_adata.obsm # type: ignore
+		# print(use_adata.obsm[f'X_{coord}'])
+		obs[f'{coord}_0']=use_adata.obsm[f'X_{coord}'][:,0].tolist() # type: ignore
+		obs[f'{coord}_1']=use_adata.obsm[f'X_{coord}'][:,1].tolist() # type: ignore
+		# print(obs.head())
+	if not adata is None and adata.isbacked: # type: ignore
+		adata.file.close() # type: ignore
+	# downsample obs for large dataset
+	n_points = obs.shape[0]
+	if not downsample is None and n_points > downsample:
+		sample_idx = np.random.choice(n_points, size=downsample, replace=False) # numbers
+		obs = obs.iloc[sample_idx]
+
+	if not obs.dtypes[use_col] in ['object','category']:
+		vmin_quantile=float(int(vmin.replace('p','')) / 100)
+		vmax_quantile=float(int(vmax.replace('p','')) / 100)
+		# print(vmin_quantile,vmax_quantile,obs[use_col],obs.dtypes[use_col])
+		range_color=[obs[use_col].quantile(vmin_quantile), obs[use_col].quantile(vmax_quantile)]
+		color_discrete_map=None
+	else:
+		if colors is None:
+			color_discrete_map=get_colors(use_adata,use_col,palette_path=palette_path)
+		else:
+			color_discrete_map=colors
+		keys=list(color_discrete_map.keys()) # type: ignore
+		for k in keys:
+			if k not in obs[use_col].unique().tolist():
+				del color_discrete_map[k] # type: ignore
+		range_color=None
+	obs=obs.reset_index(names="cell").loc[:,['cell',f'{coord}_0',f'{coord}_1',use_col]]
+	# Create Plotly interactive scatter plot
+	hover_data={         # Fields to show on hover
+			"cell": True,    # cell ID
+			"umap_0": ":0.3f",# UMAP coordinates rounded to 3 decimals
+			"umap_1": ":0.3f",
+		}
+	if not variable is None:
+		hover_data[variable]=True # type: ignore # when plotting gene expression, also show cell types when mouse hover
+	if not gene is None:
+		hover_data[gene]=True # type: ignore
+	fig = px.scatter(
+		obs,
+		x="umap_0",          # UMAP first dimension → X axis
+		y="umap_1",          # UMAP second dimension → Y axis
+		color=use_col, 
+		hover_data=hover_data,
+		range_color=range_color,
+		color_discrete_sequence=px.colors.qualitative.D3, # color palette (professional, unobtrusive)
+		color_discrete_map=color_discrete_map,
+		color_continuous_scale=cmap, #["blue", "red"],
+		template="plotly_white",
+		render_mode='webgl'  # use WebGL rendering for better performance with large datasets
+	)
+	fig.update_xaxes(range=[obs['umap_0'].min()-0.5, obs['umap_0'].max()+0.5],tickfont_size=12)
+	fig.update_yaxes(range=[obs['umap_1'].min()-0.5, obs['umap_1'].max()+0.5],tickfont_size=12)
+
+	if size is None:
+		# Blend an area-based marker estimate with a log-based fallback so total point count and canvas size both matter.
+		target_fill=0.1
+		# Increased target_fill and scaling to make markers bigger
+		marker_diam_area = 2 * np.sqrt((width * height * target_fill) / (np.pi * n_points))
+		marker_diam_log = 16 - 2 * np.log10(n_points)
+		marker_diam = 0.7 * marker_diam_area + 0.5 * marker_diam_log
+		size = int(np.clip(marker_diam, 4, 20))
+	if n_points < 500000:
+		opacity = 0.8
+	else:
+		opacity = 0.6
+	# logger.debug(f"{variable},{gene},{use_col}")
+	# print(color_discrete_map,size,opacity)
+	fig.update_traces(
+		marker=dict(size=size, opacity=opacity, line=dict(width=0.12, color='black')),
+		selector=dict(mode='markers')
+	)
+	if title is None:
+		title = f"UMAP Visualization (Colored by {use_col})"
+	fig.update_layout(
+		title=dict(
+			text=title,
+			font_size=16,
+			x=0.5,  # center the title
+			pad=dict(t=10)
+		),
+		xaxis_title="UMAP_0",
+		yaxis_title="UMAP_1",
+		autosize=True,width=width,height=height,
+		legend_title=use_col, # legend title
+		legend=dict(
+			font_size=12,
+			itemsizing='constant',  # important: fix legend marker size so it's not affected by scatter points
+			itemwidth=30, borderwidth=0.1          # legend item width; larger value increases the marker size
+		)
+	)
+	if show:
+		filename=f"{coord}.{use_col}"
+		show_fig(fig,filename=filename)
+	else:
+		return fig
+	# html=fig2div(fig,filename='umap_plot')
+	# return HttpResponse(html)
+
+def show_fig(fig,filename="plot"):
+    interactive_config={
+        'displayModeBar':'hover','showLink':False,'linkText':'Edit on plotly',\
+        'scrollZoom':True,"displaylogo": False,\
+        'toImageButtonOptions':{'format':'svg','filename':filename},\
+        'modeBarButtonsToRemove':['sendDataToCloud','pan2d','zoom2d','zoom3d','zoomIn2d','zoomOut2d'],\
+        'editable':True,'autosizable':True,'responsive':True, 'fillFrame':True, \
+        'edits':{
+            'titleText':True,'legendPosition':True,'colorbarTitleText':True,
+            'shapePosition':True,'annotationPosition':True,'annotationText':True,
+            'axisTitleText':True,'legendText':True,'colorbarPosition':True}
+    }
+    fig.show(config=interactive_config)
+
+def stacked_barplot(Input="cell_obs_with_annotation.csv",groupby='Age',
 					column='CellClass',x_order=None,y_order=None,linewidth=0.1,
-					palette="~/Projects/mouse_pfc/metadata/mpfc_color_palette.xlsx",
+					palette="~/Projects/mouse_pfc/obs/mpfc_color_palette.xlsx",
 					width=None,height=None,xticklabels_kws=None,outdir="figures",
 					outname=None,lgd_kws=None,gap=0.05,sort_by=None):
 	"""
@@ -138,8 +373,8 @@ def stacked_barplot(Input="cell_metadata_with_annotation.csv",groupby='Age',
 	plt.savefig(outname, transparent=True,bbox_inches='tight',dpi=300)
 	plt.show()
 
-def pieplot(Input="cell_metadata_with_annotation.csv",groupby='Age',outdir="figures",
-			palette_path="~/Projects/mouse_pfc/metadata/mpfc_color_palette.xlsx",
+def pieplot(Input="cell_obs_with_annotation.csv",groupby='Age',outdir="figures",
+			palette_path="~/Projects/mouse_pfc/obs/mpfc_color_palette.xlsx",
 			order=None,explode=0.05):
 	outdir = os.path.abspath(os.path.expanduser(outdir))
 	if not os.path.exists(outdir):
@@ -188,7 +423,7 @@ def pieplot(Input="cell_metadata_with_annotation.csv",groupby='Age',outdir="figu
 def plot_pseudotime(
 	pseudotime="dpt_pseudotime.tsv",groupby='Age',y='dpt_pseudotime',
 	hue=None,figsize=(5,3.5),outdir="figures",rotate=None,ylabel='Pseudotime',
-	palette_path="~/Projects/mouse_pfc/metadata/mpfc_color_palette.xlsx",
+	palette_path="~/Projects/mouse_pfc/obs/mpfc_color_palette.xlsx",
 ):
 	"""
 	Plot pseudotime. plot_pseudotime(figsize=(6,3.5),groupby='MajorType',
@@ -1044,7 +1279,7 @@ def plot_cluster(
 		plt.show()
 
 def plot_gene(
-	adata_path="~/Projects/BG/adata/BG.gene-CGN.h5ad",ann_path=None,
+	adata_path="~/Projects/BG/adata/BG.gene-CGN.h5ad",obs=None,
 	group_col=None,gene='CADM1',query_str=None,title=None,
 	palette_path=None,hue_norm=None,
 	cbar_kws=dict(extendfrac=0.1),axis_format="tiny",scatter_kws={},
@@ -1067,7 +1302,7 @@ def plot_gene(
 	title : _type_, optional
 		_description_, by default None
 	palette_path : str, optional
-		_description_, by default "~/Projects/BG/metadata/HMBA_color_palette.xlsx"
+		_description_, by default "~/Projects/BG/obs/HMBA_color_palette.xlsx"
 	obsm : str, optional
 		_description_, by default "~/Projects/BG/clustering/100kb/annotated.adata.h5ad"
 	coord_base : str, optional
@@ -1116,20 +1351,20 @@ def plot_gene(
 				adata.obs[col] = obsm.obs.loc[adata.obs_names, col].tolist()
 	if is_open:
 		obsm.file.close()
-	if not ann_path is None:
-		if isinstance(ann_path,str):
-			metadata=pd.read_csv(os.path.expanduser(ann_path),
+	if not obs is None:
+		if isinstance(obs,str):
+			obs=pd.read_csv(os.path.expanduser(obs),
 				sep='\t',index_col=0)
 		else:
-			metadata=ann_path.copy()
+			obs=obs.copy()
 	else:
-		metadata=adata.obs.copy()
+		obs=adata.obs.copy()
 	if not query_str is None:
-		metadata = metadata.query(query_str)
-	overlapped_cells=list(set(adata.obs_names.tolist()) & set(metadata.index.tolist()))
-	metadata=metadata.loc[overlapped_cells]
+		obs = obs.query(query_str)
+	overlapped_cells=list(set(adata.obs_names.tolist()) & set(obs.index.tolist()))
+	obs=obs.loc[overlapped_cells]
 	adata=adata[overlapped_cells,:] # type: ignore
-	adata.obs=metadata.loc[adata.obs_names.tolist()]
+	adata.obs=obs.loc[adata.obs_names.tolist()]
 	print(adata.shape)
 	# read color palette
 	if not group_col is None and not palette_path is None:
@@ -1221,7 +1456,7 @@ def plot_gene(
 def plot_genes(
 	adata_path="/home/x-wding2/Projects/BICAN/adata/HMBA_v2/HMBA.Group.downsample_1500.h5ad",
 	query_str=None,
-	ann_path=None, #"~/Projects/BG/clustering/100kb/annotations.tsv",
+	obs=None, #"~/Projects/BG/clustering/100kb/annotations.tsv",
 	group_col='Subclass',
 	parent_col=None,
 	modality='RNA', # mc or RNA
@@ -1260,7 +1495,7 @@ def plot_genes(
 		_description_, by default "/home/x-wding2/Projects/BICAN/adata/HMBA_v2/HMBA.Group.downsample_1500.h5ad"
 	query_str : _type_, optional
 		_description_, by default None
-	ann_path : _type_, optional
+	obs : _type_, optional
 		_description_, by default None
 	group_col : str, optional
 		_description_, by default 'Subclass'
@@ -1323,31 +1558,31 @@ def plot_genes(
 		del adata_raw
 	raw_adata.file.close() # close the file to save memory
 
-	if not ann_path is None:
-		if isinstance(ann_path,str):
-			metadata=pd.read_csv(os.path.expanduser(ann_path),
+	if not obs is None:
+		if isinstance(obs,str):
+			obs=pd.read_csv(os.path.expanduser(obs),
 				sep='\t',index_col=0)
 		else:
-			metadata=ann_path.copy()
+			obs=obs.copy()
 	else:
-		metadata=adata.obs.copy()
+		obs=adata.obs.copy()
 	if not query_str is None:
-		metadata = metadata.query(query_str)
-	overlapped_cells=list(set(adata.obs_names.tolist()) & set(metadata.index.tolist()))
-	metadata=metadata.loc[overlapped_cells]
+		obs = obs.query(query_str)
+	overlapped_cells=list(set(adata.obs_names.tolist()) & set(obs.index.tolist()))
+	obs=obs.loc[overlapped_cells]
 	adata=adata[overlapped_cells,:] # type: ignore
 	if isinstance(group_col,list):
 		group_col1="+".join(group_col)
-		metadata[group_col1]=metadata.loc[:,group_col].apply(lambda x:'+'.join(x.astype(str).tolist()),axis=1)
+		obs[group_col1]=obs.loc[:,group_col].apply(lambda x:'+'.join(x.astype(str).tolist()),axis=1)
 		group_col=group_col1
-	adata.obs[group_col]=metadata.loc[adata.obs_names.tolist(),group_col].tolist()
+	adata.obs[group_col]=obs.loc[adata.obs_names.tolist(),group_col].tolist()
 	if title is None:
 		if not query_str is None:
 			title=query_str
 		else:
 			title=group_col if not group_col is None else '-'.join(genes)
 	if not parent_col is None and parent_col not in adata.obs.columns.tolist():
-		adata.obs[parent_col]=metadata.loc[adata.obs_names.tolist(),parent_col].tolist()
+		adata.obs[parent_col]=obs.loc[adata.obs_names.tolist(),parent_col].tolist()
 			
 	if modality!='RNA' and normalize_per_cell:
 		adata = normalize_mc_by_cell(
@@ -1518,3 +1753,325 @@ def plot_genes(
 	plt.savefig(os.path.expanduser(outname),transparent=True, bbox_inches='tight',dpi=300)
 	plt.show()
 	return plot_data,df_cols,cm1
+
+def get_genes_mean_frac(
+		adata,obs=None,group_col='Subclass',modality='RNA',
+		use_raw=True,expression_cutoff='p5', genes=None,
+		normalize_per_cell=True,clip_norm_value=10,hypo_score=False,
+		):
+	assert not genes is None, "Please provide genes to plot."
+	# adata could be single cell level or pseudobulk level (adata.layers['frac'] should be existed)
+	if isinstance(adata,str):
+		adata=anndata.read_h5ad(os.path.expanduser(adata), backed='r')
+	all_vars=set(adata.var_names.tolist())
+	keep_genes=list(set(all_vars) & set(genes)) # keep_genes=[g for g in all_vars if g in genes]
+	error_genes=[g for g in genes if g not in keep_genes]
+	if len(error_genes)>0:
+		logger.debug(f"genes not found in adata: {error_genes}")
+	use_adata = adata[:, keep_genes].to_memory() # type: ignore
+	if adata.isbacked:
+		adata.file.close() # close the file to save memory
+	if 'mean' not in use_adata.layers: #raw count of single cell level adata
+		# calculate mean and frac for each gene from single cell data
+		if use_raw and not use_adata.raw is None:
+			# use_adata.X=use_adata.raw.X.copy()
+			use_adata_raw=use_adata.raw[:,use_adata.var_names.tolist()].to_adata()
+			use_adata.X=use_adata_raw[use_adata.obs_names.tolist(),use_adata.var_names.tolist()].X.copy() # type: ignore
+			del use_adata_raw
+		if not obs is None:
+			if isinstance(obs,str):
+				sep='\t' if obs.endswith('.tsv') or obs.endswith('.txt') else ','
+				obs=pd.read_csv(os.path.expanduser(obs),
+					sep=sep,index_col=0)
+			assert isinstance(obs,pd.DataFrame), "obs should be a dataframe or a path to a csv/tsv file."
+		else:
+			obs=use_adata.obs.copy()
+		overlapped_cells=list(set(use_adata.obs_names.tolist()) & set(obs.index.tolist()))
+		obs=obs.loc[overlapped_cells]
+		use_adata=use_adata[overlapped_cells,:] # type: ignore
+			
+		if modality!='RNA' and normalize_per_cell:
+			use_adata = normalize_mc_by_cell(
+				use_adata=use_adata, normalize_per_cell=normalize_per_cell,
+				clip_norm_value=clip_norm_value,hypo_score=hypo_score)
+
+		data=use_adata.to_df() # rows are cells or cell types, columns are genes
+		if modality=='RNA' and isinstance(expression_cutoff,str):
+			if expression_cutoff=='median':
+				cutoff=data.stack().median()
+			elif expression_cutoff=='mean':
+				cutoff=data.stack().mean()
+			else: # quantile, such as p5,p95
+				f=float(expression_cutoff.replace('p',''))
+				cutoff=data.stack().quantile(f/100)
+			expression_cutoff=cutoff
+		
+		data[group_col]=obs.loc[data.index.tolist(),group_col].tolist() # type: ignore
+		plot_data=data.groupby(group_col).mean().stack().reset_index()
+		plot_data.columns=[group_col,'Gene','Mean']
+		if 'frac' in use_adata.layers:
+			D=use_adata.to_df(layer='frac').stack().to_dict()
+		else:
+			if modality!='RNA': # methylation, cutoff = 1
+				assert normalize_per_cell==True,"Normalized methylation fraction is required"
+				hypo_frac=data.groupby(group_col).agg(lambda x:x[x< 1].shape[0] / x.shape[0]) # fraction of cells showing hypomethylation for the corresponding genes
+				D=hypo_frac.stack().to_dict()
+			else: # for RNA
+				logger.info(f"Using expression cutoff: {expression_cutoff}")
+				frac=data.groupby(group_col).agg(lambda x:x[x>expression_cutoff].shape[0] / x.shape[0]) # raw count > expression_cutoff means the gene is expressed
+				D=frac.stack().to_dict()
+		plot_data['frac']=plot_data.loc[:,[group_col,'Gene']].apply(lambda x:tuple(x.tolist()),axis=1).map(D)
+	else:
+		plot_data=use_adata.to_df().stack().reset_index()
+		plot_data.columns=[group_col,'Gene','Mean']
+		D=use_adata.to_df(layer='frac').stack().to_dict()
+		plot_data['frac']=plot_data.loc[:,[group_col,'Gene']].apply(lambda x:tuple(x.tolist()),axis=1).map(D)
+	return plot_data
+
+def interactive_dotHeatmap(
+		adata=None,obs=None,genes=None,group_col='Subclass',
+		modality="RNA",title=None,use_raw=True,
+		expression_cutoff='p5',normalize_per_cell=True,
+		clip_norm_value=10,
+		width=900,height=700,gene_order=None,colorscale='greens',
+		vmin='p1',vmax='p99',show=True,
+		reversescale=False,size_min=5,size_max=30,
+		renderer="notebook"
+		):
+	if not renderer is None:
+		pio.renderers.default = renderer
+	plot_data=get_genes_mean_frac(
+		adata,obs=obs,group_col=group_col,modality=modality,
+		use_raw=use_raw,expression_cutoff=expression_cutoff, genes=genes,
+		normalize_per_cell=normalize_per_cell,
+		clip_norm_value=clip_norm_value,hypo_score=False,
+		) # columns: [group_col,'Gene','Mean','frac']
+	# Build a Plotly dot-heatmap using scatter markers on categorical axes.
+	# x: groups (columns), y: genes (rows)
+	x_labels = plot_data[group_col].unique().tolist()
+	if gene_order is None:
+		y_labels = list(pd.Categorical(plot_data['Gene'], categories=pd.unique(plot_data['Gene'])))
+	else:
+		y_labels = [g for g in gene_order if g in plot_data['Gene'].unique()]
+
+	# Ensure ordering
+	plot_data['x_cat'] = pd.Categorical(plot_data[group_col], categories=x_labels)
+	plot_data['y_cat'] = pd.Categorical(plot_data['Gene'], categories=y_labels)
+
+	# marker sizes: scale 'frac' (0-1) to reasonable pixel sizes
+	frac_vals = plot_data['frac'].fillna(0).astype(float)
+	sizes = (frac_vals * (size_max - size_min) + size_min).tolist()
+
+	# marker colors: use Mean
+	mean_vals = plot_data['Mean'].astype(float).tolist()
+
+	hover_text = [f"Group: {g}<br>Gene: {ge}<br>Mean: {m:.4g}<br>Frac: {f:.3g}" for g,ge,m,f in zip(plot_data[group_col].tolist(), plot_data['Gene'].tolist(), mean_vals, frac_vals)]
+	vmin_quantile=float(int(vmin.replace('p','')) / 100)
+	vmax_quantile=float(int(vmax.replace('p','')) / 100)
+	marker_dict = dict(size=sizes, color=mean_vals, colorscale=colorscale, 
+					showscale=True,colorbar=dict(title='Mean'), 
+					reversescale=reversescale, sizemode='area', opacity=0.9,
+					cmin=plot_data['Mean'].quantile(vmin_quantile),
+					cmax=plot_data['Mean'].quantile(vmax_quantile)
+					)
+
+	fig = go.Figure()
+	fig.add_trace(go.Scatter(
+		x=plot_data[group_col].tolist(),
+		y=plot_data['Gene'].tolist(),
+		mode='markers',
+		marker=marker_dict,
+		text=hover_text,
+		hoverinfo='text'
+	))
+
+	# Layout: categorical axes with explicit ordering
+	fig.update_xaxes(type='category', categoryorder='array', categoryarray=x_labels, tickangle= -45)
+	fig.update_yaxes(type='category', categoryorder='array', categoryarray=list(reversed(y_labels)))
+	if title is None:
+		title=group_col
+	fig.update_layout(title=title or '', xaxis_title=group_col, yaxis_title='Gene',
+						width=width, height=height, plot_bgcolor='white')
+
+	if show:
+		filename=f"dotHeatmap.{group_col}"
+		show_fig(fig,filename=filename)
+	else:
+		return fig
+
+def get_boxplot_data(adata,variable,gene,obs=None):
+	assert isinstance(adata,anndata.AnnData)
+	if adata.isbacked: # type: ignore
+		use_adata=adata[:,gene].to_memory() # type: ignore
+	else:
+		use_adata=adata[:,gene].copy() # type: ignore
+	if isinstance(obs,str):
+		obs_path = os.path.abspath(os.path.expanduser(obs))
+		sep='\t' if obs_path.endswith('.tsv') or obs_path.endswith('.txt') else ','
+		data = pd.read_csv(obs_path, index_col=0,sep=sep)
+	else:
+		assert isinstance(obs,pd.DataFrame)
+		data=obs.copy()
+	overlap_idx=data.index.intersection(use_adata.obs_names)
+	data=data.loc[overlap_idx]
+	use_adata=use_adata[overlap_idx,:] # type: ignore
+
+	if not gene is None:
+		data[gene]=use_adata.to_df()[gene].tolist() # type: ignore
+	return data.loc[:,[variable,gene]]
+		
+def has_stats(adata):
+	if isinstance(adata,str):
+		adata=anndata.read_h5ad(adata,backed='r')
+	flag=True
+	for k in ['min','q25','q50','q75','max','mean','std']:
+		if not k in adata.layers:
+			flag=False
+			break
+	return flag
+
+def plot_interactive_boxlot_from_data(
+		adata,obs,variable,gene,palette_path=None,
+		width=1100,height=700,
+		):
+	plot_df = get_boxplot_data(adata,variable,gene,obs=obs)
+	# Preserve existing Y-axis extreme filtering logic (remove 1% and 99% extremes)
+	range_y=[plot_df[gene].quantile(0.01), plot_df[gene].quantile(0.99)]
+	color_discrete_map=get_colors(adata,variable,palette_path=palette_path)
+	keys=list(color_discrete_map.keys()) # type: ignore
+	for k in keys:
+		if not k in plot_df[variable].unique().tolist():
+			del color_discrete_map[k] # type: ignore
+
+	fig = px.box(
+		plot_df,
+		x=variable,
+		y=gene,
+		color=variable,
+		color_discrete_sequence=px.colors.qualitative.D3, # color palette (professional, unobtrusive)
+		color_discrete_map=color_discrete_map,
+		range_y=range_y,
+		points=False,
+		title=f"Boxplot: {gene} by {variable}",
+		template="plotly_white"   # keep white background style
+	)
+	fig.update_xaxes(tickangle=-90, automargin=True)
+
+	fig.update_traces(
+		line_width=1.2,           # thinner lines for a more refined look
+		notched=False               # no notch, standard boxplot style
+	)
+
+	fig.update_layout(
+		xaxis_title=variable,
+		yaxis_title=gene,
+		legend_title=variable,
+		width=width,
+		height=height
+	)
+	return fig
+
+def plot_interacrive_boxplot_from_stats(
+		adata,variable,gene,palette_path=None,
+		width=1100,height=700):
+	assert isinstance(adata,anndata.AnnData)
+	if adata.isbacked: # type: ignore
+		use_adata=adata[:,gene].to_memory() # type: ignore
+	else:
+		use_adata=adata[:,gene].copy() # type: ignore
+	if adata.isbacked: # type: ignore
+		adata.file.close() # type: ignore
+	
+	stat_keys=['min','q25','q50','q75','max','mean','std']
+	plot_data=[]
+	for k in stat_keys:
+		df=use_adata.to_df(layer=k)[gene]
+		df.name=k
+		plot_data.append(df)
+	plot_data=pd.concat(plot_data,axis=1)
+
+	# build figure with one Box per group using precomputed quartiles/fences
+	fig = go.Figure()
+	# optional color mapping
+	color_discrete_map=get_colors(adata,variable,palette_path=palette_path)
+	palette = px.colors.qualitative.D3
+	groups = plot_data.index.tolist()
+	color = None
+	for group, row in plot_data.iterrows():
+		i=groups.index(group)
+		q1 = row['q25']
+		med = row['q50']
+		q3 = row['q75']
+		low = row['min']
+		high = row['max']
+		mean = row['mean']
+		std = row['std']
+		if color_discrete_map is not None and group in color_discrete_map:
+			color = color_discrete_map[group]
+		else:
+			color = palette[i % len(palette)]
+		# Box from precomputed stats (single-element arrays)
+		fig.add_trace(
+			go.Box(
+				x=[group],
+				q1=[q1],
+				median=[med],
+				q3=[q3],
+				lowerfence=[low],
+				upperfence=[high],
+				boxpoints=False,
+				marker=dict(color=color),
+				name=str(group),
+				showlegend=False
+			)
+		)
+		# mean as a scatter point with std error bar
+		fig.add_trace(
+			go.Scatter(
+				x=[group],
+				y=[mean],
+				mode='markers',
+				marker=dict(symbol='diamond', size=8, color='black'),
+				error_y=dict(type='data', array=[std], visible=True),
+				name='mean',
+				showlegend=(i==0)
+			)
+		)
+
+	fig.update_layout(
+		title=f"Boxplot (precomputed stats): {gene} by {variable}",
+		xaxis_title=variable,
+		yaxis_title=gene,
+		template='plotly_white',
+		width=width,
+		height=height
+	)
+	return fig
+
+def interactive_boxplot(
+		adata,variable,gene,obs=None,palette_path=None,
+		width=1100,height=700,show=True,renderer='notebook'):
+	if not renderer is None:
+		pio.renderers.default = renderer
+	if isinstance(adata,str):
+		adata=anndata.read_h5ad(adata,backed='r')
+	else:
+		assert isinstance(adata,anndata.AnnData)
+	if obs is None:
+		obs=adata.obs.copy() # type: ignore
+	if not has_stats(adata):
+		fig=plot_interactive_boxlot_from_data(
+		adata,obs,variable,gene,palette_path=palette_path,
+		width=width,height=height
+		)
+	else: # pseudobulk level with precomputed stats
+		fig=plot_interacrive_boxplot_from_stats(
+			adata,variable,gene,palette_path=palette_path,
+			width=width,height=height)
+	if show:
+		filename=f"boxplot.{variable}.{gene}"
+		show_fig(fig,filename=filename)
+		return None
+	else:
+		return fig
+		

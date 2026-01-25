@@ -1456,3 +1456,25 @@ def normalize_mc_by_cell(
 	else:
 		pass
 	return use_adata
+
+def parse_gtf(gtf="gencode.v43.annotation.gtf",outfile=None):
+    df=pd.read_csv(os.path.expanduser(gtf),sep='\t',header=None,
+                    comment="#",usecols=[0,2,3,4,6,8],
+                    names=['chrom','record_type','beg','end','strand','information'])
+    cols=['gene_id','gene_type','gene_name']
+    def parse_info(x):
+        x=x.replace('"','')
+        D={}
+        for item in x.strip().rstrip(';').split(';'):
+            k,v=item.strip().split(' ')
+            D[k.strip()]=v.strip()
+        return D
+
+    df['info_dict']=df.information.apply(parse_info)
+    for col in cols:
+        df[col]=df.info_dict.apply(lambda x:x.get(col,''))
+    df=df.loc[:,['chrom','beg','end','gene_name','gene_id','strand','gene_type']].drop_duplicates()
+    if outfile is None:
+        return df # 'chrom','start','end','gene_symbol','strand','gene_type'
+    else:
+        df.to_csv(os.path.expanduser(outfile),sep='\t',index=False)
