@@ -17,7 +17,8 @@ setup(
     url="https://github.com/DingWB/adataviz",
     packages=["adataviz"],  # src
     install_requires=["matplotlib","numpy","pandas>=1.3.5", 
-                      "scipy","loguru","fire","anndata","scanpy"],
+                      "scipy","loguru","fire","anndata","scanpy",
+                      "PyComplexHeatmap","seaborn","adjustText"],
     include_package_data=True,
 
     entry_points={

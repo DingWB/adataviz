@@ -11,7 +11,8 @@ write_to = 'adataviz/_version.py'
 name = "adataviz"
 dynamic = ["version"]
 dependencies = ["matplotlib","numpy","pandas>=1.3.5", 
-                "scipy","loguru","anndata","fire","scanpy"]
+                "scipy","loguru","anndata","fire","scanpy",
+                "PyComplexHeatmap","seaborn","adjustText"]
 authors = [
   { name="Wubin Ding", email="ding.wu.bin.gm@gmail.com" },
 ]

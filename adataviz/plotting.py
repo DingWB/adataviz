@@ -15,6 +15,8 @@ from .utils import (
 	density_contour,plot_color_dict_legend,
 	plot_marker_legend,plot_text_legend,plot_cmap_legend
 )
+from PyComplexHeatmap import HeatmapAnnotation,anno_label,anno_simple,DotClustermapPlotter
+from .utils import normalize_mc_by_cell
 
 def stacked_barplot(Input="cell_metadata_with_annotation.csv",groupby='Age',
 					column='CellClass',x_order=None,y_order=None,linewidth=0.1,
@@ -1084,7 +1086,6 @@ def plot_gene(
 		_description_, by default "figures"
 	"""
 
-	import seaborn as sns
 	# sc.set_figure_params(dpi=100,dpi_save=300,frameon=False)
 	if title is None:
 		if not query_str is None:
@@ -1306,7 +1307,6 @@ def plot_genes(
 	outname : str, optional
 		_description_, by default "test.pdf"
 	"""
-	from PyComplexHeatmap import *
 	assert not genes is None, "Please provide genes to plot."
 	# adata could be single cell level or pseudobulk level (adata.layers['frac'] should be existed)
 	raw_adata = anndata.read_h5ad(os.path.expanduser(adata_path), backed='r')
@@ -1431,7 +1431,6 @@ def plot_genes(
 								add_text=False,legend=group_legend,height=3,label=ig)
 	df_cols.dropna(inplace=True)
 	# df_cols.head()
-
 	if not parent_col is None:
 		parent_colors={}
 		axis=1 if not transpose else 0 # 1 for vertical (col annotation), 0 for horizontal
