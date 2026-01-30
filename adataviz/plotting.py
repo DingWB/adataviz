@@ -168,10 +168,11 @@ def interactive_embedding(
 			color_discrete_map=get_colors(use_adata,use_col,palette_path=palette_path)
 		else:
 			color_discrete_map=colors
-		keys=list(color_discrete_map.keys()) # type: ignore
-		for k in keys:
-			if k not in obs[use_col].unique().tolist():
-				del color_discrete_map[k] # type: ignore
+		if not color_discrete_map is None:
+			keys=list(color_discrete_map.keys()) # type: ignore
+			for k in keys:
+				if k not in obs[use_col].unique().tolist():
+					del color_discrete_map[k] # type: ignore
 		range_color=None
 	keep_cols=['cell',f'{coord}_0',f'{coord}_1']
 	if not variable is None:
@@ -182,8 +183,8 @@ def interactive_embedding(
 	# Create Plotly interactive scatter plot
 	hover_data={         # Fields to show on hover
 			"cell": True,    # cell ID
-			"umap_0": ":0.3f",# UMAP coordinates rounded to 3 decimals
-			"umap_1": ":0.3f",
+			f'{coord}_0': ":0.3f",# UMAP coordinates rounded to 3 decimals
+			f'{coord}_1': ":0.3f",
 		}
 	if not variable is None:
 		hover_data[variable]=True # type: ignore # when plotting gene expression, also show cell types when mouse hover
@@ -191,8 +192,8 @@ def interactive_embedding(
 		hover_data[gene]=":.3f" # type: ignore
 	fig = px.scatter(
 		obs,
-		x="umap_0",          # UMAP first dimension → X axis
-		y="umap_1",          # UMAP second dimension → Y axis
+		x=f'{coord}_0',          # UMAP first dimension → X axis
+		y=f'{coord}_1',          # UMAP second dimension → Y axis
 		color=use_col, 
 		hover_data=hover_data,
 		range_color=range_color,
@@ -202,8 +203,8 @@ def interactive_embedding(
 		template="plotly_white",
 		render_mode='webgl'  # use WebGL rendering for better performance with large datasets
 	)
-	fig.update_xaxes(range=[obs['umap_0'].min()-0.5, obs['umap_0'].max()+0.5],tickfont_size=12)
-	fig.update_yaxes(range=[obs['umap_1'].min()-0.5, obs['umap_1'].max()+0.5],tickfont_size=12)
+	fig.update_xaxes(range=[obs[f'{coord}_0'].min()-0.5, obs[f'{coord}_0'].max()+0.5],tickfont_size=12)
+	fig.update_yaxes(range=[obs[f'{coord}_1'].min()-0.5, obs[f'{coord}_1'].max()+0.5],tickfont_size=12)
 
 	if size is None:
 		# Blend an area-based marker estimate with a log-based fallback so total point count and canvas size both matter.
@@ -223,7 +224,7 @@ def interactive_embedding(
 		selector=dict(mode='markers')
 	)
 	if title is None:
-		title = f"UMAP Visualization (Colored by {use_col})"
+		title = f"{coord.upper()} Visualization (Colored by {use_col})"
 	fig.update_layout(
 		title=dict(
 			text=title,
@@ -231,8 +232,8 @@ def interactive_embedding(
 			x=0.5,  # center the title
 			pad=dict(t=10)
 		),
-		xaxis_title="UMAP_0",
-		yaxis_title="UMAP_1",
+		xaxis_title=f'{coord}_0'.upper(),
+		yaxis_title=f'{coord}_1'.upper(),
 		autosize=True,width=width,height=height,
 		legend_title=use_col, # legend title
 		legend=dict(
@@ -1948,10 +1949,11 @@ def plot_interactive_boxlot_from_data(
 	# Preserve existing Y-axis extreme filtering logic (remove 1% and 99% extremes)
 	range_y=[plot_df[gene].quantile(0.01), plot_df[gene].quantile(0.99)]
 	color_discrete_map=get_colors(adata,variable,palette_path=palette_path)
-	keys=list(color_discrete_map.keys()) # type: ignore
-	for k in keys:
-		if not k in plot_df[variable].unique().tolist():
-			del color_discrete_map[k] # type: ignore
+	if not color_discrete_map is None:
+		keys=list(color_discrete_map.keys()) # type: ignore
+		for k in keys:
+			if not k in plot_df[variable].unique().tolist():
+				del color_discrete_map[k] # type: ignore
 	if title is None:
 		title=f"Boxplot: {gene} by {variable}"
 	fig = px.box(
