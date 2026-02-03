@@ -1,17 +1,18 @@
-/* Make page content full-width on wide screens.
-   This hides the persistent sidebar on large viewports so the
-   content can occupy the full viewport width while keeping
-   responsive behavior on smaller screens. */
-:root { --custom-content-padding: 1.5rem; }
+/* Layout tweaks: custom padding and right gutter */
+:root {
+  --custom-content-padding: 1.5rem;
+  --right-gutter: 3rem; /* change this to adjust right empty space */
+}
 
 @media (min-width: 63em) {
   /* Show persistent sidebar and reserve space for it */
   .sidebar-drawer, .toc-drawer { display: block !important; min-width: 15rem !important; width: 15rem !important; }
-  /* Layout: content fills remaining horizontal space */
+
+  /* Layout: content fills remaining horizontal space and reserves right gutter */
   .content {
-    width: calc(100% - 15rem) !important;
+    width: calc(100% - 15rem - var(--right-gutter)) !important;
     max-width: none !important;
-    padding: 0 var(--custom-content-padding) !important;
+    padding: 0 calc(var(--custom-content-padding) + var(--right-gutter)) !important;
     margin: 0 auto !important;
   }
 
@@ -20,22 +21,22 @@
 
 /* Keep mobile/touch navigation intact and responsive */
 @media (max-width: 67em) {
+  :root { --right-gutter: 0rem; }
   .content { margin-left: auto; margin-right: auto; padding: 0 1em; }
 }
 
 /* Make code blocks use the full available width and allow horizontal scroll */
 .highlight pre, pre.literal-block, .highlighttable td.code {
   max-width: none !important;
-  width: 80% !important;
-  overflow: auto !important;
-  white-space: pre-wrap;
-  word-break: break-word;
+  width: 100% !important;
+  overflow-x: auto !important;
+  white-space: pre !important;
+  overflow-wrap: normal !important;
+}
 
 /* Prevent page from capturing scroll when over Plotly graphs */
 .plotly-graph-div {
   overscroll-behavior: contain;
-}
-  overflow-wrap: anywhere;
 }
 
 /* Increase code block padding on large screens for readability */
@@ -54,9 +55,9 @@
 
 /* ensure main content fills remaining space (fallback) */
 .content {
-  width: calc(100% - 15rem) !important;
+  width: calc(100% - 15rem - var(--right-gutter)) !important;
   max-width: none !important;
-  padding: 0 1.5rem !important;
+  padding: 0 calc(1.5rem + var(--right-gutter)) !important;
 }
 
 /* keep responsive behavior on small screens */
