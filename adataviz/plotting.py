@@ -572,15 +572,14 @@ def categorical_scatter(
 	text_kws
 		kwargs pass to plt.text, see: https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.text.html
 		including bbox, to see parameter for bbox, go to: https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.FancyBboxPatch.html#matplotlib.patches.FancyBboxPatch
-		commonly used parameters are: 
-		```
-		text_kws=dict(fontsize=5,fontweight='black',
-					color='black', #color could be a dict, keys are text to be annotated
-					bbox=dict(boxstyle='round',edgecolor=(0.5, 0.5, 0.5, 0.2),fill=False,
-								facecolor=(0.8, 0.8, 0.8, 0.2), #facecolor could also be a dict
-								alpha=1,linewidth=0.5)
-					)
-		```
+		commonly used parameters are::
+
+			text_kws=dict(fontsize=5,fontweight='black',
+						color='black', # color could be a dict, keys are text to be annotated
+						bbox=dict(boxstyle='round',edgecolor=(0.5, 0.5, 0.5, 0.2),fill=False,
+									facecolor=(0.8, 0.8, 0.8, 0.2), # facecolor could also be a dict
+									alpha=1,linewidth=0.5)
+						)
 	text_transform
 		transform for text annotation.
 	dodge_text

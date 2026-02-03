@@ -9,9 +9,15 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="_static/css/rtd_sphinx_search.min.css" />
+    <script src="_static/jquery.js?v=5d32c60e"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
     <script src="_static/documentation_options.js?v=5929fcd5"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/rtd_search_config.js"></script>
+    <script src="_static/js/rtd_sphinx_search.min.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="setup module" href="setup.html" />
@@ -33,8 +39,214 @@
 
           <div class="body" role="main">
             
-  <section id="adataviz-utils-module">
-<h1>adataviz.utils module<a class="headerlink" href="#adataviz-utils-module" title="Link to this heading">¶</a></h1>
+  <section id="module-adataviz.utils">
+<span id="adataviz-utils-module"></span><h1>adataviz.utils module<a class="headerlink" href="#module-adataviz.utils" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="adataviz.utils.TextWithCircleHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">TextWithCircleHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">marker_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#TextWithCircleHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.TextWithCircleHandler" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">HandlerBase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="adataviz.utils.TextWithCircleHandler.create_artists">
+<span class="sig-name descname"><span class="pre">create_artists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">legend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orig_handle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xdescent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ydescent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#TextWithCircleHandler.create_artists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.TextWithCircleHandler.create_artists" title="Link to this definition">¶</a></dt>
+<dd><p>Return the legend artists generated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>legend</strong> (<cite>~matplotlib.legend.Legend</cite>) – The legend for which these legend artists are being created.</p></li>
+<li><p><strong>orig_handle</strong> (<cite>~matplotlib.artist.Artist</cite> or similar) – The object for which these legend artists are being created.</p></li>
+<li><p><strong>xdescent</strong> (<em>int</em>) – The rectangle (<em>xdescent</em>, <em>ydescent</em>, <em>width</em>, <em>height</em>) that the
+legend artists being created should fit within.</p></li>
+<li><p><strong>ydescent</strong> (<em>int</em>) – The rectangle (<em>xdescent</em>, <em>ydescent</em>, <em>width</em>, <em>height</em>) that the
+legend artists being created should fit within.</p></li>
+<li><p><strong>width</strong> (<em>int</em>) – The rectangle (<em>xdescent</em>, <em>ydescent</em>, <em>width</em>, <em>height</em>) that the
+legend artists being created should fit within.</p></li>
+<li><p><strong>height</strong> (<em>int</em>) – The rectangle (<em>xdescent</em>, <em>ydescent</em>, <em>width</em>, <em>height</em>) that the
+legend artists being created should fit within.</p></li>
+<li><p><strong>fontsize</strong> (<em>int</em>) – The fontsize in pixels. The legend artists being created should
+be scaled according to the given fontsize.</p></li>
+<li><p><strong>trans</strong> (<cite>~matplotlib.transforms.Transform</cite>) – The transform that is applied to the legend artists being created.
+Typically from unit coordinates in the handler box to screen
+coordinates.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.density_contour">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">density_contour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lightgray'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_contour_pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#density_contour"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.density_contour" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.despine">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">despine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bottom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#despine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.despine" title="Link to this definition">¶</a></dt>
+<dd><p>Remove the top and right spines from plot(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fig</strong> (<em>matplotlib figure</em><em>, </em><em>optional</em>) – Figure to despine all axes of, defaults to the current figure.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib axes</em><em>, </em><em>optional</em>) – Specific axes object to despine. Ignored if fig is provided.</p></li>
+<li><p><strong>top</strong> (<em>boolean</em><em>, </em><em>optional</em>) – If True, remove that spine.</p></li>
+<li><p><strong>right</strong> (<em>boolean</em><em>, </em><em>optional</em>) – If True, remove that spine.</p></li>
+<li><p><strong>left</strong> (<em>boolean</em><em>, </em><em>optional</em>) – If True, remove that spine.</p></li>
+<li><p><strong>bottom</strong> (<em>boolean</em><em>, </em><em>optional</em>) – If True, remove that spine.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.df2stdout">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">df2stdout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#df2stdout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.df2stdout" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.get_brain_region_structure">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">get_brain_region_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#get_brain_region_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.get_brain_region_structure" title="Link to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://atlas.brain-map.org/">https://atlas.brain-map.org/</a>
+BICAN: <a class="reference external" href="https://atlas.brain-map.org/atlasviewer/ontologies/11.json">https://atlas.brain-map.org/atlasviewer/ontologies/11.json</a>
+HBA: <a class="reference external" href="https://atlas.brain-map.org/atlasviewer/ontologies/7.json">https://atlas.brain-map.org/atlasviewer/ontologies/7.json</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.level_one_palette">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">level_one_palette</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#level_one_palette"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.level_one_palette" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.mpl_style">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">mpl_style</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#mpl_style"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.mpl_style" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.normalize_mc_by_cell">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">normalize_mc_by_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_per_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_norm_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hypo_score</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#normalize_mc_by_cell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.normalize_mc_by_cell" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.parse_gtf">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">parse_gtf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gtf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gencode.v43.annotation.gtf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#parse_gtf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.parse_gtf" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.parse_json">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">parse_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#parse_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.parse_json" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.plot_cmap_legend">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">plot_cmap_legend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'turbo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ticklabel_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#plot_cmap_legend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.plot_cmap_legend" title="Link to this definition">¶</a></dt>
+<dd><p>Plot legend for cmap.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cax</strong> (<em>Axes into which the colorbar will be drawn.</em>)</p></li>
+<li><p><strong>ax</strong> (<em>axes to anchor.</em>)</p></li>
+<li><p><strong>cmap</strong> (<em>turbo</em><em>, </em><em>hsv</em><em>, </em><em>Set1</em><em>, </em><em>Dark2</em><em>, </em><em>Paired</em><em>, </em><em>Accent</em><em>,</em><em>tab20</em><em>,</em><em>exp1</em><em>,</em><em>exp2</em><em>,</em><em>meth1</em><em>,</em><em>meth2</em>)</p></li>
+<li><p><strong>label</strong> (<em>title for legend.</em>)</p></li>
+<li><p><strong>kws</strong> (<em>dict</em>) – kws passed to plt.colorbar (matplotlib.figure.Figure.colorbar).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cbar</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>axes of legend</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.plot_color_dict_legend">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">plot_color_dict_legend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">luminance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#plot_color_dict_legend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.plot_color_dict_legend" title="Link to this definition">¶</a></dt>
+<dd><p>plot legned for color dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>D</strong> (<em>a dict</em><em>, </em><em>key is categorical variable</em><em>, </em><em>values are colors.</em>)</p></li>
+<li><p><strong>ax</strong> (<em>axes to plot the legend.</em>)</p></li>
+<li><p><strong>title</strong> (<em>title</em><em> of </em><em>legend.</em>)</p></li>
+<li><p><strong>color_text</strong> (<em>whether to change the color</em><em> of </em><em>text based on the color in D.</em>)</p></li>
+<li><p><strong>label_side</strong> (<em>right</em><em> of </em><em>left.</em>)</p></li>
+<li><p><strong>kws</strong> (<em>kws passed to plt.legend.</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ax.legend</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.plot_marker_legend">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">plot_marker_legend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">luminance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#plot_marker_legend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.plot_marker_legend" title="Link to this definition">¶</a></dt>
+<dd><p>plot legned for different marker</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>D</strong> (<em>a dict</em><em>, </em><em>key is categorical variable</em><em>, </em><em>values are marker.</em>)</p></li>
+<li><p><strong>ax</strong> (<em>axes to plot the legend.</em>)</p></li>
+<li><p><strong>title</strong> (<em>title</em><em> of </em><em>legend.</em>)</p></li>
+<li><p><strong>color_text</strong> (<em>whether to change the color</em><em> of </em><em>text based on the color in D.</em>)</p></li>
+<li><p><strong>label_side</strong> (<em>right</em><em> of </em><em>left.</em>)</p></li>
+<li><p><strong>kws</strong> (<em>kws passed to plt.legend.</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ax.legend</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.plot_text_legend">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">plot_text_legend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code2label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boxstyle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Circle'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker_pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker_fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">luminance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#plot_text_legend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.plot_text_legend" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.prepare_color_palette">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">prepare_color_palette</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'palette.xlsx'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#prepare_color_palette"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.prepare_color_palette" title="Link to this definition">¶</a></dt>
+<dd><p>Generating a .xlsx file including all color palette.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>colors</strong> (<em>dict</em>) – A dict of dict, keys are categorical terms, values are HEX color code</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.read_google_sheet">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">read_google_sheet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#read_google_sheet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.read_google_sheet" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.serialize">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">serialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#serialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.serialize" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.tight_hue_range">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">tight_hue_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hue_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">portion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#tight_hue_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.tight_hue_range" title="Link to this definition">¶</a></dt>
+<dd><p>Automatic select a SMALLEST data range that covers [portion] of the data.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.zoom_ax">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">zoom_ax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'both'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#zoom_ax"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.zoom_ax" title="Link to this definition">¶</a></dt>
+<dd><p>Zoom ax on both x and y-axis.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.zoom_min_max">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">zoom_min_max</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#zoom_min_max"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.zoom_min_max" title="Link to this definition">¶</a></dt>
+<dd><p>Zoom min and max value.</p>
+</dd></dl>
+
 </section>
 
 
