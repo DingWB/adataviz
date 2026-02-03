@@ -58,7 +58,7 @@ html_theme_options = {
     "globaltoc_maxdepth": 3,
     "collapse_navigation": False,
     "display_version": True,
-    "sidebarwidth": 200,  # sidebarwidth
+    # "sidebarwidth": 200,  # sidebarwidth
     "navigation_depth": 6,
 }
 
@@ -66,17 +66,17 @@ html_theme_options = {
 # html_theme = "sphinx_rtd_theme" #sphinx_sizzle_theme
 # html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
-html_sidebars = {
-    "**": [
-        "relations.html",  # needs 'show_related': True theme option to display
-        "searchbox.html",
-    ]
-}
+# html_sidebars = {
+#     "**": [
+#         "relations.html",  # needs 'show_related': True theme option to display
+#         "searchbox.html",
+#     ]
+# }
 
 html_context = {
     "display_github": True,
     "github_user": "DingWB",
-    "github_repo": "PyComplexHeatmap",
+    "github_repo": "adataviz",
     "github_version": "main/docs/source/",
 }
 

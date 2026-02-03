@@ -24,3 +24,19 @@
 @media (max-width: 67em) {
   .content { margin-left: auto; margin-right: auto; padding: 0 1em; }
 }
+
+/* Make code blocks use the full available width and allow horizontal scroll */
+.highlight pre, pre.literal-block, .highlighttable td.code {
+  max-width: none !important;
+  width: 100% !important;
+  overflow: auto !important;
+  white-space: pre !important;
+}
+
+/* Increase code block padding on large screens for readability */
+@media (min-width: 63em) {
+  .content .highlight pre, .content pre.literal-block {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+}
