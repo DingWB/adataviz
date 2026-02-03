@@ -44,9 +44,9 @@ exclude_patterns = []
 # https://sphinx-themes.org/sample-sites/furo/
 html_theme = 'furo' # pip install furo
 html_static_path = ['_static']
-html_css_files = [
-    'custom.css',
-]
+# html_css_files = [
+#     'custom.css',
+# ]
 html_js_files = [
     'plotly_scroll.js',
 ]
@@ -64,6 +64,14 @@ html_theme_options = {
     # "sidebarwidth": 200,  # sidebarwidth
     "navigation_depth": 6,
 }
+
+# Use MathJax v2 site-wide to match notebook fragments (avoid v2/v3 conflict)
+# nbsphinx/nbconvert output embeds MathJax v2; forcing Sphinx to use the
+# same path avoids loading multiple MathJax versions which can cause
+# "Cannot read properties of undefined (reading 'Startup')" errors.
+mathjax_path = (
+    "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_SVG"
+)
 
 
 # html_theme = "sphinx_rtd_theme" #sphinx_sizzle_theme
