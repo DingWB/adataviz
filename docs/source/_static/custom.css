@@ -7,7 +7,6 @@
 @media (min-width: 63em) {
   /* Show persistent sidebar and reserve space for it */
   .sidebar-drawer, .toc-drawer { display: block !important; min-width: 15rem !important; width: 15rem !important; }
-
   /* Layout: content fills remaining horizontal space */
   .content {
     width: calc(100% - 15rem) !important;
@@ -27,9 +26,16 @@
 /* Make code blocks use the full available width and allow horizontal scroll */
 .highlight pre, pre.literal-block, .highlighttable td.code {
   max-width: none !important;
-  width: 100% !important;
+  width: 80% !important;
   overflow: auto !important;
-  white-space: pre !important;
+  white-space: pre-wrap;
+  word-break: break-word;
+
+/* Prevent page from capturing scroll when over Plotly graphs */
+.plotly-graph-div {
+  overscroll-behavior: contain;
+}
+  overflow-wrap: anywhere;
 }
 
 /* Increase code block padding on large screens for readability */
@@ -39,8 +45,6 @@
     padding-right: 2rem !important;
   }
 }
-
-
 
 /* set a fixed sidebar width and expand content accordingly (fallback) */
 .sidebar-drawer {
