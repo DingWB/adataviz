@@ -13,10 +13,30 @@
 
     try { console.debug && console.debug('[plotly_scroll] wheel received', { deltaX: e.deltaX, deltaY: e.deltaY, target: e.target }); } catch (e) {}
 
+    const plot = e.currentTarget;
+    // Heuristic: detect UMAP plots by searching nearby text for the word 'UMAP'.
+    // For UMAP plots we avoid stealing the wheel unless the user holds Ctrl/Meta
+    // (so page scroll remains usable and wheel-zoom requires an explicit modifier).
+    function isUMAPPlot(plotEl) {
+      try {
+        const container = plotEl.closest && (plotEl.closest('.output') || plotEl.closest('.output_area')) || plotEl.parentElement;
+        if (!container) return false;
+        const txt = (container.innerText || '').slice(0, 400).toLowerCase();
+        return txt.indexOf('umap') !== -1;
+      } catch (err) { return false; }
+    }
+
+    const isUMAP = isUMAPPlot(plot);
+
+    // For UMAP: only forward wheel events when Ctrl/Meta is held. Otherwise
+    // allow the wheel to scroll the page (do not preventDefault).
+    if (isUMAP && !(e.ctrlKey || e.metaKey)) {
+      return;
+    }
+
     // Only act for direct wheel events on the plot container
     e.preventDefault();
 
-    const plot = e.currentTarget;
     const svg = plot.querySelector('svg');
     if (!svg) return;
 
@@ -49,6 +69,38 @@
     // Restore focus to body shortly after to avoid trapping input on the plot.
     setTimeout(() => { try { document.activeElement && document.activeElement.blur && document.activeElement.blur(); } catch (err) {} }, 50);
   }
+
+  // Global capture-phase wheel handler to prevent Plotly from stealing
+  // the wheel when the target is inside a UMAP plot and the user is not
+  // explicitly holding Ctrl/Meta. This runs in capture and stops immediate
+  // propagation so downstream Plotly handlers don't preventDefault.
+  function captureWheelForUMAP(e) {
+    try {
+      if (e.ctrlKey || e.metaKey) return; // user explicitly wants zoom
+      var el = e.target;
+      while (el && el !== document.documentElement) {
+        if (el.classList && el.classList.contains && el.classList.contains('plotly-graph-div')) {
+          try {
+            // Heuristic: check for nearby 'UMAP' text inside the plot's container
+            const container = el.closest && (el.closest('.output') || el.closest('.output_area')) || el.parentElement;
+            const txt = (container && (container.innerText || '') || '').toLowerCase();
+            if (txt.indexOf('umap') !== -1) {
+              // Prevent other listeners (including Plotly) from running so
+              // they cannot call preventDefault and trap the page scroll.
+              e.stopImmediatePropagation();
+              // Do not call preventDefault here — allow the document to scroll.
+              return;
+            }
+          } catch (err) { return; }
+        }
+        el = el.parentElement;
+      }
+    } catch (err) {}
+  }
+
+  try {
+    document.addEventListener('wheel', captureWheelForUMAP, { passive: false, capture: true });
+  } catch (err) {}
 
   function attachToPlot(plot) {
     if (!plot.__plotly_scroll_attached) {

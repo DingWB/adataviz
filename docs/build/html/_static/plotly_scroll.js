@@ -11,10 +11,32 @@
     // Ignore events that were already forwarded
     if (e[FORWARD_FLAG]) return;
 
+    try { console.debug && console.debug('[plotly_scroll] wheel received', { deltaX: e.deltaX, deltaY: e.deltaY, target: e.target }); } catch (e) {}
+
+    const plot = e.currentTarget;
+    // Heuristic: detect UMAP plots by searching nearby text for the word 'UMAP'.
+    // For UMAP plots we avoid stealing the wheel unless the user holds Ctrl/Meta
+    // (so page scroll remains usable and wheel-zoom requires an explicit modifier).
+    function isUMAPPlot(plotEl) {
+      try {
+        const container = plotEl.closest && (plotEl.closest('.output') || plotEl.closest('.output_area')) || plotEl.parentElement;
+        if (!container) return false;
+        const txt = (container.innerText || '').slice(0, 400).toLowerCase();
+        return txt.indexOf('umap') !== -1;
+      } catch (err) { return false; }
+    }
+
+    const isUMAP = isUMAPPlot(plot);
+
+    // For UMAP: only forward wheel events when Ctrl/Meta is held. Otherwise
+    // allow the wheel to scroll the page (do not preventDefault).
+    if (isUMAP && !(e.ctrlKey || e.metaKey)) {
+      return;
+    }
+
     // Only act for direct wheel events on the plot container
     e.preventDefault();
 
-    const plot = e.currentTarget;
     const svg = plot.querySelector('svg');
     if (!svg) return;
 
@@ -33,51 +55,10 @@
     });
 
     try {
-    // Attempt to release any pointer captures and blur plot-related focus
-    function safeUntrap(plot) {
-      try {
-        // Blur active element if it's inside the plot
-        const ae = document.activeElement;
-        if (ae && ae.closest && ae.closest('.plotly-graph-div')) {
-          try { ae.blur(); } catch (e) {}
-        }
-
-        // Release pointer capture from the plot and its descendants
-        try {
-          if (plot.releasePointerCapture) {
-            // release any possible pointers 0-10 (best-effort)
-            for (let i = 0; i < 10; i++) {
-              try { plot.releasePointerCapture(i); } catch (e) {}
-            }
-          }
-          plot.querySelectorAll && plot.querySelectorAll('*').forEach(el => {
-            try { if (el.releasePointerCapture) for (let i = 0; i < 10; i++) try { el.releasePointerCapture(i); } catch (e) {} } catch (e) {}
-          });
-        } catch (e) {}
-
-        // Dispatch a synthetic mouseup on the plot to ensure handlers see an 'end'
-        try {
-          const mu = new MouseEvent('mouseup', { bubbles: true, cancelable: true, composed: true });
-          plot.dispatchEvent(mu);
-        } catch (e) {}
-      } catch (e) {}
+      Object.defineProperty(evt, FORWARD_FLAG, { value: true });
+    } catch (err) {
+      evt[FORWARD_FLAG] = true;
     }
-
-    // Attach to existing plots
-    document.querySelectorAll('.plotly-graph-div').forEach(attachToPlot);
-    // Also make them safe for focus/navigation
-    document.querySelectorAll('.plotly-graph-div').forEach(makePlotSafe);
-    // Ensure we untrap plot interactions on mouseup/mouseleave/modebar clicks
-    document.querySelectorAll('.plotly-graph-div').forEach((p) => {
-      try {
-        p.addEventListener('mouseup', () => safeUntrap(p), { passive: true });
-        p.addEventListener('mouseleave', () => safeUntrap(p), { passive: true });
-        // modebar buttons have class 'modebar-btn' in many Plotly builds
-        p.querySelectorAll && p.querySelectorAll('.modebar, .modebar-btn, .modebar-btn-group').forEach(mb => {
-          try { mb.addEventListener('click', () => safeUntrap(p), { passive: true }); } catch (e) {}
-        });
-      } catch (e) {}
-    });
 
     // Focus the SVG briefly so Plotly's handlers that check focus will work,
     // then blur after a short delay to avoid trapping keyboard/scroll focus.
@@ -89,10 +70,43 @@
     setTimeout(() => { try { document.activeElement && document.activeElement.blur && document.activeElement.blur(); } catch (err) {} }, 50);
   }
 
+  // Global capture-phase wheel handler to prevent Plotly from stealing
+  // the wheel when the target is inside a UMAP plot and the user is not
+  // explicitly holding Ctrl/Meta. This runs in capture and stops immediate
+  // propagation so downstream Plotly handlers don't preventDefault.
+  function captureWheelForUMAP(e) {
+    try {
+      if (e.ctrlKey || e.metaKey) return; // user explicitly wants zoom
+      var el = e.target;
+      while (el && el !== document.documentElement) {
+        if (el.classList && el.classList.contains && el.classList.contains('plotly-graph-div')) {
+          try {
+            // Heuristic: check for nearby 'UMAP' text inside the plot's container
+            const container = el.closest && (el.closest('.output') || el.closest('.output_area')) || el.parentElement;
+            const txt = (container && (container.innerText || '') || '').toLowerCase();
+            if (txt.indexOf('umap') !== -1) {
+              // Prevent other listeners (including Plotly) from running so
+              // they cannot call preventDefault and trap the page scroll.
+              e.stopImmediatePropagation();
+              // Do not call preventDefault here — allow the document to scroll.
+              return;
+            }
+          } catch (err) { return; }
+        }
+        el = el.parentElement;
+      }
+    } catch (err) {}
+  }
+
+  try {
+    document.addEventListener('wheel', captureWheelForUMAP, { passive: false, capture: true });
+  } catch (err) {}
+
   function attachToPlot(plot) {
     if (!plot.__plotly_scroll_attached) {
       plot.addEventListener('wheel', handleWheelOnPlot, { passive: false });
       plot.__plotly_scroll_attached = true;
+      try { console.debug && console.debug('[plotly_scroll] attached wheel handler', plot); } catch (e) {}
     }
   }
 
@@ -104,6 +118,7 @@
 
   function makePlotSafe(plot) {
     try {
+      try { console.debug && console.debug('[plotly_scroll] makePlotSafe', plot); } catch (e) {}
       // Remove tabindex so clicks don't trap focus
       if (plot.hasAttribute && plot.hasAttribute('tabindex')) plot.removeAttribute('tabindex');
       // Remove tabindex from descendants that might capture focus
@@ -112,6 +127,7 @@
       // Blur any non-input focus that lands inside the plot
       plot.addEventListener('focusin', (ev) => {
         try {
+          try { console.debug && console.debug('[plotly_scroll] focusin inside plot', ev.target); } catch (e) {}
           const t = ev.target;
           if (!t) return;
           if (t.matches && t.matches('input, textarea, [contenteditable]')) return;
@@ -138,10 +154,50 @@
     } catch (err) {}
   }
 
+  // Attempt to release any pointer captures and blur plot-related focus
+  function safeUntrap(plot) {
+    try {
+      try { console.debug && console.debug('[plotly_scroll] safeUntrap', plot); } catch (e) {}
+      // blur focused element if inside plot
+      const ae = document.activeElement;
+      if (ae && ae.closest && ae.closest('.plotly-graph-div')) {
+        try { ae.blur(); } catch (e) {}
+      }
+
+      // release any pointer capture on plot or its descendants
+      try {
+        if (plot && plot.releasePointerCapture && typeof plot.releasePointerCapture === 'function') {
+          try { plot.releasePointerCapture && plot.releasePointerCapture(); } catch (e) {}
+        }
+        plot && plot.querySelectorAll && plot.querySelectorAll('*').forEach(el => {
+          try { if (el.releasePointerCapture) el.releasePointerCapture(); } catch (e) {}
+        });
+      } catch (e) {}
+
+      // dispatch a synthetic mouseup on document to end any drag states
+      try {
+        const ev = new MouseEvent('mouseup', { bubbles: true, cancelable: true });
+        document.dispatchEvent(ev);
+        try { console.debug && console.debug('[plotly_scroll] dispatched synthetic mouseup'); } catch (e) {}
+      } catch (e) {}
+    } catch (err) {}
+  }
+
   // Attach to existing plots
   document.querySelectorAll('.plotly-graph-div').forEach(attachToPlot);
   // Also make them safe for focus/navigation
   document.querySelectorAll('.plotly-graph-div').forEach(makePlotSafe);
+  // Ensure we untrap plot interactions on mouseup/mouseleave/modebar clicks
+  document.querySelectorAll('.plotly-graph-div').forEach((p) => {
+    try {
+      p.addEventListener('mouseup', () => safeUntrap(p), { passive: true });
+      p.addEventListener('mouseleave', () => safeUntrap(p), { passive: true });
+      // modebar buttons have class 'modebar-btn' in many Plotly builds
+      p.querySelectorAll && p.querySelectorAll('.modebar, .modebar-btn, .modebar-btn-group').forEach(mb => {
+        mb.addEventListener('click', () => safeUntrap(p), { passive: true });
+      });
+    } catch (e) {}
+  });
 
   // Observe for future plots added dynamically (nbsphinx may inject them)
   const mo = new MutationObserver((records) => {
@@ -150,7 +206,16 @@
         if (!(n instanceof HTMLElement)) continue;
         if (n.matches && n.matches('.plotly-graph-div')) attachToPlot(n);
         // also check descendants
-        n.querySelectorAll && n.querySelectorAll('.plotly-graph-div').forEach((p) => { attachToPlot(p); makePlotSafe(p); });
+        n.querySelectorAll && n.querySelectorAll('.plotly-graph-div').forEach((p) => {
+          attachToPlot(p); makePlotSafe(p);
+          try {
+            p.addEventListener('mouseup', () => safeUntrap(p), { passive: true });
+            p.addEventListener('mouseleave', () => safeUntrap(p), { passive: true });
+            p.querySelectorAll && p.querySelectorAll('.modebar, .modebar-btn, .modebar-btn-group').forEach(mb => {
+              mb.addEventListener('click', () => safeUntrap(p), { passive: true });
+            });
+          } catch (e) {}
+        });
       }
     }
   });

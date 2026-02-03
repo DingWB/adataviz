@@ -15,8 +15,8 @@ from recommonmark.transform import AutoStructify
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 project = 'adataviz'
-copyright = '2026, Wubin Ding, Amit Klein'
-author = 'Wubin Ding, Amit Klein'
+copyright = '2026, Wubin Ding'
+author = 'Wubin Ding'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
