@@ -30,7 +30,40 @@
     width: auto !important;
     max-width: 46em !important;
     padding: 0 1rem !important;
-  }
+    padding-right: 2rem !important; /* add right spacing */
+    position: relative !important;
+}
+}
+/* Remove any other custom rules by keeping file minimal */
+
+/* Persistent right spacer to prevent layout shifts when scripts modify widths */
+.content::after {
+  content: '';
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 2rem !important; /* matches padding-right */
+  pointer-events: none !important;
 }
 
-/* Remove any other custom rules by keeping file minimal */
+/* Allow long printed outputs (nbsphinx / notebook outputs) to wrap
+   without changing code-block behaviour. These selectors target common
+   notebook output containers and override the earlier `white-space: pre`.
+*/
+.content div.output pre,
+.content .output_area pre,
+.content .output_subarea pre,
+.content .nbsphinx-output pre,
+.content pre.nboutput,
+.content .nbsphinx .output pre {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  max-width: 100% !important;
+}
+
+/* Also make plain text outputs within literal blocks wrap */
+.content pre.literal-block {
+  white-space: pre-wrap !important;
+}

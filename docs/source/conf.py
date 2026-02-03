@@ -47,9 +47,9 @@ html_static_path = ['_static']
 html_css_files = [
     'custom.css',
 ]
-# html_js_files = [
-#     'plotly_scroll.js',
-# ]
+html_js_files = [
+    'plotly_scroll.js',
+]
 
 html_theme_options = {
     "navigation_with_keys": True,
@@ -63,7 +63,20 @@ html_theme_options = {
     "display_version": True,
     # "sidebarwidth": 200,  # sidebarwidth
     "navigation_depth": 6,
+    "source_repository": "https://github.com/DingWB/adataviz/",
+    "source_branch": "main",
+    "source_directory": "docs/",
+    "light_css_variables": {
+        "color-brand-primary": "#7C4DFF",
+        "color-brand-content": "#7C4DFF",
+        "font-stack": "Arial, sans-serif",
+        "font-stack--monospace": "Courier, monospace",
+        "font-stack--headings": "Georgia, serif",
+    },
 }
+
+pygments_style = "sphinx"
+pygments_dark_style = "monokai"
 
 # Use MathJax v2 site-wide to match notebook fragments (avoid v2/v3 conflict)
 # nbsphinx/nbconvert output embeds MathJax v2; forcing Sphinx to use the

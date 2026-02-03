@@ -51,6 +51,7 @@ Available subcommands:
 			'export_pseudobulk_adata': tl.export_pseudobulk_adata,
 			'parse_gtf':tl.parse_gtf,
 			'downsample_adata':tl.downsample_adata,
+			'get_obs':tl.get_obs,
 		}
 	else:
 		print(doc_string)

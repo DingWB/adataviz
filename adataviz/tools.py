@@ -383,27 +383,6 @@ def export_pseudobulk_adata(adata,outdir,use_raw):
 		df.to_csv(os.path.join(outdir,f"{col.replace(' ','_')}.txt"),
 			sep='\t',index=False,header=False)
 
-def downsample_adata(adata_path,groupby="Group",obs_path=None,
-					 outfile="Group.downsample_1500.h5ad",
-					 downsample=1500):
-	adata_path=os.path.expanduser(adata_path)
-	outfile=os.path.expanduser(outfile)
-	adata=anndata.read_h5ad(adata_path,backed='r')
-	if not obs_path is None:
-		if isinstance(obs_path,str):
-			obs=pd.read_csv(os.path.expanduser(obs_path),
-				sep='\t',index_col=0)
-		else:
-			obs=obs_path.copy()
-		overlapped_cells=list(set(adata.obs_names.tolist()) & set(obs.index.tolist()))
-		obs=obs.loc[overlapped_cells]
-	else:
-		obs=adata.obs.copy()
-	keep_cells = obs.loc[obs[groupby].notna()].groupby(groupby).apply(
-		lambda x: x.sample(downsample).index.tolist() if x.shape[0] > downsample else x.index.tolist()).sum()
-	adata[keep_cells,:].write_h5ad(outfile,compression='gzip')
-	adata.file.close()
-
 def load_adata(adata):
 	if isinstance(adata,str):
 		adata=anndata.read_h5ad(os.path.expanduser(adata),backed='r')
@@ -458,6 +437,45 @@ def load_color_palette(palette_path=None,adata=None,groups=[]):
 	if len(groups)==1:
 		return color_palette[groups[0]]
 	return color_palette
+
+def get_obs(adata_path, add_coord=True,usecols=None,index_name='cell',outfile=None):
+	adata = anndata.read_h5ad(os.path.expanduser(adata_path),backed='r')
+	obs=adata.obs.copy()
+	obs.index.name='cell'
+	for coord in ["umap",'tsne']:
+		if f'X_{coord}' not in adata.obsm:
+			continue
+		df_coord=pd.DataFrame(adata.obsm[f'X_{coord}'],columns=[f'{coord}_0',f'{coord}_1'],index=adata.obs_names)
+		obs[f'{coord}_0']=obs.index.to_series().map(df_coord[f'{coord}_0'].to_dict())
+		obs[f'{coord}_1']=obs.index.to_series().map(df_coord[f'{coord}_1'].to_dict())
+	adata.file.close()
+	if not usecols is None:
+		obs=obs.loc[:,usecols]
+	if not outfile is None:
+		obs.to_csv(os.path.expanduser(outfile),sep='\t')
+		return outfile
+	return obs.reset_index()
+
+def downsample_adata(adata_path,groupby="Group",obs_path=None,
+					 outfile="Group.downsample_1500.h5ad",
+					 downsample=1500):
+	adata_path=os.path.expanduser(adata_path)
+	outfile=os.path.expanduser(outfile)
+	adata=anndata.read_h5ad(adata_path,backed='r')
+	if not obs_path is None:
+		if isinstance(obs_path,str):
+			obs=pd.read_csv(os.path.expanduser(obs_path),
+				sep='\t',index_col=0)
+		else:
+			obs=obs_path.copy()
+		overlapped_cells=list(set(adata.obs_names.tolist()) & set(obs.index.tolist()))
+		obs=obs.loc[overlapped_cells]
+	else:
+		obs=adata.obs.copy()
+	keep_cells = obs.loc[obs[groupby].notna()].groupby(groupby).apply(
+		lambda x: x.sample(downsample).index.tolist() if x.shape[0] > downsample else x.index.tolist()).sum()
+	adata[keep_cells,:].write_h5ad(outfile,compression='gzip')
+	adata.file.close()
 
 def composition(obs,groupby,stratify_col,composition_col,outname=None,parent_col=None,
 						 sort_cols=None,adata=None,color_palette=None):
