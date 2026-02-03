@@ -40,3 +40,24 @@
     padding-right: 2rem !important;
   }
 }
+
+
+
+/* set a fixed sidebar width and expand content accordingly */
+.sidebar-drawer {
+  min-width: 12rem !important;
+  width: 12rem !important;
+}
+
+/* ensure main content fills remaining space */
+.content {
+  width: calc(100% - 12rem) !important;
+  max-width: none !important;
+  padding: 0 1.5rem !important;
+}
+
+/* keep responsive behavior on small screens */
+@media (max-width: 63em) {
+  .sidebar-drawer { width: 15em !important; display: block !important; }
+  .content { width: auto !important; max-width: 46em !important; padding: 0 1em !important; }
+}
