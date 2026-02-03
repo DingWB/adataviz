@@ -1,4 +1,4 @@
-Plotting Examples
+Plotting
 =======================
 .. toctree::
    :maxdepth: 2

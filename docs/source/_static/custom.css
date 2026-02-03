@@ -5,18 +5,17 @@
 :root { --custom-content-padding: 1.5rem; }
 
 @media (min-width: 63em) {
-  /* Hide persistent sidebar to free horizontal space */
-  .sidebar-drawer, .toc-drawer { display: none !important; }
+  /* Show persistent sidebar and reserve space for it */
+  .sidebar-drawer, .toc-drawer { display: block !important; min-width: 15rem !important; width: 15rem !important; }
 
-  /* Expand main content to full width */
+  /* Layout: content fills remaining horizontal space */
   .content {
-    width: 100% !important;
+    width: calc(100% - 15rem) !important;
     max-width: none !important;
     padding: 0 var(--custom-content-padding) !important;
     margin: 0 auto !important;
   }
 
-  /* Remove any reserved gap and make main fill */
   .main, .page { gap: 0 !important; align-items: stretch !important; }
 }
 
@@ -43,15 +42,15 @@
 
 
 
-/* set a fixed sidebar width and expand content accordingly */
+/* set a fixed sidebar width and expand content accordingly (fallback) */
 .sidebar-drawer {
-  min-width: 12rem !important;
-  width: 12rem !important;
+  min-width: 15rem !important;
+  width: 15rem !important;
 }
 
-/* ensure main content fills remaining space */
+/* ensure main content fills remaining space (fallback) */
 .content {
-  width: calc(100% - 12rem) !important;
+  width: calc(100% - 15rem) !important;
   max-width: none !important;
   padding: 0 1.5rem !important;
 }

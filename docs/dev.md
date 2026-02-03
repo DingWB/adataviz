@@ -28,8 +28,4 @@ cd ..
 ls
 
 vim .nojekyll #create empty file
-make html # make clean && make html
-#or run sphinx-autobuild to auto-reload
-sphinx-autobuild . _build/html
-make latex
 ```
