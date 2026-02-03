@@ -28,7 +28,7 @@
 /* Make code blocks use the full available width and allow horizontal scroll */
 .highlight pre, pre.literal-block, .highlighttable td.code {
   max-width: none !important;
-  width: 100% !important;
+  width: 80% !important;
   overflow-x: auto !important;
   white-space: pre !important;
   overflow-wrap: normal !important;

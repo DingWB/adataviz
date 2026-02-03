@@ -55,7 +55,7 @@ html_theme_options = {
     "navigation_with_keys": True,
     "top_of_page_buttons": ["view", "edit"],
     "announcement": "<em>Documentation website</em> is online!",
-    "analytics_id": "G-VRB2NBWG05",
+    # "analytics_id": "G-VRB2NBWG05",
     "collapse_navigation": False,
     "globaltoc_collapse": False,
     "globaltoc_maxdepth": 3,

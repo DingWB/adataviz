@@ -22,6 +22,7 @@ make html
 rm -rf source/notebooks
 cd ..
 ls
+ls docs
 
 vim .nojekyll #create empty file
 ```
