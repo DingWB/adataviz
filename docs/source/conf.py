@@ -47,9 +47,9 @@ html_static_path = ['_static']
 html_css_files = [
     'custom.css',
 ]
-html_js_files = [
-    'plotly_scroll.js',
-]
+# html_js_files = [
+#     'plotly_scroll.js',
+# ]
 
 html_theme_options = {
     "navigation_with_keys": True,
