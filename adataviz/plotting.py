@@ -282,11 +282,11 @@ def interactive_embedding(
 
 def show_fig(fig,filename="plot"):
     interactive_config={
-        'displayModeBar':'hover','showLink':False,'linkText':'Edit on plotly',\
-        'scrollZoom':True,"displaylogo": False,\
-        'toImageButtonOptions':{'format':'svg','filename':filename},\
-        'modeBarButtonsToRemove':['sendDataToCloud','pan2d','zoom2d','zoom3d','zoomIn2d','zoomOut2d'],\
-        'editable':True,'autosizable':True,'responsive':True, 'fillFrame':True, \
+        'displayModeBar':'hover','showLink':False,'linkText':'Edit on plotly',
+        'scrollZoom':True,"displaylogo": False,
+        'toImageButtonOptions':{'format':'svg','filename':filename},
+        'modeBarButtonsToRemove':['sendDataToCloud'], # 'zoomIn2d','zoomOut2d','zoom2d','zoom3d','pan2d'
+        'editable':True,'autosizable':True,'responsive':True, 'fillFrame':True, 
         'edits':{
             'titleText':True,'legendPosition':True,'colorbarTitleText':True,
             'shapePosition':True,'annotationPosition':True,'annotationText':True,

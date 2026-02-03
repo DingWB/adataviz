@@ -44,9 +44,9 @@ exclude_patterns = []
 # https://sphinx-themes.org/sample-sites/furo/
 html_theme = 'furo' # pip install furo
 html_static_path = ['_static']
-# html_css_files = [
-#     'custom.css',
-# ]
+html_css_files = [
+    'custom.css',
+]
 html_js_files = [
     'plotly_scroll.js',
 ]

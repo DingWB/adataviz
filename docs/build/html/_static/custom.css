@@ -1,67 +1,24 @@
-/* Layout tweaks: custom padding and right gutter */
-:root {
-  --custom-content-padding: 1.5rem;
-  --right-gutter: 3rem; /* change this to adjust right empty space */
-}
+/* Minimal custom.css: make the main page wider
+   Everything else removed per user request. */
 
+/* Increase main content width on wide screens */
 @media (min-width: 63em) {
-  /* Show persistent sidebar and reserve space for it */
-  .sidebar-drawer, .toc-drawer { display: block !important; min-width: 15rem !important; width: 15rem !important; }
-
-  /* Layout: content fills remaining horizontal space and reserves right gutter */
   .content {
-    width: calc(100% - 15rem - var(--right-gutter)) !important;
+    width: 95% !important;
     max-width: none !important;
-    padding: 0 calc(var(--custom-content-padding) + var(--right-gutter)) !important;
     margin: 0 auto !important;
-  }
-
-  .main, .page { gap: 0 !important; align-items: stretch !important; }
-}
-
-/* Keep mobile/touch navigation intact and responsive */
-@media (max-width: 67em) {
-  :root { --right-gutter: 0rem; }
-  .content { margin-left: auto; margin-right: auto; padding: 0 1em; }
-}
-
-/* Make code blocks use the full available width and allow horizontal scroll */
-.highlight pre, pre.literal-block, .highlighttable td.code {
-  max-width: none !important;
-  width: 80% !important;
-  overflow-x: auto !important;
-  white-space: pre !important;
-  overflow-wrap: normal !important;
-}
-
-/* Prevent page from capturing scroll when over Plotly graphs */
-.plotly-graph-div {
-  overscroll-behavior: contain;
-}
-
-/* Increase code block padding on large screens for readability */
-@media (min-width: 63em) {
-  .content .highlight pre, .content pre.literal-block {
-    padding-left: 2rem !important;
-    padding-right: 2rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
   }
 }
 
-/* set a fixed sidebar width and expand content accordingly (fallback) */
-.sidebar-drawer {
-  min-width: 15rem !important;
-  width: 15rem !important;
-}
-
-/* ensure main content fills remaining space (fallback) */
-.content {
-  width: calc(100% - 15rem - var(--right-gutter)) !important;
-  max-width: none !important;
-  padding: 0 calc(1.5rem + var(--right-gutter)) !important;
-}
-
-/* keep responsive behavior on small screens */
+/* Keep sensible width on small screens */
 @media (max-width: 63em) {
-  .sidebar-drawer { width: 15em !important; display: block !important; }
-  .content { width: auto !important; max-width: 46em !important; padding: 0 1em !important; }
+  .content {
+    width: auto !important;
+    max-width: 46em !important;
+    padding: 0 1rem !important;
+  }
 }
+
+/* Remove any other custom rules by keeping file minimal */
