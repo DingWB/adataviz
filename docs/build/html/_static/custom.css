@@ -11,6 +11,17 @@
     padding-right: 1rem !important;
     /* padding-right: 2rem !important; */
   }
+
+  /* Decrease code block width for readability on wide screens */
+  .content .highlight pre,
+  .content pre.literal-block,
+  .content .highlighttable td.code {
+    max-width: 70% !important;
+    width: auto !important;
+    white-space: pre !important;
+    overflow-x: auto !important;
+    margin-right: 2rem !important;
+  }
 }
 
 /* Keep sensible width on small screens */
