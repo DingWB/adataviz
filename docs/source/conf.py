@@ -40,7 +40,9 @@ exclude_patterns = []
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'alabaster'
+# select a theme: https://sphinx-themes.org/#themes
+# https://sphinx-themes.org/sample-sites/furo/
+html_theme = 'furo' # pip install furo
 html_static_path = ['_static']
 
 

@@ -17,7 +17,7 @@ sphinx-quickstart
 # sphinx-apidoc -e -o source -f --ext-autodoc --ext-viewcode --ext-githubpages --ext-doctest ../../adataviz #pwd is doc, output (modules.rst) is current dir, source dir is parent dir
 
 # under docs
-# vim index.html: <meta http-equiv="refresh" content="0; url=./html/index.html" />
+# vim index.html: <meta http-equiv="refresh" content="0; url=./build/html/index.html" />
 cd docs
 rm -rf build
 ln -s ~/Projects/Github/adataviz/notebooks/ source/notebooks
