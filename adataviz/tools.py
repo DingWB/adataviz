@@ -403,3 +403,137 @@ def downsample_adata(adata_path,groupby="Group",obs_path=None,
 		lambda x: x.sample(downsample).index.tolist() if x.shape[0] > downsample else x.index.tolist()).sum()
 	adata[keep_cells,:].write_h5ad(outfile,compression='gzip')
 	adata.file.close()
+
+def load_adata(adata):
+	if isinstance(adata,str):
+		adata=anndata.read_h5ad(os.path.expanduser(adata),backed='r')
+	else:
+		assert isinstance(adata,anndata.AnnData)
+	return adata
+
+def load_obs(obs):
+	if isinstance(obs,str) and not obs.endswith('.h5ad'):
+		obs_path = os.path.abspath(os.path.expanduser(obs))
+		sep='\t' if obs_path.endswith('.tsv') or obs_path.endswith('.txt') else ','
+		obs = pd.read_csv(obs_path, index_col=0,sep=sep)
+	elif isinstance(obs,str) and obs.endswith('.h5ad'):
+		adata=anndata.read_h5ad(os.path.expanduser(obs),backed='r')
+		obs=adata.obs.copy()
+		adata.file.close()
+	else:
+		assert isinstance(obs,pd.DataFrame)
+	return obs
+
+def load_color_palette(palette_path=None,adata=None,groups=[]):
+	# read color palette
+	if isinstance(groups,str):
+		groups=[groups]
+	assert isinstance(groups,list)
+	color_palette={}
+	if not palette_path is None and os.path.exists(os.path.expanduser(palette_path)):
+		palette_path = os.path.abspath(os.path.expanduser(palette_path))
+		D = pd.read_excel(palette_path,sheet_name=None, index_col=0)
+		for group_col in groups:
+			if group_col in D:
+				color_palette[group_col] = D[group_col].Hex.to_dict()
+			else:
+				assert '+' in group_col, f"{group_col} not found in the palette file."
+				for group in group_col.split('+'):
+					assert group in D, f"{group} not found in the palette file."
+					color_palette[group] = D[group].Hex.to_dict()
+	else:
+		if adata is None:
+			return None
+		# assert not adata is None, "If palette_path not provided, adata is required to extract color information from adata.obs"
+		for group_col in groups:
+			if f'{group_col}_colors' in adata.uns:
+				group_series=adata.obs[group_col]
+				if not pd.api.types.is_categorical_dtype(group_series):
+					group_series=group_series.astype('category')
+				color_palette[group_col]={cluster:color for cluster,color in zip(group_series.cat.categories.tolist(),
+										adata.uns[f'{group_col}_colors'])
+										}
+	if len(color_palette)==0:
+		return None
+	if len(groups)==1:
+		return color_palette[groups[0]]
+	return color_palette
+
+def composition(obs,groupby,stratify_col,composition_col,outname=None,parent_col=None,
+						 sort_cols=None,adata=None,color_palette=None):
+	from xlsxwriter.utility import xl_col_to_name
+	# for example: Regional Composition Within Each Cell Type (for each cell type in each donor)
+	obs=load_obs(obs)
+	obs[groupby]=obs[groupby].astype(str)
+	if not sort_cols is None:
+		obs.sort_values(sort_cols,inplace=True)
+	cell_type_order=obs[groupby].unique().tolist()
+	if not parent_col is None:
+		group2parent=obs.loc[:,[groupby,parent_col]].drop_duplicates().set_index(groupby)[parent_col].to_dict()
+	if outname is None:
+		outname=f"{groupby}_composition.xlsx"
+	if not outname.endswith('.xlsx'):
+		outname=outname+'.xlsx'
+	if not adata is None:
+		adata=load_adata(adata)
+	groups=[parent_col,groupby,composition_col] if not parent_col is None else [groupby,composition_col]
+	color_palette=load_color_palette(palette_path=color_palette,adata=adata,
+										groups=groups)
+	writer = pd.ExcelWriter(outname)
+	stratify_order=obs[stratify_col].unique().tolist()
+	for stratify in ['All']+stratify_order:
+		if stratify=='All':
+			df=obs.groupby(groupby)[composition_col].value_counts(normalize=True).unstack()
+		else:
+			df=obs.loc[obs[stratify_col]==stratify].groupby(groupby)[composition_col].value_counts(normalize=True).unstack()
+		rows=[ct for ct in cell_type_order if ct in df.index.tolist()]
+		df=df.loc[rows]
+		if not parent_col is None:
+			df.reset_index(inplace=True)
+			df.insert(0,parent_col,df[groupby].map(group2parent))
+			df.set_index([parent_col,groupby],inplace=True)
+		df=df.applymap(lambda x:100*x) # type: ignore
+		df.to_excel(writer,sheet_name=stratify)
+		workbook = writer.book
+		worksheet = writer.sheets[stratify]
+
+		if not parent_col is None:
+			parent_values = df.index.get_level_values(0).tolist()
+			parent_colors=[color_palette[parent_col][ct] for ct in parent_values]
+		group_values=df.index.get_level_values(1).tolist()
+		regions=df.columns.tolist()
+		group_colors=[color_palette[groupby][ct] for ct in group_values]
+		composition_colors=[color_palette[composition_col][r] for r in regions]
+		for i in range(df.shape[0]):
+			group_color = group_colors[i]
+			# f2 = workbook.add_format({'bold': True, 'font_color': 'black', 'bg_color': group_color})
+			f2 = workbook.add_format({'bold': True, 'font_color': group_color, 'bg_color': 'white'})
+			if not parent_col is None:
+				parent_color = parent_colors[i]
+				f1 = workbook.add_format({'bold': True, 'font_color': 'black', 'bg_color': parent_color})
+				worksheet.write(i + 1, 0, parent_values[i], f1)
+				worksheet.write(i + 1, 1, group_values[i], f2)
+			else:
+				worksheet.write(i + 1, 0, group_values[i], f2)
+		for i in range(df.shape[1]):
+			composition_color = composition_colors[i]
+			f1 = workbook.add_format({'bold': True, 'font_color': composition_color, 'bg_color':'white'})
+			if not parent_col is None:
+				worksheet.write(0, i+2, regions[i], f1)
+			else:
+				worksheet.write(0, i+1, regions[i], f1)
+		# width = 20
+		# cell_fmt = workbook.add_format(
+		#     {'bold': False, 'font_color': 'black',
+		#      # 'bg_color':'green',
+		#      'align': 'center', 'valign': 'vcenter'})
+		# worksheet.set_column(0, 1, width, cell_fmt)
+
+		end=str(xl_col_to_name(df.shape[1]))+str(df.shape[0]+1)
+		start="B2" if parent_col is None else "C2"
+		mid_value= 1 / df.shape[1]
+		worksheet.conditional_format(f'{start}:{end}', {'type': '3_color_scale',
+									'min_color': "#3abf99", 'min_value':0,
+									'mid_color': "white", 'mid_value':mid_value,
+									'max_color': "#c72228", 'max_value':1})
+	writer.close()

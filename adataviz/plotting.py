@@ -2,6 +2,7 @@ from re import L
 import os, sys
 import pandas as pd
 import anndata
+import scanpy as sc
 import matplotlib.pylab as plt
 import numpy as np
 from matplotlib.colors import Normalize
@@ -13,10 +14,10 @@ from .utils import (
 	_take_data_series, level_one_palette, 
 	tight_hue_range,_text_anno_scatter,
 	density_contour,plot_color_dict_legend,
-	plot_marker_legend,plot_text_legend,plot_cmap_legend
+	plot_marker_legend,plot_text_legend,plot_cmap_legend,
+	normalize_mc_by_cell
 )
-from PyComplexHeatmap import HeatmapAnnotation,anno_label,anno_simple,DotClustermapPlotter
-from .utils import normalize_mc_by_cell
+from .tools import load_adata,load_obs,load_color_palette
 import plotly.express as px
 import plotly.io as pio
 import plotly.graph_objects as go
@@ -24,23 +25,60 @@ from loguru import logger as logger
 # logger.add(sys.stderr, level="DEBUG")
 logger.add(sys.stderr, level="ERROR")
 
-def get_colors(adata,variable=None,palette_path=None):
-	if not palette_path is None:
-		try:
-			colors=pd.read_excel(palette_path,sheet_name=variable,index_col=0).Hex.to_dict()
-		except:
-			return None
-	else:
-		if adata is None:
-			return None
-		if isinstance(adata,str):
-			adata=anndata.read_h5ad(adata,backed='r')
-		if f'{variable}_colors' not in adata.uns:
-			colors={cluster:color for cluster,color in zip(adata.obs[variable].cat.categories.tolist(),adata.uns[f'{variable}_colors'])}
-		else:
-			colors=None
-	color_discrete_map=colors
-	return color_discrete_map
+def use_scientific_style():
+	import matplotlib.pylab as plt
+	plt.rcParams.update({
+		'font.family': 'sans-serif',
+		'font.sans-serif': 'Arial',
+		'font.family': 'Arial',
+
+		# Base font size (set so text is ~7–8 pt at final print size)
+		'font.size': 8,                  # main text (labels, ticks, legend)
+		'axes.labelsize': 9,             # axis labels (x/y)
+		'axes.titlesize': 10,            # panel titles / figure titles
+		'figure.titlesize':11,
+		'xtick.labelsize': 8,            # x-tick labels
+		'ytick.labelsize': 8,            # y-tick labels
+		'legend.fontsize': 8,            # legend text
+		'legend.title_fontsize': 9,      # legend title (if used)
+
+		# Lines and elements for clarity
+		'lines.linewidth': 1.2,          # data lines
+		'axes.linewidth': 1.0,           # axis spines
+		'xtick.major.width': 1.0,
+		'ytick.major.width': 1.0,
+		'xtick.major.size': 4,
+		'ytick.major.size': 4,
+
+		# General figure appearance
+		'figure.dpi': 300,               # high resolution for export
+		'savefig.dpi': 300,              # when using plt.savefig()
+		'figure.figsize': (6.5, 4.5),    # example starting size (adjust to your needs; e.g., ~17 cm wide for full page)
+		'figure.constrained_layout.use': True,
+		'savefig.transparent': True,
+		'savefig.bbox': 'tight',
+		'pdf.fonttype':42,
+		'ps.fonttype':42,
+	})
+	# plt.rcParams.keys()
+
+# def get_colors(adata,variable=None,palette_path=None):
+# 	if not palette_path is None:
+# 		try:
+# 			colors=pd.read_excel(palette_path,sheet_name=variable,index_col=0).Hex.to_dict()
+# 		except:
+# 			return None
+# 	else:
+# 		if adata is None:
+# 			return None
+# 		if isinstance(adata,str):
+# 			adata=anndata.read_h5ad(adata,backed='r')
+# 		if f'{variable}_colors' not in adata.uns:
+# 			colors={cluster:color for cluster,color in zip(adata.obs[variable].cat.categories.tolist(),adata.uns[f'{variable}_colors'])}
+# 		else:
+# 			colors=None
+# 	color_discrete_map=colors
+# 	return color_discrete_map
 
 def interactive_embedding(
 		adata=None,obs=None,variable=None,gene=None,
@@ -106,10 +144,7 @@ def interactive_embedding(
 	if not gene is None:
 		assert not adata is None, "`gene` provided, `adata` must be provided too."
 	if not adata is None:
-		if isinstance(adata,str):
-			adata=anndata.read_h5ad(adata,backed='r')
-		else:
-			assert isinstance(adata,anndata.AnnData)
+		adata=load_adata(adata)
 	use_adata=None
 	if not gene is None: # adata is not None
 		if adata.isbacked: # type: ignore
@@ -128,13 +163,7 @@ def interactive_embedding(
 	if obs is None:
 		obs=use_adata.obs.copy() # type: ignore
 	else: # obs not none
-		if isinstance(obs,str):
-			obs_path = os.path.abspath(os.path.expanduser(obs))
-			sep='\t' if obs_path.endswith('.tsv') or obs_path.endswith('.txt') else ','
-			obs = pd.read_csv(obs_path, index_col=0,sep=sep)
-		else:
-			assert isinstance(obs,pd.DataFrame)
-			obs=obs.copy()
+		obs=load_obs(obs)
 		if not use_adata is None:
 			overlap_idx=obs.index.intersection(use_adata.obs_names)
 			obs=obs.loc[overlap_idx]
@@ -165,7 +194,8 @@ def interactive_embedding(
 		color_discrete_map=None
 	else:
 		if colors is None:
-			color_discrete_map=get_colors(use_adata,use_col,palette_path=palette_path)
+			# color_discrete_map=get_colors(use_adata,use_col,palette_path=palette_path)
+			color_discrete_map=load_color_palette(palette_path=palette_path,adata=use_adata,groups=use_col)
 		else:
 			color_discrete_map=colors
 		if not color_discrete_map is None:
@@ -264,54 +294,31 @@ def show_fig(fig,filename="plot"):
     }
     fig.show(config=interactive_config)
 
-def stacked_barplot(Input="cell_obs_with_annotation.csv",groupby='Age',
-					column='CellClass',x_order=None,y_order=None,linewidth=0.1,
-					palette="~/Projects/mouse_pfc/obs/mpfc_color_palette.xlsx",
-					width=None,height=None,xticklabels_kws=None,outdir="figures",
-					outname=None,lgd_kws=None,gap=0.05,sort_by=None):
+def stacked_barplot(
+		obs="cell_obs_with_annotation.csv",groupby='Age',
+		column='CellClass',x_order=None,y_order=None,linewidth=0.1,
+		palette="~/Projects/mouse_pfc/obs/mpfc_color_palette.xlsx",
+		width=None,height=None,xticklabels_kws=None,save=False,
+		lgd_kws=None,gap=0.05,sort_by=None):
 	"""
 	Plot stacked barplto to show the cell type composition in each `groupby` (
 		such as Age, brain regions and so on.)
 		For example: stacked_barplot(column='MajorType',width=3.5,height=6)
 							stacked_barplot(column='CellClass',width=3.5,height=3)
-
-	Parameters
-	----------
-	Input :
-	groupby :
-	column :
-	x_order :
-	y_order :
-	linewidth :
-	palette :
-	width :
-	height :
-	xticklabels_kws :
-	outdir :
-	lgd_kws: dict
-
-	Returns
-	-------
-
 	"""
-	outdir=os.path.abspath(os.path.expanduser(outdir))
-	if not os.path.exists(outdir):
-		os.mkdir(outdir)
-	if isinstance(Input,pd.DataFrame):
-		data=Input.copy()
-	elif isinstance(Input, str) and Input.endswith('.h5ad'):
-		input_path = os.path.abspath(os.path.expanduser(Input))
-		adata = anndata.read_h5ad(input_path,backed='r')
+	if isinstance(obs,pd.DataFrame):
+		data=obs.copy()
+	elif isinstance(obs, str) and obs.endswith('.h5ad'):
+		obs_path = os.path.abspath(os.path.expanduser(obs))
+		adata = anndata.read_h5ad(obs_path,backed='r')
 		data=adata.obs
 		del adata
-	elif Input.endswith('.csv'):
-		input_path = os.path.abspath(os.path.expanduser(Input))
-		data=pd.read_csv(input_path,index_col=0)
+	elif obs.endswith('.csv'):
+		obs_path = os.path.abspath(os.path.expanduser(obs))
+		data=pd.read_csv(obs_path,index_col=0)
 	else:
-		input_path = os.path.abspath(os.path.expanduser(Input))
-		data = pd.read_csv(input_path, index_col=0,sep='\t')
-	if outname is None:
-		outname=os.path.join(outdir,f"{groupby}.{column}.barplot.pdf")
+		obs_path = os.path.abspath(os.path.expanduser(obs))
+		data = pd.read_csv(obs_path, index_col=0,sep='\t')
 	xticklabels_kws={} if xticklabels_kws is None else xticklabels_kws
 	xticklabels_kws.setdefault('rotation',-45)
 	xticklabels_kws.setdefault("rotation_mode", "anchor")
@@ -381,22 +388,27 @@ def stacked_barplot(Input="cell_obs_with_annotation.csv",groupby='Age',
 	lgd_kws.setdefault("bbox_to_anchor", (1, 1))
 	lgd_kws.setdefault("title",column)
 	ax.legend(**lgd_kws)
-	plt.savefig(outname, transparent=True,bbox_inches='tight',dpi=300)
-	plt.show()
+	if save:
+		outdir=os.path.dirname(os.path.expanduser(save))
+		if not os.path.exists(outdir):
+			os.mkdir(outdir)
+		plt.savefig(save) # transparent=True,bbox_inches='tight',dpi=300
+	else:
+		plt.show()
 
-def pieplot(Input="cell_obs_with_annotation.csv",groupby='Age',outdir="figures",
+def pieplot(obs="cell_obs_with_annotation.csv",groupby='Age',outdir="figures",
 			palette_path="~/Projects/mouse_pfc/obs/mpfc_color_palette.xlsx",
 			order=None,explode=0.05):
 	outdir = os.path.abspath(os.path.expanduser(outdir))
 	if not os.path.exists(outdir):
 		os.mkdir(outdir)
 	# colors=None
-	if isinstance(Input,pd.DataFrame):
-		data=Input.copy()
-	elif isinstance(Input, str) and Input.endswith('.h5ad'):
-		input_path = os.path.abspath(os.path.expanduser(Input))
-		print(f"Reading adata: {Input}")
-		adata = anndata.read_h5ad(input_path, backed='r')
+	if isinstance(obs,pd.DataFrame):
+		data=obs.copy()
+	elif isinstance(obs, str) and obs.endswith('.h5ad'):
+		obs_path = os.path.abspath(os.path.expanduser(obs))
+		print(f"Reading adata: {obs}")
+		adata = anndata.read_h5ad(obs_path, backed='r')
 		# if f'{groupby}_colors' in adata.uns:
 		#     colors={k:v for k,v in zip(adata.obs[groupby].cat.categories.tolist(),
 		#                                adata.uns[f'{groupby}_colors'])}
@@ -404,12 +416,12 @@ def pieplot(Input="cell_obs_with_annotation.csv",groupby='Age',outdir="figures",
 		#     colors=None
 		data = adata.obs
 		del adata
-	elif Input.endswith('.csv'):
-		input_path = os.path.abspath(os.path.expanduser(Input))
-		data = pd.read_csv(input_path, index_col=0)
+	elif obs.endswith('.csv'):
+		obs_path = os.path.abspath(os.path.expanduser(obs))
+		data = pd.read_csv(obs_path, index_col=0)
 	else:
-		input_path = os.path.abspath(os.path.expanduser(Input))
-		data = pd.read_csv(input_path, index_col=0, sep='\t')
+		obs_path = os.path.abspath(os.path.expanduser(obs))
+		data = pd.read_csv(obs_path, index_col=0, sep='\t')
 
 	if not palette_path is None:
 		palette_path=os.path.abspath(os.path.expanduser(palette_path))
@@ -428,7 +440,7 @@ def pieplot(Input="cell_obs_with_annotation.csv",groupby='Age',outdir="figures",
 			explode=[explode]*len(order), autopct='%.1f%%')
 	# Add title to the chart
 	plt.title('Distribution of #of cells across different stages')
-	plt.savefig(os.path.join(outdir, groupby + '.piechart.pdf'), transparent=True,bbox_inches='tight',dpi=300)
+	plt.savefig(os.path.join(outdir, groupby + '.piechart.pdf')) # transparent=True,bbox_inches='tight',dpi=300
 	plt.show()
 
 def plot_pseudotime(
@@ -488,7 +500,7 @@ def plot_pseudotime(
 		plt.setp(ax.xaxis.get_majorticklabels(), rotation=rotate,
 				 rotation_mode="anchor",horizontalalignment='left')
 	outname=groupby + '.pseudotime_violin.pdf' if hue is None else groupby + f'_{hue}.pseudotime_violin.pdf'
-	plt.savefig(os.path.join(outdir, outname), transparent=True,bbox_inches='tight',dpi=300)
+	plt.savefig(os.path.join(outdir, outname)) # transparent=True,bbox_inches='tight',dpi=300
 	plt.show()
 
 def stacked_violinplot(adata, use_genes=None, groupby='Age',
@@ -507,8 +519,7 @@ def stacked_violinplot(adata, use_genes=None, groupby='Age',
 	ax1.yaxis.set_tick_params(which='minor',left=True)
 	ax1.grid(axis='y', linestyle='--', color='black',
 				alpha=1, zorder=-5, which='minor')
-	plt.savefig(f"{fig_basename}.{groupby}.stacked_violin.pdf",
-				transparent=True,bbox_inches='tight',dpi=300)
+	plt.savefig(f"{fig_basename}.{groupby}.stacked_violin.pdf")
 	plt.show()
 
 def categorical_scatter(
@@ -1285,7 +1296,7 @@ def plot_cluster(
 		**kwargs)
 
 	if not output is None:
-		plt.savefig(os.path.expanduser(output),transparent=True,bbox_inches='tight',dpi=300)
+		plt.savefig(os.path.expanduser(output)) # transparent=True,bbox_inches='tight',dpi=300
 	if show:
 		plt.show()
 
@@ -1400,7 +1411,7 @@ def plot_gene(
 	colorbar = fig.axes[-1]
 	cur_pos=colorbar.get_position()
 	colorbar.set_position([cur_pos.x0,(1-cur_pos.height/2)/2,cur_pos.width, cur_pos.height / 2])
-	fig.savefig(output, transparent=True,bbox_inches='tight',dpi=300)
+	fig.savefig(output) # transparent=True,bbox_inches='tight',dpi=300
 
 	adata.obs[gene]=adata.to_df().loc[adata.obs_names.tolist(), gene].tolist()
 	# print(hue_norm)
@@ -1414,7 +1425,7 @@ def plot_gene(
 		hue=gene,axis_format=axis_format,
 		text_anno=None,
 		coord_base=coord_base,**scatter_kws)
-	fig.savefig(output, transparent=True,bbox_inches='tight',dpi=300)
+	fig.savefig(output) # transparent=True,bbox_inches='tight',dpi=300
 	
 	if not group_col is None:
 		output=os.path.join(figdir, f"{title}.{group_col}.{coord_base}.pdf")
@@ -1461,7 +1472,7 @@ def plot_gene(
 		ax.set_title(title)
 		ax.xaxis.label.set_visible(False)
 		plt.setp(ax.xaxis.get_majorticklabels(), rotation=-45, ha='left')
-		plt.savefig(os.path.join(figdir, f"{title}.{gene}.{group_col}.boxplot.pdf"), transparent=True,bbox_inches='tight',dpi=300)
+		plt.savefig(os.path.join(figdir, f"{title}.{gene}.{group_col}.boxplot.pdf"))
 	return adata
 
 def plot_genes(
@@ -1553,6 +1564,7 @@ def plot_genes(
 	outname : str, optional
 		_description_, by default "test.pdf"
 	"""
+	from PyComplexHeatmap import HeatmapAnnotation,anno_label,anno_simple,DotClustermapPlotter
 	assert not genes is None, "Please provide genes to plot."
 	# adata could be single cell level or pseudobulk level (adata.layers['frac'] should be existed)
 	raw_adata = anndata.read_h5ad(os.path.expanduser(adata_path), backed='r')
@@ -1761,7 +1773,7 @@ def plot_genes(
 		ax.grid(axis='both', which='minor', color='grey', linestyle='--',alpha=0.6,zorder=0)
 	if outname is None:
 		outname=f"{title}.pdf"
-	plt.savefig(os.path.expanduser(outname),transparent=True, bbox_inches='tight',dpi=300)
+	plt.savefig(os.path.expanduser(outname))
 	plt.show()
 	return plot_data,df_cols,cm1
 
@@ -1948,7 +1960,8 @@ def plot_interactive_boxlot_from_data(
 	plot_df = get_boxplot_data(adata,variable,gene,obs=obs)
 	# Preserve existing Y-axis extreme filtering logic (remove 1% and 99% extremes)
 	range_y=[plot_df[gene].quantile(0.01), plot_df[gene].quantile(0.99)]
-	color_discrete_map=get_colors(adata,variable,palette_path=palette_path)
+	# color_discrete_map=get_colors(adata,variable,palette_path=palette_path)
+	color_discrete_map=load_color_palette(palette_path=palette_path,adata=adata,groups=variable)
 	if not color_discrete_map is None:
 		keys=list(color_discrete_map.keys()) # type: ignore
 		for k in keys:
@@ -2008,7 +2021,8 @@ def plot_interacrive_boxplot_from_stats(
 	# build figure with one Box per group using precomputed quartiles/fences
 	fig = go.Figure()
 	# optional color mapping
-	color_discrete_map=get_colors(adata,variable,palette_path=palette_path)
+	# color_discrete_map=get_colors(adata,variable,palette_path=palette_path)
+	color_discrete_map=load_color_palette(palette_path=palette_path,adata=adata,groups=variable)
 	palette = px.colors.qualitative.D3
 	color = None
 	for group, row in plot_data.iterrows():
