@@ -40,8 +40,8 @@ Available subcommands:
 	command=command.lower()
 	if command == "plot":
 		return {
-			'plot_cluster': pl.plot_cluster,
-			'plot_gene': pl.plot_gene,
+			'plot_categorical': pl.plot_categorical,
+			'plot_continuous': pl.plot_continuous,
 			'plot_genes': pl.plot_genes,
 		}
 	elif command=="tool":

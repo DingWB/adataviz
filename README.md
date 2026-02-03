@@ -26,7 +26,7 @@ python setup.py install
 ```
 
 ## Command Line Tools
-### to_pseudobulk
+### Aggregrate single-cell RNA data to pseudobulk adata
 ```shell
 # merge single cells raw counts to psuedobulk (sum up raw counts) and run normalization (logCPM or logTPM)
 adataviz tool scrna2pseudobulk  HMBA.Group.downsample_1500.h5ad --groupby="Subclass" --downsample=2000 --use_raw=True --n_jobs 16 --normalization CPM -s ~/Projects/BICAN/adata/HMBA_v2/Pseudobulk.Subclass.h5ad
