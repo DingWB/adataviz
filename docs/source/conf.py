@@ -44,11 +44,41 @@ exclude_patterns = []
 # https://sphinx-themes.org/sample-sites/furo/
 html_theme = 'furo' # pip install furo
 html_static_path = ['_static']
+html_css_files = [
+    'custom.css',
+]
+
+html_theme_options = {
+    "navigation_with_keys": True,
+    "top_of_page_buttons": ["view", "edit"],
+    "announcement": "<em>Documentation website</em> is online!",
+    "analytics_id": "G-VRB2NBWG05",
+    "collapse_navigation": False,
+    "globaltoc_collapse": False,
+    "globaltoc_maxdepth": 3,
+    "collapse_navigation": False,
+    "display_version": True,
+    "sidebarwidth": 200,  # sidebarwidth
+    "navigation_depth": 6,
+}
 
 
 # html_theme = "sphinx_rtd_theme" #sphinx_sizzle_theme
 # html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
+html_sidebars = {
+    "**": [
+        "relations.html",  # needs 'show_related': True theme option to display
+        "searchbox.html",
+    ]
+}
+
+html_context = {
+    "display_github": True,
+    "github_user": "DingWB",
+    "github_repo": "PyComplexHeatmap",
+    "github_version": "main/docs/source/",
+}
 
 source_parsers = {
    '.md': 'recommonmark.parser.CommonMarkParser',
@@ -61,3 +91,7 @@ def setup(app):
             'auto_toc_tree_section': 'Contents',
             }, True)
     app.add_transform(AutoStructify)
+
+
+
+

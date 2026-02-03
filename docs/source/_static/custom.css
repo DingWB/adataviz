@@ -1,0 +1,22 @@
+/* Increase main content width for Furo theme */
+/* Adjust these values to taste (em or px) */
+.content {
+  width: 70em !important;
+  max-width: calc(100% - 20em) !important;
+}
+/* Allow more room on larger screens */
+@media (min-width: 1200px) {
+  .content {
+    width: 90em !important;
+    max-width: calc(100% - 24em) !important;
+  }
+}
+/* Reduce sidebar width slightly so content gets more space */
+.sidebar-drawer {
+  min-width: 14em !important;
+  width: calc(50% - 24em) !important;
+}
+/* On narrow screens keep responsive behavior */
+@media (max-width: 67em) {
+  .content { margin-left: auto; margin-right: auto; padding: 0 1em; }
+}
