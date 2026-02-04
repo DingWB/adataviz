@@ -117,14 +117,14 @@ class AnnDataCollection:
         # `obsm` data is needed, read individual files directly from
         # `individual_adata_paths` stored in `merged.uns`.
 
-        # store metadata
-        merged.uns["individual_adata_paths"] = [os.path.abspath(p) for p in paths]
+        # store metadata (short keys)
+        merged.uns["src_paths"] = [os.path.abspath(p) for p in paths]
         # JSON-serialize per-source info so HDF5 can store it safely
         try:
-            merged.uns["_adataset_source_info"] = json.dumps(per_source_info)
+            merged.uns["src_info"] = json.dumps(per_source_info)
         except Exception:
             # fallback: store as a list of strings
-            merged.uns["_adataset_source_info"] = [str(x) for x in per_source_info]
+            merged.uns["src_info"] = [str(x) for x in per_source_info]
 
         instance = cls(list(paths), ann=merged, source_info=per_source_info)
         # optionally save to out_path
@@ -150,6 +150,97 @@ class AnnDataCollection:
         obs_idx = self._parse_obs_indexer(cells)
         var_names = self._parse_var_indexer(genes)
         return AnnDataView(self, obs_idx, var_names)
+
+    def update_paths(self, mapping: Optional[Dict[str, str]] = None,
+                     search_dirs: Optional[Sequence[str]] = None,
+                     recursive: bool = True) -> Dict[str, Optional[str]]:
+        """Update stored source paths after files have been moved.
+
+        Parameters
+        - `mapping`: optional dict mapping old_path -> new_path. If provided,
+          entries in `adata_paths` will be replaced according to this map.
+        - `search_dirs`: optional sequence of directories to search for moved
+          files by matching basenames (first match wins). Used when `mapping`
+          is not provided or doesn't contain an entry for a given source.
+        - `recursive`: if True, search directories recursively when using
+          `search_dirs`.
+
+        Returns a dict mapping the original absolute path -> new absolute
+        path (or `None` if not found).
+        """
+        result: Dict[str, Optional[str]] = {}
+
+        norm_map: Dict[str, str] = {}
+        if mapping:
+            for k, v in mapping.items():
+                try:
+                    norm_map[os.path.abspath(k)] = os.path.abspath(v)
+                except Exception:
+                    norm_map[str(k)] = str(v)
+
+        search_dirs = [os.path.expanduser(d) for d in (search_dirs or [])]
+        for i, orig in enumerate(list(self.adata_paths)):
+            orig_abs = os.path.abspath(orig)
+            new_path: Optional[str] = None
+
+            # 1) explicit mapping provided by user
+            if orig_abs in norm_map:
+                cand = norm_map[orig_abs]
+                if os.path.exists(cand):
+                    new_path = cand
+
+            # 2) search by basename in provided search_dirs
+            if new_path is None and search_dirs:
+                basename = os.path.basename(orig_abs)
+                for d in search_dirs:
+                    if recursive:
+                        pattern = os.path.join(d, "**", basename)
+                    else:
+                        pattern = os.path.join(d, basename)
+                    matches = sorted(glob.glob(pattern, recursive=recursive))
+                    if matches:
+                        new_path = os.path.abspath(matches[0])
+                        break
+
+            # 3) if original still exists, keep it
+            if new_path is None and os.path.exists(orig_abs):
+                new_path = orig_abs
+
+            result[orig_abs] = new_path
+
+            if new_path:
+                # update internal list
+                self.adata_paths[i] = new_path
+                # update ann.uns if present (accept old key as fallback)
+                if self.ann is not None:
+                    try:
+                        paths_list = list(self.ann.uns.get("src_paths", self.ann.uns.get("individual_adata_paths", [])))
+                        if i < len(paths_list):
+                            paths_list[i] = new_path
+                        else:
+                            # ensure list is long enough
+                            while len(paths_list) < i:
+                                paths_list.append("")
+                            paths_list.append(new_path)
+                        self.ann.uns["src_paths"] = [os.path.abspath(p) for p in paths_list]
+                    except Exception:
+                        # best-effort; don't raise on metadata update
+                        pass
+                # update source_info if present
+                if i < len(self.source_info):
+                    try:
+                        self.source_info[i]["path"] = new_path
+                    except Exception:
+                        pass
+
+        # re-serialize per-source info into uns for safe HDF5 storage
+        if self.ann is not None and self.source_info:
+            try:
+                self.ann.uns["src_info"] = json.dumps(self.source_info)
+            except Exception:
+                self.ann.uns["src_info"] = [str(x) for x in self.source_info]
+
+        return result
 
     def _parse_obs_indexer(self, idx) -> np.ndarray:
         n = self.ann.n_obs
@@ -213,8 +304,10 @@ class AnnDataView:
         n_rows = len(self.obs_idx)
         n_cols = len(self.var_names)
 
-        # Prepare a sparse matrix to fill
-        X_global = sp.lil_matrix((n_rows, n_cols), dtype=np.float32)
+        # Build global matrix by accumulating COO entries for speed
+        rows_all: List[int] = []
+        cols_all: List[int] = []
+        data_all: List[float] = []
 
         # Map merged obs rows to sources
         src_indices = merged.obs.iloc[self.obs_idx]["_source_idx"].values
@@ -227,7 +320,7 @@ class AnnDataView:
             # global row positions that come from this source
             global_rows = np.nonzero(mask)[0]
             # original obs names stored in `_orig_obs_name` column
-            orig_obs_names = sel_obs.iloc[mask]["_orig_obs_name"].values
+            orig_obs_names = sel_obs["_orig_obs_name"].to_numpy()[mask]
 
             a = anndata.read_h5ad(path, backed="r")
             try:
@@ -253,15 +346,11 @@ class AnnDataView:
                     missing_g = np.asarray(genes_in_source)[src_gene_pos < 0]
                     raise KeyError(f"Some requested genes not found in {path}: {missing_g}")
 
-                # read X slice from source. Some anndata/h5ad backends may not
-                # support simultaneous row+col indexing in `backed='r'` mode,
-                # so try direct slicing and fall back to row-first then
-                # column-subsetting if needed.
+                # read X slice from source. Try direct slicing; fall back if needed.
                 try:
                     sub = a[src_row_pos, src_gene_pos]
                     X_sub = sub.X
                 except Exception:
-                    # fallback: select rows first, then subset columns
                     rows_ann = a[src_row_pos]
                     X_rows = rows_ann.X
                     if sp.issparse(X_rows):
@@ -270,22 +359,24 @@ class AnnDataView:
                         X_rows = sp.csr_matrix(X_rows)
                     X_sub = X_rows[:, src_gene_pos]
 
-                if sp.issparse(X_sub):
-                    X_sub = X_sub.tocsr()
-                else:
+                # normalize to sparse COO for efficient assembly
+                if not sp.issparse(X_sub):
                     X_sub = sp.csr_matrix(X_sub)
+                X_coo = X_sub.tocoo()
 
-                # place into global
-                for i_local, i_global in enumerate(global_rows):
-                    row = X_sub[i_local]
-                    if sp.issparse(row):
-                        row = row.toarray().ravel()
-                    else:
-                        row = np.asarray(row).ravel()
-                    if row.size != len(src_col_pos_in_global):
-                        # unexpected shape
-                        raise RuntimeError("Shape mismatch when assembling X")
-                    X_global[i_global, src_col_pos_in_global] = row
+                if X_coo.nnz == 0:
+                    continue
+
+                # map local coordinates to global coordinates
+                global_rows_arr = np.asarray(global_rows)
+                src_col_pos_arr = np.asarray(src_col_pos_in_global)
+
+                rows_mapped = global_rows_arr[X_coo.row]
+                cols_mapped = src_col_pos_arr[X_coo.col]
+
+                rows_all.extend(rows_mapped.tolist())
+                cols_all.extend(cols_mapped.tolist())
+                data_all.extend(X_coo.data.tolist())
             finally:
                 try:
                     a.file.close()
@@ -295,7 +386,10 @@ class AnnDataView:
                     except Exception:
                         pass
 
-        X_final = X_global.tocsr()
+        if len(data_all) == 0:
+            X_final = sp.csr_matrix((n_rows, n_cols), dtype=np.float32)
+        else:
+            X_final = sp.coo_matrix((data_all, (rows_all, cols_all)), shape=(n_rows, n_cols)).tocsr()
         out = anndata.AnnData(X_final, obs=sel_obs.reset_index(drop=True), var=sel_var)
         return out
 
