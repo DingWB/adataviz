@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
-# from .clustermap import (heatmap, ClusterMapPlotter, composite,
-#                          DendrogramPlotter)
-# from .oncoPrint import oncoprint, oncoPrintPlotter
 # __all__=['*']
 import sys
 from ._version import version as __version__
