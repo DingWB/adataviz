@@ -358,8 +358,9 @@ def export_pseudobulk_adata(adata,outdir="pseudobulk.bed",use_raw=False):
 		data.insert(0,"chrom",adata.var.loc[data.index.tolist(),"chrom"].tolist())
 	else:
 		data.insert(0,"chrom",data.index.to_series().apply(lambda x:x.split(':')[0]))
-	if "start" in adata.var.columns.tolist():
-		data.insert(1,"start",adata.var.loc[data.index.tolist(),"start"].tolist())
+	beg="beg" if "beg" in adata.var.columns.tolist() else "start"
+	if beg in adata.var.columns.tolist():
+		data.insert(1,"start",adata.var.loc[data.index.tolist(),beg].tolist())
 	else:
 		data.insert(1,"start",data.index.to_series().apply(lambda x:x.split(':')[1].split('-')[0]))
 	if "end" in adata.var.columns.tolist():
