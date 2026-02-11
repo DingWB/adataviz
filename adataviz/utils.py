@@ -956,7 +956,7 @@ def parse_gtf(gtf="gencode.v43.annotation.gtf",outfile=None):
         df[col]=df.info_dict.apply(lambda x:x.get(col,''))
     df=df.loc[:,['chrom','beg','end','gene_name','gene_id','strand','gene_type']].drop_duplicates()
     if outfile is None:
-        return df # 'chrom','start','end','gene_symbol','strand','gene_type'
+        return df # 'chrom','beg','end','gene_name','strand','gene_type'
     else:
         df.to_csv(os.path.expanduser(outfile),sep='\t',index=False)
 

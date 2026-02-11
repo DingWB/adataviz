@@ -47,7 +47,7 @@ def use_scientific_style():
 		'figure.dpi': 300,               # high resolution for export
 		'savefig.dpi': 300,              # when using plt.savefig()
 		'figure.figsize': (6.5, 4.5),    # example starting size (adjust to your needs; e.g., ~17 cm wide for full page)
-		'figure.constrained_layout.use': True,
+		# 'figure.constrained_layout.use': True,
 		'savefig.transparent': True,
 		'savefig.bbox': 'tight',
 		'pdf.fonttype':42,

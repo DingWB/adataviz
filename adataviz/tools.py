@@ -237,8 +237,8 @@ def scrna2pseudobulk(
 			# for genes with duplicated records, only keep the longest gene
 			df_gene['length']=df_gene.end - df_gene.beg
 			df_gene.sort_values('length',ascending=False,inplace=True) # type: ignore
-			df_gene.drop_duplicates('gene_symbol',keep='first',inplace=True) # type: ignore
-			df_gene.set_index('gene_symbol',inplace=True)
+			df_gene.drop_duplicates('gene_name',keep='first',inplace=True) # type: ignore
+			df_gene.set_index('gene_name',inplace=True)
 			for col in ['chrom','beg','end','strand','gene_type','gene_id','length']:
 				adata.var[col]=adata.var_names.map(df_gene[col].to_dict())
 
@@ -337,7 +337,7 @@ def stat_pseudobulk(
 	else:
 		return adata
 
-def export_pseudobulk_adata(adata,outdir,use_raw):
+def export_pseudobulk_adata(adata,outdir="pseudobulk.bed",use_raw=False):
 	"""
 	Export pseudobulk adata to bed
 	"""
