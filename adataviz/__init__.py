@@ -49,6 +49,8 @@ Available subcommands:
 			'parse_gtf':tl.parse_gtf,
 			'downsample_adata':tl.downsample_adata,
 			'get_obs':tl.get_obs,
+			'composition':tl.composition,
+			'taxonomy':tl.taxonomy,
 		}
 	else:
 		print(doc_string)

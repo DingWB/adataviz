@@ -377,6 +377,8 @@ def export_pseudobulk_adata(adata,outdir="pseudobulk.bed",use_raw=False):
 	data.end=data.end.astype(int)
 	data.sort_values(['chrom','start','end'],ascending=True,inplace=True)
 	for col in data.columns.tolist()[4:]:
+		if col in ['chrom','start','beg','end','strand','features']:
+			continue
 		data.loc[:,['chrom','start','end','features',col,'strand']].to_csv(
 			os.path.join(outdir,f"{col.replace(' ','_')}.bed"),
 				sep='\t',index=False,header=False)
@@ -556,3 +558,24 @@ def composition(obs,groupby,stratify_col,composition_col,outname=None,parent_col
 									'mid_color': "white", 'mid_value':mid_value,
 									'max_color': "#c72228", 'max_value':1})
 	writer.close()
+
+def taxonomy(obs,levels=['Neighborhood','Class','Subclass','Group'],
+			 groupby="Region",outfile=None):
+	"""
+	_summary_
+
+	Parameters
+	----------
+	obs : path or dataframe
+		path to obs file (tsv, csv or h5ad) or obs dataframe with
+		_description_
+	"""
+	obs=load_obs(obs)
+	level=levels[-1]
+	D=obs.groupby(level).apply(lambda x:str(x[groupby].value_counts().to_dict())).to_dict()
+	obs1=obs.reset_index().loc[:,levels].drop_duplicates()
+	obs1[f'{groupby}.Distrubution']=obs1[level].map(D)
+	obs1.sort_values(levels,inplace=True) # type: ignore
+	if outfile is None:
+		outfile=f"{level}.{groupby}_taxonomy.xlsx"
+	obs1.to_excel(os.path.expanduser(outfile),index=False)
