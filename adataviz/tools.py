@@ -525,8 +525,7 @@ def get_color_palette(adata,groupby="Group"):
 		D = adata.obs.reset_index().loc[:, [col, f"color_hex_{col.lower()}"]].drop_duplicates().set_index(col)[
 			f"color_hex_{col.lower()}"].to_dict()
 		color_dict[col] = D
-	prepare_color_palette(color_dict=color_dict,
-						  outpath=os.path.join(workdir,"HMBA_color_palette.xlsx"))
+	prepare_color_palette(color_dict=color_dict,outpath="color_palette.xlsx")
 
 def composition(obs,groupby,stratify_col="donor",composition_col="Region",
 				outname=None,parent_col=None,
