@@ -1,3 +1,4 @@
+from json import load
 import os
 import numpy as np
 import pandas as pd
@@ -86,7 +87,7 @@ def merge_adata_regions(
 		# index, for example, chr1_0, chr1_0, chr1_0...,chr1_1
 		data = data.loc[:,groups+[fea]].groupby(fea).sum().T
 	else: # for 25kb, get the domain doundary (10kb), not the 25kb windows.
-		print("Generating results for boundaries of 25kb bins")
+		logger.info("Generating results for boundaries of 25kb bins")
 		ids = data['BinID'] % 5  # [0,1],2,[3,4,0,1],2,[3,4,0,1],...
 		data[fea] = data.apply(lambda x:x['chrom']+'_'+str(x['BinID'] // 5),axis=1)
 		name2index = assign_boundary(data.index.tolist(), data[fea].tolist(), ids.tolist())
@@ -632,3 +633,75 @@ def taxonomy(obs,levels=['Neighborhood','Class','Subclass','Group'],
 	if outfile is None:
 		outfile=f"{level}.{groupby}_taxonomy.xlsx"
 	obs1.to_excel(os.path.expanduser(outfile),index=False)
+
+def get_markers_worker(adata1, obs,level, df_gene, key, outdir,topn,downsample):
+	if not os.path.exists(os.path.join(outdir, f"{key}.tsv")):
+		use_cells=adata1.obs.groupby(level).apply(lambda x: x.sample(downsample).index.tolist() if x.shape[0] > downsample else x.index.tolist()).sum()
+		use_adata=adata1[use_cells,:].to_memory()
+		if not obs is None:
+			use_adata.obs=obs.loc[use_cells,:].copy()
+		vc=use_adata.obs[level].value_counts()
+		groups=vc[vc >= 3].index.tolist()
+		sc.tl.rank_genes_groups(use_adata, groupby=level, groups=groups,method="wilcoxon", use_raw=False, key_added=key)
+		# The Wilcoxon rank-sum test is a non-parametric test that compares the ranks of gene expression values between groups. It works best with raw counts because normalization can alter the rank distribution
+		markers = sc.get.rank_genes_groups_df(use_adata, group=groups, key=key)
+		markers = markers.loc[~ markers.names.isna()]
+		markers = markers.loc[(~ markers.logfoldchanges.isna()) & (markers.scores > 0) & (markers.pvals < 0.01) & (
+				markers.logfoldchanges > 1)]
+		if markers.shape[0] == 0:
+			return {}
+		markers.sort_values('logfoldchanges', ascending=False, inplace=True)
+		markers.to_csv(os.path.join(outdir, f"{key}.tsv"), sep='\t', index=False)
+	else:
+		markers=pd.read_csv(os.path.join(outdir, f"{key}.tsv"), sep='\t')
+	markers.names = markers.names.apply(lambda x: x.split('.')[0])
+	markers = markers.loc[markers.names.isin(df_gene['gene_name'].tolist())].groupby('group').apply(lambda x: x.head(topn).names.tolist()).to_dict()
+	return markers
+
+def get_markers(adata_path,levels,gtf,obs=None,outdir='markers',topn=20,downsample=2000):
+	outdir=os.path.expanduser(outdir)
+	if not os.path.exists(outdir):
+		os.makedirs(outdir,exist_ok=True)
+	adata=load_adata(adata_path)
+	if not obs is None:
+		obs=load_obs(obs)
+		overlapped_cells=list(set(adata.obs_names.tolist()) & set(obs.index.tolist()))
+		obs=obs.loc[overlapped_cells]
+		for level in levels:
+			adata.obs[level]=adata.obs.index.to_series().map(obs[level].to_dict())
+	else:
+		obs=adata.obs.copy()
+	df_gene = parse_gtf(gtf=gtf) # ['chrom','beg','end','gene_name','gene_id','strand','gene_type']
+	# DEG
+	R = []
+	for i in range(len(levels)):
+		level = levels[i]
+		logger.info(level)
+		if i == 0:
+			parent = ''
+			markers = get_markers_worker(adata, obs,level, df_gene, 
+								level,outdir,topn,downsample)
+			for k in markers: # k is cell type in different levels
+				R.append([level, parent, k, markers[k]]) # append topn marker genes
+		else:  # i >= 1
+			for clusters, df1 in adata.obs.groupby(levels[:i],observed=True):
+				if df1.shape[0]==0:
+					continue
+				if df1[level].nunique() < 2:
+					continue
+				logger.info(clusters)
+				adata1 = adata[df1.index.tolist(),:].to_memory()
+				parent = list(clusters)[-1]  # '|'.join(list(clusters))
+				key = parent + '|' + level
+				# print(key)
+				markers = get_markers_worker(adata1, obs,level, df_gene, 
+								 key, outdir,topn,downsample)
+				if len(markers) == 0:
+					continue
+				for k in markers:
+					R.append([level, parent, k, markers[k]])
+	if adata.isbacked:
+		adata.file.close()
+	data = pd.DataFrame(R, columns=['Level', 'Parent', 'CellType', 'Markers'])
+	data.to_excel(os.path.join(outdir,"markers.xlsx"),
+				  index=False, sheet_name='markers')

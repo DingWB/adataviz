@@ -51,6 +51,7 @@ Available subcommands:
 			'get_obs':tl.get_obs,
 			'composition':tl.composition,
 			'taxonomy':tl.taxonomy,
+			'get_markers':tl.get_markers,
 		}
 	else:
 		print(doc_string)
