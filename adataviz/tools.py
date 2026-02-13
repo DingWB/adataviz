@@ -480,8 +480,57 @@ def downsample_adata(adata_path,groupby="Group",obs_path=None,
 	adata[keep_cells,:].write_h5ad(outfile,compression='gzip')
 	adata.file.close()
 
-def composition(obs,groupby,stratify_col,composition_col,outname=None,parent_col=None,
-						 sort_cols=None,adata=None,color_palette=None):
+def prepare_color_palette(color_dict=None,outpath="palette.xlsx"):
+	"""
+	Generating a .xlsx file including all color palette.
+
+	Parameters
+	----------
+	colors : dict
+		A dict of dict, keys are categorical terms, values are HEX color code
+
+	Returns
+	-------
+
+	"""
+	outpath=os.path.expanduser(outpath)
+	writer = pd.ExcelWriter(outpath)
+	for key in color_dict:
+		data = pd.DataFrame.from_dict(color_dict[key], orient='index', columns=['Hex'])
+		# data.style.background_gradient(cmap='gray_r')
+		# data.style.applymap(lambda x:'color:'+x if x.startswith('#') else 'color: white')
+		data.to_excel(writer, sheet_name=key, index=True)
+		workbook = writer.book
+		worksheet = writer.sheets[key]
+		colors = data.Hex.tolist()
+		for i in range(data.shape[0]):
+			color = colors[i]
+			f = workbook.add_format({'bold': True, 'font_color': 'black', 'bg_color': color})
+			worksheet.write(i + 1, 1, color, f)
+		width = 20
+		cell_fmt = workbook.add_format(
+			{'bold': False, 'font_color': 'black',
+			 # 'bg_color':'green',
+			 'align': 'center', 'valign': 'vcenter'})
+		# styled = data.style.applymap(lambda val: 'color: %s' % 'red' if val < 0 else 'black').highlight_max()
+		worksheet.set_column(0, 1, width, cell_fmt)
+	# worksheet.conditional_format(f'A:{last_col}', {'type': 'no_blanks', 'format': cell_fmt})
+	writer.close()
+
+def get_color_palette(adata,groupby="Group"):
+	adata=load_adata(adata)
+	# color palette
+	color_dict = {}
+	for col in ['Neighborhood', 'Class', 'Subclass', 'Group']:
+		D = adata.obs.reset_index().loc[:, [col, f"color_hex_{col.lower()}"]].drop_duplicates().set_index(col)[
+			f"color_hex_{col.lower()}"].to_dict()
+		color_dict[col] = D
+	prepare_color_palette(color_dict=color_dict,
+						  outpath=os.path.join(workdir,"HMBA_color_palette.xlsx"))
+
+def composition(obs,groupby,stratify_col="donor",composition_col="Region",
+				outname=None,parent_col=None,
+				sort_cols=None,adata=None,color_palette=None):
 	from xlsxwriter.utility import xl_col_to_name
 	# for example: Regional Composition Within Each Cell Type (for each cell type in each donor)
 	obs=load_obs(obs)
@@ -492,14 +541,17 @@ def composition(obs,groupby,stratify_col,composition_col,outname=None,parent_col
 	if not parent_col is None:
 		group2parent=obs.loc[:,[groupby,parent_col]].drop_duplicates().set_index(groupby)[parent_col].to_dict()
 	if outname is None:
-		outname=f"{groupby}_composition.xlsx"
+		outname=f"{composition_col}_composition.xlsx"
 	if not outname.endswith('.xlsx'):
 		outname=outname+'.xlsx'
 	if not adata is None:
 		adata=load_adata(adata)
 	groups=[parent_col,groupby,composition_col] if not parent_col is None else [groupby,composition_col]
-	color_palette=load_color_palette(palette_path=color_palette,adata=adata,
+	if not color_palette is None:
+		color_palette=load_color_palette(palette_path=color_palette,adata=adata,
 										groups=groups)
+	else:
+		color_palette=None
 	writer = pd.ExcelWriter(outname)
 	stratify_order=obs[stratify_col].unique().tolist()
 	for stratify in ['All']+stratify_order:
@@ -520,24 +572,26 @@ def composition(obs,groupby,stratify_col,composition_col,outname=None,parent_col
 
 		if not parent_col is None:
 			parent_values = df.index.get_level_values(0).tolist()
-			parent_colors=[color_palette[parent_col][ct] for ct in parent_values]
+			if not color_palette is None:
+				parent_colors=[color_palette[parent_col][ct] for ct in parent_values]
 		group_values=df.index.get_level_values(1).tolist()
 		regions=df.columns.tolist()
-		group_colors=[color_palette[groupby][ct] for ct in group_values]
-		composition_colors=[color_palette[composition_col][r] for r in regions]
+		if not color_palette is None:
+			group_colors=[color_palette[groupby][ct] for ct in group_values]
+			composition_colors=[color_palette[composition_col][r] for r in regions]
 		for i in range(df.shape[0]):
-			group_color = group_colors[i]
+			group_color = group_colors[i] if not color_palette is None else 'black'
 			# f2 = workbook.add_format({'bold': True, 'font_color': 'black', 'bg_color': group_color})
 			f2 = workbook.add_format({'bold': True, 'font_color': group_color, 'bg_color': 'white'})
 			if not parent_col is None:
-				parent_color = parent_colors[i]
+				parent_color = parent_colors[i] if not color_palette is None else 'white'
 				f1 = workbook.add_format({'bold': True, 'font_color': 'black', 'bg_color': parent_color})
 				worksheet.write(i + 1, 0, parent_values[i], f1)
 				worksheet.write(i + 1, 1, group_values[i], f2)
 			else:
 				worksheet.write(i + 1, 0, group_values[i], f2)
 		for i in range(df.shape[1]):
-			composition_color = composition_colors[i]
+			composition_color = composition_colors[i] if not color_palette is None else 'black'
 			f1 = workbook.add_format({'bold': True, 'font_color': composition_color, 'bg_color':'white'})
 			if not parent_col is None:
 				worksheet.write(0, i+2, regions[i], f1)
