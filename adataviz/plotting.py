@@ -799,7 +799,7 @@ def plot_genes(
 	if not parent_col is None and parent_col not in adata.obs.columns.tolist():
 		adata.obs[parent_col]=obs.loc[adata.obs_names.tolist(),parent_col].tolist()
 			
-	if modality!='RNA' and normalize_per_cell:
+	if modality not in ['RNA','ATAC'] and normalize_per_cell:
 		adata = normalize_mc_by_cell(
 			use_adata=adata, normalize_per_cell=normalize_per_cell,
 			clip_norm_value=clip_norm_value,hypo_score=hypo_score)
@@ -832,7 +832,7 @@ def plot_genes(
 		color_palette = None
 
 	data=adata.to_df() # rows are cells or cell types, columns are genes
-	if modality=='RNA' and isinstance(expression_cutoff,str):
+	if modality in ['RNA','ATAC'] and isinstance(expression_cutoff,str):
 		if expression_cutoff=='median':
 			cutoff=data.stack().median()
 		elif expression_cutoff=='mean':
@@ -850,7 +850,7 @@ def plot_genes(
 	if 'frac' in adata.layers:
 		D=adata.to_df(layer='frac').stack().to_dict()
 	else:
-		if modality!='RNA': # methylation, cutoff = 1
+		if modality not in ['RNA','ATAC']: # methylation, cutoff = 1
 			assert normalize_per_cell==True,"Normalized methylation fraction is required"
 			hypo_frac=data.groupby(groupby).agg(lambda x:x[x< 1].shape[0] / x.shape[0]) # fraction of cells showing hypomethylation for the corresponding genes
 			D=hypo_frac.stack().to_dict()
@@ -1005,13 +1005,13 @@ def get_genes_mean_frac(
 		obs=obs.loc[overlapped_cells]
 		use_adata=use_adata[overlapped_cells,:] # type: ignore
 			
-		if modality!='RNA' and normalize_per_cell:
+		if modality not in ['RNA','ATAC'] and normalize_per_cell:
 			use_adata = normalize_mc_by_cell(
 				use_adata=use_adata, normalize_per_cell=normalize_per_cell,
 				clip_norm_value=clip_norm_value,hypo_score=hypo_score)
 
 		data=use_adata.to_df() # rows are cells or cell types, columns are genes
-		if modality=='RNA' and isinstance(expression_cutoff,str):
+		if modality not in ['RNA','ATAC'] and isinstance(expression_cutoff,str):
 			if expression_cutoff=='median':
 				cutoff=data.stack().median()
 			elif expression_cutoff=='mean':
@@ -1027,7 +1027,7 @@ def get_genes_mean_frac(
 		if 'frac' in use_adata.layers:
 			D=use_adata.to_df(layer='frac').stack().to_dict()
 		else:
-			if modality!='RNA': # methylation, cutoff = 1
+			if modality not in ['RNA','ATAC']: # methylation, cutoff = 1
 				assert normalize_per_cell==True,"Normalized methylation fraction is required"
 				hypo_frac=data.groupby(groupby).agg(lambda x:x[x< 1].shape[0] / x.shape[0]) # fraction of cells showing hypomethylation for the corresponding genes
 				D=hypo_frac.stack().to_dict()
