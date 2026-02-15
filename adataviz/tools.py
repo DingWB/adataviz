@@ -120,7 +120,7 @@ def cal_stats(adata_path,obs1,modality="RNA",expression_cutoff=0,
 	raw_adata=anndata.read_h5ad(os.path.expanduser(adata_path),backed='r')
 	adata=raw_adata[obs1.index.tolist(),:].to_memory()
 	raw_adata.file.close()
-	if modality!='RNA':
+	if modality not in ['RNA','ATAC']:
 		adata = normalize_mc_by_cell(
 			use_adata=adata, normalize_per_cell=normalize_per_cell,
 			clip_norm_value=clip_norm_value,
@@ -136,7 +136,7 @@ def cal_stats(adata_path,obs1,modality="RNA",expression_cutoff=0,
 	# Use NumPy's nanpercentile and nansum which are fast (uses quickselect under the hood).
 	sums = np.nansum(df_data.values, axis=0) # for each column
 	# fraction of cells expressing (or hypomethylated) the gene
-	if modality!='RNA': # methylation, cutoff = 1
+	if modality not in ['RNA','ATAC']: # methylation, cutoff = 1
 		# frac = df_data.apply(lambda x: x[x < 1].shape[0] / x.shape[0])
 		# vectorized: count values < 1 per column divided by number of cells
 		frac = (df_data < 1).sum(axis=0) / float(df_data.shape[0])
@@ -269,7 +269,7 @@ def stat_pseudobulk(
 	modality="RNA",n_jobs=1,normalize_per_cell=True,clip_norm_value=10,
 	save=None
 ):
-	if modality!='RNA': # methylation
+	if modality not in ['RNA','ATAC']: # methylation
 		assert normalize_per_cell==True, "For methylation, normalize_per_cell should be True"
 	raw_adata=anndata.read_h5ad(os.path.expanduser(adata_path),backed='r')
 	if not obs_path is None:
