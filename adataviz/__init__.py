@@ -45,6 +45,7 @@ Available subcommands:
 		return {
 			"scrna2pseudobulk": tl.scrna2pseudobulk,
 			'stat_pseudobulk':tl.stat_pseudobulk,
+			'normalize_adata':tl.normalize_adata,
 			'export_pseudobulk_adata': tl.export_pseudobulk_adata,
 			'parse_gtf':tl.parse_gtf,
 			'downsample_adata':tl.downsample_adata,

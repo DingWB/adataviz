@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import anndata
 import scanpy as sc
+import scanpy.external as sce
 from .utils import normalize_mc_by_cell,parse_gtf
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from loguru import logger as logger
@@ -338,6 +339,34 @@ def stat_pseudobulk(
 	else:
 		return adata
 
+def normalize_adata(adata,embedding=True,outfile=None,
+					n_top_genes=5000,n_pcs=50,batch_col=None):
+	adata=load_adata(adata,backed=None)
+	sc.pp.filter_genes(adata,min_cells=5)
+	sc.pp.normalize_total(adata, target_sum=1e4)
+	sc.pp.log1p(adata)
+	if embedding:
+		sc.pp.highly_variable_genes(adata, n_top_genes=n_top_genes)
+		sc.tl.pca(adata)
+		sc.pl.pca_variance_ratio(adata, n_pcs=n_pcs) #log=True
+		if not batch_col is None:
+			sce.pp.harmony_integrate(adata, key='donor',
+									basis='X_pca', max_iter_harmony=50)
+			use_rep = 'X_pca_harmony'
+		else:
+			use_rep = 'X_pca' #'X_pca_harmony'
+		sc.pp.neighbors(adata,use_rep=use_rep)
+		sc.tl.leiden(adata, resolution=1)
+		sc.tl.umap(adata)
+	if not outfile is None:
+		outfile=os.path.expanduser(outfile)
+		outdir=os.path.dirname(os.path.abspath(outfile))
+		if not os.path.exists(outdir):
+			os.makedirs(outdir,exist_ok=True)
+		adata.write_h5ad(outfile)
+	else:
+		return adata
+	
 def export_pseudobulk_adata(adata,outdir="pseudobulk.bed",use_raw=False):
 	"""
 	Export pseudobulk adata to bed
@@ -387,9 +416,9 @@ def export_pseudobulk_adata(adata,outdir="pseudobulk.bed",use_raw=False):
 		df.to_csv(os.path.join(outdir,f"{col.replace(' ','_')}.txt"),
 			sep='\t',index=False,header=False)
 
-def load_adata(adata):
+def load_adata(adata,backed='r'):
 	if isinstance(adata,str):
-		adata=anndata.read_h5ad(os.path.expanduser(adata),backed='r')
+		adata=anndata.read_h5ad(os.path.expanduser(adata),backed=backed)
 	else:
 		assert isinstance(adata,anndata.AnnData)
 	return adata
@@ -445,13 +474,14 @@ def load_color_palette(palette_path=None,adata=None,groups=[]):
 def get_obs(adata_path, add_coord=True,usecols=None,index_name='cell',outfile=None):
 	adata = anndata.read_h5ad(os.path.expanduser(adata_path),backed='r')
 	obs=adata.obs.copy()
-	obs.index.name='cell'
-	for coord in ["umap",'tsne']:
-		if f'X_{coord}' not in adata.obsm:
-			continue
-		df_coord=pd.DataFrame(adata.obsm[f'X_{coord}'],columns=[f'{coord}_0',f'{coord}_1'],index=adata.obs_names)
-		obs[f'{coord}_0']=obs.index.to_series().map(df_coord[f'{coord}_0'].to_dict())
-		obs[f'{coord}_1']=obs.index.to_series().map(df_coord[f'{coord}_1'].to_dict())
+	obs.index.name=index_name
+	if add_coord:
+		for coord in ["umap",'tsne']:
+			if f'X_{coord}' not in adata.obsm:
+				continue
+			df_coord=pd.DataFrame(adata.obsm[f'X_{coord}'],columns=[f'{coord}_0',f'{coord}_1'],index=adata.obs_names)
+			obs[f'{coord}_0']=obs.index.to_series().map(df_coord[f'{coord}_0'].to_dict())
+			obs[f'{coord}_1']=obs.index.to_series().map(df_coord[f'{coord}_1'].to_dict())
 	adata.file.close()
 	if not usecols is None:
 		obs=obs.loc[:,usecols]

@@ -24,7 +24,6 @@ def use_scientific_style():
 		'font.family': 'sans-serif',
 		'font.sans-serif': 'Arial',
 		'font.family': 'Arial',
-
 		# Base font size (set so text is ~7–8 pt at final print size)
 		'font.size': 8,                  # main text (labels, ticks, legend)
 		'axes.labelsize': 9,             # axis labels (x/y)
@@ -48,8 +47,10 @@ def use_scientific_style():
 		'savefig.dpi': 300,              # when using plt.savefig()
 		'figure.figsize': (6.5, 4.5),    # example starting size (adjust to your needs; e.g., ~17 cm wide for full page)
 		# 'figure.constrained_layout.use': True,
+		'figure.autolayout': True,
 		'savefig.transparent': True,
 		'savefig.bbox': 'tight',
+		'savefig.pad_inches': 0, 
 		'pdf.fonttype':42,
 		'ps.fonttype':42,
 	})
@@ -366,8 +367,8 @@ def plot_categorical(
 		palette=colors,legend_kws=legend_kws,
 		**kwargs)
 
-	if not save is None:
-		plt.savefig(os.path.expanduser(save)) # transparent=True,bbox_inches='tight',dpi=300
+	if not save is None and save!=False:
+		plt.savefig(os.path.expanduser(save),bbox_inches='tight') # ,,dpi=300
 	if show:
 		plt.show()
 
@@ -460,7 +461,7 @@ def plot_continuous(
 		hue=gene,axis_format=axis_format,
 		text_anno=None,
 		basis=basis,**scatter_kws)
-	fig.savefig(f"{prefix}.{basis}.pdf") # transparent=True,bbox_inches='tight',dpi=300
+	fig.savefig(f"{prefix}.{basis}.pdf",bbox_inches='tight') # transparent=True,bbox_inches='tight',dpi=300
 	
 	if not groupby is None:
 		# boxplot
@@ -496,7 +497,7 @@ def plot_continuous(
 		ax.set_title(title)
 		ax.xaxis.label.set_visible(False)
 		plt.setp(ax.xaxis.get_majorticklabels(), rotation=-45, ha='left')
-		plt.savefig(f"{prefix}.boxplot.pdf")
+		plt.savefig(f"{prefix}.boxplot.pdf",bbox_inches='tight')
 	return adata
 
 def stacked_barplot(
@@ -597,7 +598,7 @@ def stacked_barplot(
 		outdir=os.path.dirname(os.path.expanduser(save))
 		if not os.path.exists(outdir):
 			os.mkdir(outdir)
-		plt.savefig(save) # transparent=True,bbox_inches='tight',dpi=300
+		plt.savefig(save,bbox_inches='tight') # transparent=True,bbox_inches='tight',dpi=300
 	else:
 		plt.show()
 
@@ -645,7 +646,7 @@ def pieplot(obs,groupby='Age',palette_path=None,order=None,
 		output=os.path.abspath(os.path.expanduser(save))
 	else:
 		output=f'{groupby}.piechart.pdf'
-	plt.savefig(output) # transparent=True,bbox_inches='tight',dpi=300
+	plt.savefig(output,bbox_inches='tight') # transparent=True,bbox_inches='tight',dpi=300
 	plt.show()
 
 def plot_pseudotime(
@@ -705,7 +706,7 @@ def plot_pseudotime(
 		outname=groupby + '.pseudotime_violin.pdf' if hue is None else groupby + f'_{hue}.pseudotime_violin.pdf'
 	else:
 		outname=os.path.abspath(os.path.expanduser(save))
-	plt.savefig(outname) # transparent=True,bbox_inches='tight',dpi=300
+	plt.savefig(outname,bbox_inches='tight') # transparent=True,bbox_inches='tight',dpi=300
 	plt.show()
 
 def stacked_violinplot(adata, use_genes=None, groupby='Age',
@@ -964,7 +965,7 @@ def plot_genes(
 		ax.grid(axis='both', which='minor', color='grey', linestyle='--',alpha=0.6,zorder=0)
 	if outname is None:
 		outname=f"{title}.pdf"
-	plt.savefig(os.path.expanduser(outname))
+	plt.savefig(os.path.expanduser(outname),bbox_inches='tight')
 	plt.show()
 	return plot_data,df_cols,cm1
 
