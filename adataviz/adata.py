@@ -1,19 +1,19 @@
-import os
-from re import M
+import os,sys
 from typing import List, Dict, Optional, Sequence, Tuple, Any
+from concurrent.futures import ThreadPoolExecutor,as_completed
 import anndata
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 import glob
-import logging
 import json
-
-log = logging.getLogger(__name__)
+import time
+from loguru import logger as logger
+logger.remove()
+logger.add(sys.stderr, level="DEBUG")
 
 class AnnDataCollection:
     """Wrapper representing a merged collection of AnnData files.
-
     Example:
         ds = AnnDataCollection.from_files(["a.h5ad", "b.h5ad"], out_path="merged.h5ad")
         view = ds[[True]*100, ["GeneA", "GeneB"]]
@@ -24,7 +24,6 @@ class AnnDataCollection:
                  adata: Optional[anndata.AnnData] = None, 
                  source_info: Optional[List[Dict]] = None):
         """Initialize an `AnnDataCollection` wrapper.
-
         Parameters
         - `adata_paths`: list of filesystem paths to the individual `.h5ad` files.
         - `adata`: optional `anndata.AnnData` that contains merged metadata
@@ -50,7 +49,8 @@ class AnnDataCollection:
         `X` is not merged; the saved on-disk AnnData will contain an empty
         sparse matrix of shape (n_obs_total, n_vars_total).
         """
-        # `paths` should be an iterable of paths to `.h5ad` files. When
+        # `paths` should be an iterable of paths to `.h5ad` files, all .h5ad files must
+        # have the same vars. When
         # `out_path` is provided the merged AnnData (metadata-only) will be
         # written to that file. The returned `AnnDataCollection` keeps the list of
         # original file paths and stores per-source info in `source_info`.
@@ -67,26 +67,33 @@ class AnnDataCollection:
         if not paths:
             raise FileNotFoundError("No .h5ad files found for given paths")
         obs_list = []
-        var_indexes = pd.Index([])
+        # preserve var order as seen across files for faster subsetting later
+        # var_list: List[str] = []
+        # _seen_vars = set()
         per_source_info: List[Dict[str, Any]] = []
+        var_names=None
         # First pass: gather var union, obs frames and per-source info.
         # Read in backed mode so we don't load `X` into memory.
         for i, p in enumerate(paths):
             a = anndata.read_h5ad(p, backed="r")
             try:
-                n_obs = a.n_obs
                 obs = a.obs.copy()
-                # avoid reset_index which can trigger anndata's
-                # ImplicitModificationWarning by directly adding a column
-                # with the original obs names (as strings)
                 obs["_orig_obs_name"] = a.obs_names.astype(str)
                 obs["_source_idx"] = i
                 obs_list.append(obs)
-                var_indexes = var_indexes.union(a.var_names)
+                # var_list = var_indexes.union(a.var_names)
+                # append vars in source order if not seen before
+                # for v in a.var_names:
+                #     if v not in _seen_vars:
+                #         var_list.append(str(v))
+                #         _seen_vars.add(v)
+                if var_names is None:
+                    var_names=list(a.var_names)
+                assert var_names == list(a.var_names), f"Var names in file {p} differ from previous files; this may lead to incorrect merging."
                 per_source_info.append({
                     "path": os.path.abspath(p),
-                    "n_obs": n_obs,
-                    "var_names": list(a.var_names),
+                    "n_obs": a.n_obs,
+                    "n_vars": a.n_vars,
                 })
             finally:
                 try:
@@ -108,36 +115,37 @@ class AnnDataCollection:
             metadata_path=os.path.expanduser(metadata_path)
             meta = pd.read_csv(metadata_path, index_col=0, sep=sep)
             meta_ids = set(meta.index.astype(str).tolist())
-            keep_ids= list(set(merged_obs.index.astype(str)).intersection(meta_ids))
+            # keep_ids= list(set(merged_obs.index.astype(str)).intersection(meta_ids))
+            keep_ids=[cell for cell in merged_obs.index.astype(str).tolist() if cell in meta_ids]
             merged_obs=merged_obs.loc[keep_ids]
             for col in meta.columns:
                 if col not in merged_obs.columns:
                     merged_obs[col] = meta.loc[merged_obs.index.tolist(),col].tolist()
 
         # Build merged var DataFrame (union of var names)
-        merged_var = pd.DataFrame(index=var_indexes)
+        merged_var = pd.DataFrame(index=pd.Index(var_names)) # var_list
         # recompute total observations after optional metadata filtering
         # Create an empty sparse X with proper shape (we don't merge expression matrices here)
         X_empty = sp.csr_matrix((merged_obs.shape[0], len(merged_var)), dtype=np.float32)
-        merged = anndata.AnnData(X_empty, obs=merged_obs, var=merged_var)
+        adata = anndata.AnnData(X_empty, obs=merged_obs, var=merged_var)
         # Note: we intentionally do not merge `obsm` arrays. If per-source
         # `obsm` data is needed, read individual files directly from
         # `individual_adata_paths` stored in `merged.uns`.
 
         # store metadata (short keys)
-        merged.uns["src_paths"] = [os.path.abspath(p) for p in paths]
+        adata.uns["src_paths"] = [os.path.abspath(p) for p in paths]
         # JSON-serialize per-source info so HDF5 can store it safely
         try:
-            merged.uns["src_info"] = json.dumps(per_source_info)
+            adata.uns["src_info"] = json.dumps(per_source_info)
         except Exception:
             # fallback: store as a list of strings
-            merged.uns["src_info"] = [str(x) for x in per_source_info]
+            adata.uns["src_info"] = [str(x) for x in per_source_info]
         if metadata_path is not None:
-            merged.uns["metadata_path"] = os.path.abspath(metadata_path)
-        instance = cls(list(paths), adata=merged, source_info=per_source_info)
+            adata.uns["metadata_path"] = os.path.abspath(metadata_path)
+        instance = cls(list(paths), adata=adata, source_info=per_source_info)
         # optionally save to out_path
         if out_path:
-            merged.write_h5ad(out_path)
+            adata.write_h5ad(out_path)
         return instance
 
     @classmethod
@@ -149,18 +157,18 @@ class AnnDataCollection:
         `src_info` which may be JSON-serialized or a list.
         """
         path = os.path.expanduser(path)
-        ad = anndata.read_h5ad(path)
+        adata = anndata.read_h5ad(path)
 
         # Basic validation: ensure this AnnData was produced by `from_files`.
-        has_src_uns = ("src_paths" in ad.uns) or ("individual_adata_paths" in ad.uns)
-        has_obs_markers = ("_source_idx" in ad.obs.columns) or ("_orig_obs_name" in ad.obs.columns)
+        has_src_uns = ("src_paths" in adata.uns) or ("individual_adata_paths" in adata.uns)
+        has_obs_markers = ("_source_idx" in adata.obs.columns) or ("_orig_obs_name" in adata.obs.columns)
         if not (has_src_uns and has_obs_markers):
             raise ValueError(f"File {path} does not appear to be an AnnDataCollection (missing src_paths/src_info or obs markers)")
 
         # Avoid relying on truthiness of containers (e.g., numpy arrays)
-        sp_raw = ad.uns.get("src_paths", None)
+        sp_raw = adata.uns.get("src_paths", None)
         if sp_raw is None:
-            sp_raw = ad.uns.get("individual_adata_paths", None)
+            sp_raw = adata.uns.get("individual_adata_paths", None)
         if sp_raw is None:
             src_paths = []
         else:
@@ -172,7 +180,7 @@ class AnnDataCollection:
             else:
                 src_paths = [str(sp_raw)]
 
-        raw_info = ad.uns.get("src_info", None)
+        raw_info = adata.uns.get("src_info", None)
         source_info: List[Dict[str, Any]] = []
         if raw_info is None:
             source_info = []
@@ -186,7 +194,7 @@ class AnnDataCollection:
         else:
             source_info = [raw_info]
 
-        return cls(src_paths, adata=ad, source_info=source_info)
+        return cls(src_paths, adata=adata, source_info=source_info)
 
     def __len__(self) -> int:
         return self.adata.n_obs if self.adata is not None else 0
@@ -306,7 +314,7 @@ class AnnDataCollection:
         if isinstance(idx, (list, np.ndarray, pd.Series)):
             arr = np.asarray(idx)
             if arr.dtype == bool:
-                return np.nonzero(arr)[0]
+                return np.nonzero(arr)[0] # get indexes where True
             # If integer dtype, treat as indices. Otherwise treat as labels.
             if np.issubdtype(arr.dtype, np.integer):
                 return arr.astype(int)
@@ -332,20 +340,49 @@ class AnnDataCollection:
             return [idx]
         raise IndexError("Unsupported var indexer")
 
+def is_annadatacollection(path: str) -> bool:
+    """Return True if `path` points to an AnnData file produced by
+    `AnnDataCollection.from_files`.
+    Heuristic: the AnnData must have `uns` entries `src_paths` or
+    `individual_adata_paths` and its `obs` must contain either
+    `_source_idx` or `_orig_obs_name` markers.
+    """
+    if path is None:
+        return False
+    path = os.path.expanduser(path)
+    try:
+        ad = anndata.read_h5ad(path, backed="r")
+    except Exception:
+        return False
+    try:
+        has_src_uns = ("src_paths" in ad.uns) or ("individual_adata_paths" in ad.uns)
+        # obs may be empty; check columns safely
+        has_obs_markers = False
+        try:
+            has_obs_markers = ("_source_idx" in ad.obs.columns) or ("_orig_obs_name" in ad.obs.columns)
+        except Exception:
+            has_obs_markers = False
+        return bool(has_src_uns and has_obs_markers)
+    finally:
+        try:
+            ad.file.close()
+        except Exception:
+            try:
+                ad._file.close()
+            except Exception:
+                pass
+
 class AnnDataView:
     """Helper representing a (cells, genes) subset of an `AnnDataCollection`.
-
     Call `to_memory()` to read and assemble the actual `AnnData` with `X`.
     """
-
-    def __init__(self, dataset: AnnDataCollection, obs_idx: np.ndarray, var_names: List[str]):
+    def __init__(self, dataset: AnnDataCollection, obs_idx: np.ndarray=None, var_names: List[str]=None):
         self.dataset = dataset
-        self.obs_idx = np.asarray(obs_idx, dtype=int)
-        self.var_names = list(var_names)
+        self.obs_idx = np.asarray(obs_idx, dtype=int) if obs_idx is not None else None # np.arange(dataset.adata.n_obs)
+        self.var_names = list(var_names) if var_names is not None else None #list(dataset.adata.var_names)
 
-    def to_memory(self) -> anndata.AnnData:
+    def to_memory(self, thread=8) -> anndata.AnnData:
         """Load selected `X` chunks from underlying files and assemble AnnData.
-
         Returns a new `anndata.AnnData` with concatenated `X` for the selected
         cells and genes.
         """
@@ -353,85 +390,74 @@ class AnnDataView:
         merged = ds.adata
 
         # Build target obs and var
-        sel_obs = merged.obs.iloc[self.obs_idx].copy()
-        sel_var = merged.var.loc[self.var_names].copy()
+        if not self.obs_idx is None:
+            sel_obs = merged.obs.iloc[self.obs_idx].copy()
+        else:
+            sel_obs = merged.obs.copy()
+        if not self.var_names is None:
+            sel_var = merged.var.loc[self.var_names].copy()
+        else:
+            sel_var = merged.var.copy()
 
-        n_rows = len(self.obs_idx)
-        n_cols = len(self.var_names)
+        n_rows = len(sel_obs)
+        n_cols = len(sel_var)
 
-        # Build global matrix by accumulating COO entries for speed
+        # Prepare containers for COO assembly
         rows_all: List[int] = []
         cols_all: List[int] = []
         data_all: List[float] = []
 
-        # Map merged obs rows to sources
-        src_indices = merged.obs.iloc[self.obs_idx]["_source_idx"].values
-        # For each source, find positions and corresponding original obs names
-        for src_idx, path in enumerate(ds.adata_paths):
-            mask = src_indices == src_idx
-            if not np.any(mask):
-                continue
+        # Map merged obs rows to sources and cache some locals for speed
+        src_indices = sel_obs["_source_idx"].values
+        sel_orig_obs = sel_obs["_orig_obs_name"].to_numpy() # cell_ids in original source files, aligned with sel_obs rows
+        paths = ds.adata_paths
+        var_names = sel_var.index.astype(str).tolist()
+        # build mapping dict for fast lookup
+        mapping = {v: idx for idx, v in enumerate(merged.var_names)} # type: ignore
+        src_gene_pos_all = np.array([mapping.get(v, -1) for v in var_names], dtype=int)
+        # use precomputed mapping for this source
+        present_mask = src_gene_pos_all >= 0
+        if not np.any(present_mask):
+            return None
+        src_col_pos_in_global = np.nonzero(present_mask)[0]
+        src_gene_pos = src_gene_pos_all[present_mask]
 
-            # global row positions that come from this source
-            global_rows = np.nonzero(mask)[0]
-            # original obs names stored in `_orig_obs_name` column
-            orig_obs_names = sel_obs["_orig_obs_name"].to_numpy()[mask]
+        def _process_source(src_idx: int, path: str):
+            mask = src_indices == src_idx # indices of adata in adata_paths
+            if not np.any(mask):
+                return None
+            global_rows = np.nonzero(mask)[0] # positions when True, all cells in sel_obs that come from this source
+            orig_obs_names = sel_orig_obs[mask] # cell_ids in the current adata file, aligned with global_rows positions in sel_obs
 
             a = anndata.read_h5ad(path, backed="r")
             try:
-                # map orig_obs_names to positions in source adata
-                src_row_pos = np.asarray(a.obs_names.get_indexer(orig_obs_names), dtype=int)
-                # ensure all requested obs were found in the source
-                if (src_row_pos < 0).any():
-                    missing = orig_obs_names[src_row_pos < 0]
-                    raise KeyError(f"Some requested obs names not found in {path}: {missing}")
+                # src_row_pos = np.asarray(a.obs_names.get_indexer(orig_obs_names), dtype=int)
+                # if (src_row_pos < 0).any():
+                #     missing = orig_obs_names[src_row_pos < 0]
+                #     raise KeyError(f"Some requested obs names not found in {path}: {missing}")
+                rows_ann = a[orig_obs_names,:]
+                X_rows = rows_ann.X
+                if sp.issparse(X_rows):
+                    X_rows = X_rows.tocsr()
+                else:
+                    X_rows = sp.csr_matrix(X_rows)
+                X_sub = X_rows[:, src_gene_pos]
 
-                # find intersection of requested genes with this source's genes
-                src_gene_mask = np.isin(self.var_names, a.var_names)
-                if not np.any(src_gene_mask):
-                    continue
-
-                genes_in_source = [g for g, m in zip(self.var_names, src_gene_mask) if m]
-                src_col_pos_in_global = np.nonzero(src_gene_mask)[0]
-
-                # map gene names to source column indices
-                src_gene_pos = np.asarray(a.var_names.get_indexer(genes_in_source), dtype=int)
-                # sanity check: ensure genes_in_source were located
-                if (src_gene_pos < 0).any():
-                    missing_g = np.asarray(genes_in_source)[src_gene_pos < 0]
-                    raise KeyError(f"Some requested genes not found in {path}: {missing_g}")
-
-                # read X slice from source. Try direct slicing; fall back if needed.
-                try:
-                    sub = a[src_row_pos, src_gene_pos]
-                    X_sub = sub.X
-                except Exception:
-                    rows_ann = a[src_row_pos]
-                    X_rows = rows_ann.X
-                    if sp.issparse(X_rows):
-                        X_rows = X_rows.tocsr()
-                    else:
-                        X_rows = sp.csr_matrix(X_rows)
-                    X_sub = X_rows[:, src_gene_pos]
-
-                # normalize to sparse COO for efficient assembly
                 if not sp.issparse(X_sub):
                     X_sub = sp.csr_matrix(X_sub)
                 X_coo = X_sub.tocoo()
 
                 if X_coo.nnz == 0:
-                    continue
+                    return None
 
-                # map local coordinates to global coordinates
                 global_rows_arr = np.asarray(global_rows)
                 src_col_pos_arr = np.asarray(src_col_pos_in_global)
 
-                rows_mapped = global_rows_arr[X_coo.row]
-                cols_mapped = src_col_pos_arr[X_coo.col]
+                rows_mapped = global_rows_arr[X_coo.row].astype(np.int32)
+                cols_mapped = src_col_pos_arr[X_coo.col].astype(np.int32)
+                data_arr = X_coo.data.astype(np.float32)
 
-                rows_all.extend(rows_mapped.tolist())
-                cols_all.extend(cols_mapped.tolist())
-                data_all.extend(X_coo.data.tolist())
+                return rows_mapped, cols_mapped, data_arr
             finally:
                 try:
                     a.file.close()
@@ -441,14 +467,35 @@ class AnnDataView:
                     except Exception:
                         pass
 
+        # Process sources in parallel to utilize multiple cores / IO
+        max_workers = min(thread, max(1, len(paths)))
+        with ThreadPoolExecutor(max_workers=max_workers) as exe:
+            futures = {exe.submit(_process_source, i, p): (i, p) for i, p in enumerate(paths)}
+            for fut in as_completed(futures):
+                try:
+                    res = fut.result()
+                except Exception:
+                    logger.error("Error processing source %s", futures[fut][1])
+                    continue
+                if res is None:
+                    continue
+                rows_mapped, cols_mapped, data = res
+                rows_all.append(rows_mapped)
+                cols_all.append(cols_mapped)
+                data_all.append(data)
+
         if len(data_all) == 0:
             X_final = sp.csr_matrix((n_rows, n_cols), dtype=np.float32)
         else:
-            X_final = sp.coo_matrix((data_all, (rows_all, cols_all)), shape=(n_rows, n_cols)).tocsr()
-        out = anndata.AnnData(X_final, obs=sel_obs.reset_index(drop=True), var=sel_var)
+            rows_cat = np.concatenate(rows_all).astype(int)
+            cols_cat = np.concatenate(cols_all).astype(int)
+            data_cat = np.concatenate(data_all).astype(np.float32)
+            X_final = sp.coo_matrix((data_cat, (rows_cat, cols_cat)), shape=(n_rows, n_cols)).tocsr()
+
+        out = anndata.AnnData(X_final, obs=sel_obs, var=sel_var)
         return out
 
-def test_merge_and_subset():
+def test_subset():
     os.chdir(os.path.expanduser("/home/x-wding2/Projects/mouse_dev/testAnnDataCollection"))
     adata_path="/anvil/projects/x-mcb130189/Wubin/mouse_dev/adata/100kb/*-CGN.h5ad"
     reference_path="/anvil/projects/x-mcb130189/Wubin/mouse_dev/adata/mouse_dev.100kb-CGN.h5ad"
@@ -458,24 +505,37 @@ def test_merge_and_subset():
 
     ref = anndata.read_h5ad(reference_path, backed="r")
     use_cells=ref.obs.sample(5000).index.tolist()
+    start = time.perf_counter()
     ref_data=ref[use_cells,:].to_df()
+    end = time.perf_counter()
+    ref.file.close()
+    logger.info(f"Reference read time for 5000 cells: {end - start:.2f} seconds")
+
+    start= time.perf_counter()
+    data=ds[use_cells,:].to_memory(thread=10).to_df()
+    end = time.perf_counter()
+    logger.info(f"AnnDataCollection read time for 5000 cells: {end - start:.2f} seconds")
+    ref_data.index.name='cell'
+    assert ref_data.equals(data)
+    pd.testing.assert_frame_equal(ref_data, data, check_dtype=True, rtol=1e-6, atol=0)
+
+    # subset vars
+    ref = anndata.read_h5ad(reference_path, backed="r")
+    use_vars=ref.var.sample(50).index.tolist()
+    start = time.perf_counter()
+    ref_data=ref[:,use_vars].to_df()
+    end = time.perf_counter()
+    logger.info(f"Reference read time for 50 vars: {end - start:.2f} seconds")
     ref.file.close()
 
-    data=ds[use_cells,:].to_memory().to_df()
-    same = ref_data.equals(data)
-    import pandas as pd
+    start = time.perf_counter()
+    data=ds[:,use_vars].to_memory(thread=10).to_df()
+    end = time.perf_counter()
+    logger.info(f"AnnDataCollection read time for 50 vars: {end - start:.2f} seconds")
+    ref_data.index.name='cell'
+    data=data.loc[ref_data.index.tolist()]
+    assert ref_data.equals(data)
     pd.testing.assert_frame_equal(ref_data, data, check_dtype=True, rtol=1e-6, atol=0)
-    # raises AssertionError with details if different
-
-    # choose the first n_obs_subset rows and first n_var_subset genes
-    var_names = list(ds.adata.var_names[:n_var_subset])
-    obs_indexer = list(range(n_obs))
-
-    subset = ds[obs_indexer, var_names]
-    log.info("Assembling subset to memory (obs=%d, vars=%d)", n_obs, len(var_names))
-    assembled = subset.to_memory()
-    log.info("Assembled AnnData: obs=%d, var=%d, X shape=%s", assembled.n_obs, assembled.n_vars, getattr(assembled.X, 'shape', None))
-    return assembled
 
 def main():
 	import fire

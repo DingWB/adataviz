@@ -15,8 +15,8 @@ import plotly.express as px
 import plotly.io as pio
 import plotly.graph_objects as go
 from loguru import logger as logger
-# logger.add(sys.stderr, level="DEBUG")
-logger.add(sys.stderr, level="ERROR")
+logger.add(sys.stderr, level="DEBUG")
+# logger.add(sys.stderr, level="ERROR")
 
 def use_scientific_style():
 	import matplotlib.pylab as plt
@@ -55,24 +55,6 @@ def use_scientific_style():
 		'ps.fonttype':42,
 	})
 	# plt.rcParams.keys()
-
-# def get_colors(adata,variable=None,palette_path=None):
-# 	if not palette_path is None:
-# 		try:
-# 			colors=pd.read_excel(palette_path,sheet_name=variable,index_col=0).Hex.to_dict()
-# 		except:
-# 			return None
-# 	else:
-# 		if adata is None:
-# 			return None
-# 		if isinstance(adata,str):
-# 			adata=anndata.read_h5ad(adata,backed='r')
-# 		if f'{variable}_colors' not in adata.uns:
-# 			colors={cluster:color for cluster,color in zip(adata.obs[variable].cat.categories.tolist(),adata.uns[f'{variable}_colors'])}
-# 		else:
-# 			colors=None
-# 	color_discrete_map=colors
-# 	return color_discrete_map
 
 def interactive_embedding(
 		adata=None,obs=None,variable=None,gene=None,
