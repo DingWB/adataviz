@@ -594,6 +594,7 @@ def stacked_barplot(
 	lgd_kws.setdefault("bbox_to_anchor", (1, 1))
 	lgd_kws.setdefault("title",column)
 	ax.legend(**lgd_kws)
+	ax.grid(False)
 	if save:
 		outdir=os.path.dirname(os.path.expanduser(save))
 		if not os.path.exists(outdir):
@@ -601,6 +602,7 @@ def stacked_barplot(
 		plt.savefig(save,bbox_inches='tight') # transparent=True,bbox_inches='tight',dpi=300
 	else:
 		plt.show()
+	return ax
 
 def pieplot(obs,groupby='Age',palette_path=None,order=None,
 			save=None,explode=0.05):
