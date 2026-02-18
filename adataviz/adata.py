@@ -323,7 +323,7 @@ class AnnDataCollection:
         raise IndexError("Unsupported obs indexer")
 
     def _parse_var_indexer(self, idx) -> List[str]:
-        if idx is None:
+        if idx is None: # idx==slice(None)
             return list(self.adata.var_names)
         if isinstance(idx, slice):
             return list(self.adata.var_names[idx])

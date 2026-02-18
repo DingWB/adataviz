@@ -147,9 +147,8 @@ def interactive_embedding(
 
 	if not gene is None:
 		obs[gene]=use_adata.to_df()[gene].tolist() # type: ignore
-	cols=set(obs.columns.tolist())
-	if not f'{coord}_0' in cols or not f'{coord}_1' in cols:
-		assert f'X_{coord}' in use_adata.obsm # type: ignore
+	# cols=set(obs.columns.tolist())
+	if f'X_{coord}' in use_adata.obsm: # type: ignore
 		# print(use_adata.obsm[f'X_{coord}'])
 		obs[f'{coord}_0']=use_adata.obsm[f'X_{coord}'][:,0].tolist() # type: ignore
 		obs[f'{coord}_1']=use_adata.obsm[f'X_{coord}'][:,1].tolist() # type: ignore
