@@ -307,7 +307,7 @@ def plot_categorical(
 			colors=palette_path
 	else:
 		calculate_colors=True
-	if calculate_colors or f'{groupby}_colors' not in adata.uns:
+	if calculate_colors and f'{groupby}_colors' not in adata.uns:
 		sc.pl.embedding(adata,basis=f"X_{basis}",color=[groupby],show=False)
 		colors={cluster:color for cluster,color in zip(adata.obs[groupby].cat.categories.tolist(),adata.uns[f'{groupby}_colors'])}
 	else:
