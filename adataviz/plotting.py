@@ -287,7 +287,7 @@ def plot_categorical(
 	adata=load_adata(adata)
 	if not is_categorical_dtype(adata.obs[groupby]):
 		adata.obs[groupby] = adata.obs[groupby].astype('category')
-	calculate_colors=False
+	colors=None
 	if not palette_path is None:
 		if isinstance(palette_path,str):
 			try:
@@ -302,14 +302,12 @@ def plot_categorical(
 						del colors[k]
 			except:
 				colors=None
-				calculate_colors=True
+	if colors is None:
+		if f'{groupby}_colors' in adata.uns:
+			colors={cluster:color for cluster,color in zip(adata.obs[groupby].cat.categories.tolist(),adata.uns[f'{groupby}_colors'])}
 		else:
-			colors=palette_path
-	else:
-		calculate_colors=True
-	if calculate_colors and f'{groupby}_colors' not in adata.uns:
-		sc.pl.embedding(adata,basis=f"X_{basis}",color=[groupby],show=False)
-		colors={cluster:color for cluster,color in zip(adata.obs[groupby].cat.categories.tolist(),adata.uns[f'{groupby}_colors'])}
+			sc.pl.embedding(adata,basis=f"X_{basis}",color=[groupby],show=False)
+			colors={cluster:color for cluster,color in zip(adata.obs[groupby].cat.categories.tolist(),adata.uns[f'{groupby}_colors'])}
 	else:
 		adata.uns[groupby + '_colors'] = [colors.get(k, 'grey') for k in adata.obs[groupby].cat.categories.tolist()]
 
