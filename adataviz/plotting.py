@@ -305,13 +305,13 @@ def plot_categorical(
 				calculate_colors=True
 		else:
 			colors=palette_path
-		adata.uns[groupby + '_colors'] = [colors.get(k, 'grey') for k in adata.obs[groupby].cat.categories.tolist()]
 	else:
 		calculate_colors=True
-	if calculate_colors:
-		if f'{groupby}_colors' not in adata.uns:
-			sc.pl.embedding(adata,basis=f"X_{basis}",color=[groupby],show=False)
+	if calculate_colors or f'{groupby}_colors' not in adata.uns:
+		sc.pl.embedding(adata,basis=f"X_{basis}",color=[groupby],show=False)
 		colors={cluster:color for cluster,color in zip(adata.obs[groupby].cat.categories.tolist(),adata.uns[f'{groupby}_colors'])}
+	else:
+		adata.uns[groupby + '_colors'] = [colors.get(k, 'grey') for k in adata.obs[groupby].cat.categories.tolist()]
 
 	hue=groupby
 	text_anno = groupby
