@@ -558,7 +558,7 @@ def get_color_palette(adata,groupby="Group"):
 		color_dict[col] = D
 	prepare_color_palette(color_dict=color_dict,outpath="color_palette.xlsx")
 
-def composition(obs,groupby,stratify_col="donor",composition_col="Region",
+def composition(obs,groupby,stratify_col=None,composition_col="Region",
 				outname=None,parent_col=None,
 				sort_cols=None,adata=None,color_palette=None):
 	from xlsxwriter.utility import xl_col_to_name
@@ -583,7 +583,10 @@ def composition(obs,groupby,stratify_col="donor",composition_col="Region",
 	else:
 		color_palette=None
 	writer = pd.ExcelWriter(outname)
-	stratify_order=obs[stratify_col].unique().tolist()
+	if not stratify_col is None: # such as donor
+		stratify_order=obs[stratify_col].unique().tolist()
+	else:
+		stratify_order=[]
 	for stratify in ['All']+stratify_order:
 		if stratify=='All':
 			df=obs.groupby(groupby)[composition_col].value_counts(normalize=True).unstack()
