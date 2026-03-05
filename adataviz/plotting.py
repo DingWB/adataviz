@@ -261,7 +261,7 @@ def show_fig(fig,filename="plot"):
         'scrollZoom':True,"displaylogo": False,
         'toImageButtonOptions':{'format':'svg','filename':filename},
         'modeBarButtonsToRemove':['sendDataToCloud'], # 'zoomIn2d','zoomOut2d','zoom2d','zoom3d','pan2d'
-        'editable':True,'autosizable':True,'responsive':True, 'fillFrame':True, 
+        'editable':True,'autosizable':True,#'responsive':True, 'fillFrame':True, 
         'edits':{
             'titleText':True,'legendPosition':True,'colorbarTitleText':True,
             'shapePosition':True,'annotationPosition':True,'annotationText':True,
@@ -358,7 +358,7 @@ def plot_categorical(
 	if show:
 		plt.show()
 
-def plot_continuous(
+def plot_gene(
 		adata,obs=None,groupby=None,gene='CADM1',query_str=None,
 		title=None,palette_path=None,hue_norm=None,
 		cbar_kws=dict(extendfrac=0.1),axis_format="tiny",scatter_kws={},
