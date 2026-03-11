@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="adataviz.plotting module" href="adataviz.plotting.html"><link rel="prev" title="adataviz" href="modules.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="adataviz.adata module" href="adataviz.adata.html"><link rel="prev" title="adataviz" href="modules.html">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
         <title>adataviz package - adataviz documentation</title>
@@ -212,6 +212,7 @@
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">adataviz</a><input aria-label="Toggle navigation of adataviz" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
 <li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">adataviz package</a><input aria-label="Toggle navigation of adataviz package" checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="adataviz.adata.html">adataviz.adata module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="adataviz.plotting.html">adataviz.plotting module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="adataviz.tools.html">adataviz.tools module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="adataviz.utils.html">adataviz.utils module</a></li>
@@ -269,18 +270,31 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="adataviz.adata.html">adataviz.adata module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="adataviz.adata.html#adataviz.adata.AnnDataCollection"><code class="docutils literal notranslate"><span class="pre">AnnDataCollection</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="adataviz.adata.html#adataviz.adata.AnnDataCollection.from_files"><code class="docutils literal notranslate"><span class="pre">AnnDataCollection.from_files()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="adataviz.adata.html#adataviz.adata.AnnDataCollection.read"><code class="docutils literal notranslate"><span class="pre">AnnDataCollection.read()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="adataviz.adata.html#adataviz.adata.AnnDataCollection.update_paths"><code class="docutils literal notranslate"><span class="pre">AnnDataCollection.update_paths()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="adataviz.adata.html#adataviz.adata.AnnDataView"><code class="docutils literal notranslate"><span class="pre">AnnDataView</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="adataviz.adata.html#adataviz.adata.AnnDataView.to_memory"><code class="docutils literal notranslate"><span class="pre">AnnDataView.to_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="adataviz.adata.html#adataviz.adata.is_annadatacollection"><code class="docutils literal notranslate"><span class="pre">is_annadatacollection()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="adataviz.adata.html#adataviz.adata.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="adataviz.adata.html#adataviz.adata.test_subset"><code class="docutils literal notranslate"><span class="pre">test_subset()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="adataviz.plotting.html">adataviz.plotting module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="adataviz.plotting.html#adataviz.plotting.categorical_scatter"><code class="docutils literal notranslate"><span class="pre">categorical_scatter()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="adataviz.plotting.html#adataviz.plotting.continuous_scatter"><code class="docutils literal notranslate"><span class="pre">continuous_scatter()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.plotting.html#adataviz.plotting.get_boxplot_data"><code class="docutils literal notranslate"><span class="pre">get_boxplot_data()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="adataviz.plotting.html#adataviz.plotting.get_cmap"><code class="docutils literal notranslate"><span class="pre">get_cmap()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.plotting.html#adataviz.plotting.get_genes_mean_frac"><code class="docutils literal notranslate"><span class="pre">get_genes_mean_frac()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.plotting.html#adataviz.plotting.has_stats"><code class="docutils literal notranslate"><span class="pre">has_stats()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.plotting.html#adataviz.plotting.interactive_boxplot"><code class="docutils literal notranslate"><span class="pre">interactive_boxplot()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.plotting.html#adataviz.plotting.interactive_dotHeatmap"><code class="docutils literal notranslate"><span class="pre">interactive_dotHeatmap()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.plotting.html#adataviz.plotting.interactive_embedding"><code class="docutils literal notranslate"><span class="pre">interactive_embedding()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.plotting.html#adataviz.plotting.pieplot"><code class="docutils literal notranslate"><span class="pre">pieplot()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="adataviz.plotting.html#adataviz.plotting.plot_cluster"><code class="docutils literal notranslate"><span class="pre">plot_cluster()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="adataviz.plotting.html#adataviz.plotting.plot_categorical"><code class="docutils literal notranslate"><span class="pre">plot_categorical()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.plotting.html#adataviz.plotting.plot_gene"><code class="docutils literal notranslate"><span class="pre">plot_gene()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.plotting.html#adataviz.plotting.plot_genes"><code class="docutils literal notranslate"><span class="pre">plot_genes()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.plotting.html#adataviz.plotting.plot_interacrive_boxplot_from_stats"><code class="docutils literal notranslate"><span class="pre">plot_interacrive_boxplot_from_stats()</span></code></a></li>
@@ -298,13 +312,19 @@
 <li class="toctree-l2"><a class="reference internal" href="adataviz.tools.html#adataviz.tools.composition"><code class="docutils literal notranslate"><span class="pre">composition()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.tools.html#adataviz.tools.downsample_adata"><code class="docutils literal notranslate"><span class="pre">downsample_adata()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.tools.html#adataviz.tools.export_pseudobulk_adata"><code class="docutils literal notranslate"><span class="pre">export_pseudobulk_adata()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="adataviz.tools.html#adataviz.tools.get_color_palette"><code class="docutils literal notranslate"><span class="pre">get_color_palette()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="adataviz.tools.html#adataviz.tools.get_markers"><code class="docutils literal notranslate"><span class="pre">get_markers()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="adataviz.tools.html#adataviz.tools.get_markers_worker"><code class="docutils literal notranslate"><span class="pre">get_markers_worker()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.tools.html#adataviz.tools.get_obs"><code class="docutils literal notranslate"><span class="pre">get_obs()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.tools.html#adataviz.tools.load_adata"><code class="docutils literal notranslate"><span class="pre">load_adata()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.tools.html#adataviz.tools.load_color_palette"><code class="docutils literal notranslate"><span class="pre">load_color_palette()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.tools.html#adataviz.tools.load_obs"><code class="docutils literal notranslate"><span class="pre">load_obs()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.tools.html#adataviz.tools.merge_adata_regions"><code class="docutils literal notranslate"><span class="pre">merge_adata_regions()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="adataviz.tools.html#adataviz.tools.normalize_adata"><code class="docutils literal notranslate"><span class="pre">normalize_adata()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="adataviz.tools.html#adataviz.tools.prepare_color_palette"><code class="docutils literal notranslate"><span class="pre">prepare_color_palette()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.tools.html#adataviz.tools.scrna2pseudobulk"><code class="docutils literal notranslate"><span class="pre">scrna2pseudobulk()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.tools.html#adataviz.tools.stat_pseudobulk"><code class="docutils literal notranslate"><span class="pre">stat_pseudobulk()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="adataviz.tools.html#adataviz.tools.taxonomy"><code class="docutils literal notranslate"><span class="pre">taxonomy()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="adataviz.utils.html">adataviz.utils module</a><ul>
@@ -312,10 +332,13 @@
 <li class="toctree-l3"><a class="reference internal" href="adataviz.utils.html#adataviz.utils.TextWithCircleHandler.create_artists"><code class="docutils literal notranslate"><span class="pre">TextWithCircleHandler.create_artists()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="adataviz.utils.html#adataviz.utils.categorical_scatter"><code class="docutils literal notranslate"><span class="pre">categorical_scatter()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="adataviz.utils.html#adataviz.utils.continuous_scatter"><code class="docutils literal notranslate"><span class="pre">continuous_scatter()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.utils.html#adataviz.utils.density_contour"><code class="docutils literal notranslate"><span class="pre">density_contour()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.utils.html#adataviz.utils.despine"><code class="docutils literal notranslate"><span class="pre">despine()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.utils.html#adataviz.utils.df2stdout"><code class="docutils literal notranslate"><span class="pre">df2stdout()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.utils.html#adataviz.utils.get_brain_region_structure"><code class="docutils literal notranslate"><span class="pre">get_brain_region_structure()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="adataviz.utils.html#adataviz.utils.get_cmap"><code class="docutils literal notranslate"><span class="pre">get_cmap()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.utils.html#adataviz.utils.level_one_palette"><code class="docutils literal notranslate"><span class="pre">level_one_palette()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.utils.html#adataviz.utils.mpl_style"><code class="docutils literal notranslate"><span class="pre">mpl_style()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="adataviz.utils.html#adataviz.utils.normalize_mc_by_cell"><code class="docutils literal notranslate"><span class="pre">normalize_mc_by_cell()</span></code></a></li>
@@ -367,12 +390,12 @@ tool:   Other tools</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="adataviz.plotting.html">
+          <a class="next-page" href="adataviz.adata.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">adataviz.plotting module</div>
+                <div class="title">adataviz.adata module</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>

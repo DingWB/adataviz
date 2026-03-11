@@ -508,7 +508,7 @@ def downsample_adata(adata_path,groupby="Group",obs_path=None,
 		obs=adata.obs.copy()
 	keep_cells = obs.loc[obs[groupby].notna()].groupby(groupby).apply(
 		lambda x: x.sample(downsample).index.tolist() if x.shape[0] > downsample else x.index.tolist()).sum()
-	adata[keep_cells,:].write_h5ad(outfile,compression='gzip')
+	adata[keep_cells,:].write_h5ad(outfile,compression='gzip',convert_strings_to_categoricals=False)
 	adata.file.close()
 
 def prepare_color_palette(color_dict=None,outpath="palette.xlsx"):

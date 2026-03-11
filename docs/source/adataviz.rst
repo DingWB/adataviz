@@ -7,6 +7,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   adataviz.adata
    adataviz.plotting
    adataviz.tools
    adataviz.utils

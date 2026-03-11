@@ -210,6 +210,7 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">adataviz</a><input aria-label="Toggle navigation of adataviz" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="adataviz.html">adataviz package</a><input aria-label="Toggle navigation of adataviz package" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="adataviz.adata.html">adataviz.adata module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="adataviz.plotting.html">adataviz.plotting module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="adataviz.tools.html">adataviz.tools module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="adataviz.utils.html">adataviz.utils module</a></li>
@@ -254,7 +255,7 @@
           
 <section class="genindex-section">
   <h1 id="index">Index</h1>
-  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#Z"><strong>Z</strong></a></div>
+  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#Z"><strong>Z</strong></a></div>
 </section>
 <section id="A" class="genindex-section">
   <h2>A</h2>
@@ -269,6 +270,13 @@
         </ul></li>
         <li><a href="adataviz.html#adataviz.adataviz">adataviz() (in module adataviz)</a>
 </li>
+        <li>
+    adataviz.adata
+
+        <ul>
+          <li><a href="adataviz.adata.html#module-adataviz.adata">module</a>
+</li>
+        </ul></li>
         <li>
     adataviz.plotting
 
@@ -292,6 +300,10 @@
           <li><a href="adataviz.utils.html#module-adataviz.utils">module</a>
 </li>
         </ul></li>
+        <li><a href="adataviz.adata.html#adataviz.adata.AnnDataCollection">AnnDataCollection (class in adataviz.adata)</a>
+</li>
+        <li><a href="adataviz.adata.html#adataviz.adata.AnnDataView">AnnDataView (class in adataviz.adata)</a>
+</li>
     </ul></td>
   </tr></table>
 </section>
@@ -304,13 +316,13 @@
 </li>
         <li><a href="adataviz.tools.html#adataviz.tools.cal_tpm">cal_tpm() (in module adataviz.tools)</a>
 </li>
-        <li><a href="adataviz.plotting.html#adataviz.plotting.categorical_scatter">categorical_scatter() (in module adataviz.plotting)</a>
+        <li><a href="adataviz.utils.html#adataviz.utils.categorical_scatter">categorical_scatter() (in module adataviz.utils)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="adataviz.tools.html#adataviz.tools.composition">composition() (in module adataviz.tools)</a>
 </li>
-        <li><a href="adataviz.plotting.html#adataviz.plotting.continuous_scatter">continuous_scatter() (in module adataviz.plotting)</a>
+        <li><a href="adataviz.utils.html#adataviz.utils.continuous_scatter">continuous_scatter() (in module adataviz.utils)</a>
 </li>
         <li><a href="adataviz.utils.html#adataviz.utils.TextWithCircleHandler.create_artists">create_artists() (adataviz.utils.TextWithCircleHandler method)</a>
 </li>
@@ -346,6 +358,16 @@
   </tr></table>
 </section>
 
+<section id="F" class="genindex-section">
+  <h2>F</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="adataviz.adata.html#adataviz.adata.AnnDataCollection.from_files">from_files() (adataviz.adata.AnnDataCollection class method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
 <section id="G" class="genindex-section">
   <h2>G</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
@@ -354,11 +376,17 @@
 </li>
         <li><a href="adataviz.utils.html#adataviz.utils.get_brain_region_structure">get_brain_region_structure() (in module adataviz.utils)</a>
 </li>
+        <li><a href="adataviz.utils.html#adataviz.utils.get_cmap">get_cmap() (in module adataviz.utils)</a>
+</li>
+        <li><a href="adataviz.tools.html#adataviz.tools.get_color_palette">get_color_palette() (in module adataviz.tools)</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="adataviz.plotting.html#adataviz.plotting.get_cmap">get_cmap() (in module adataviz.plotting)</a>
-</li>
         <li><a href="adataviz.plotting.html#adataviz.plotting.get_genes_mean_frac">get_genes_mean_frac() (in module adataviz.plotting)</a>
+</li>
+        <li><a href="adataviz.tools.html#adataviz.tools.get_markers">get_markers() (in module adataviz.tools)</a>
+</li>
+        <li><a href="adataviz.tools.html#adataviz.tools.get_markers_worker">get_markers_worker() (in module adataviz.tools)</a>
 </li>
         <li><a href="adataviz.tools.html#adataviz.tools.get_obs">get_obs() (in module adataviz.tools)</a>
 </li>
@@ -382,11 +410,13 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="adataviz.plotting.html#adataviz.plotting.interactive_boxplot">interactive_boxplot() (in module adataviz.plotting)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="adataviz.plotting.html#adataviz.plotting.interactive_dotHeatmap">interactive_dotHeatmap() (in module adataviz.plotting)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="adataviz.plotting.html#adataviz.plotting.interactive_embedding">interactive_embedding() (in module adataviz.plotting)</a>
+</li>
+        <li><a href="adataviz.adata.html#adataviz.adata.is_annadatacollection">is_annadatacollection() (in module adataviz.adata)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -415,7 +445,11 @@
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="adataviz.html#adataviz.main">main() (in module adataviz)</a>
+
+        <ul>
+          <li><a href="adataviz.adata.html#adataviz.adata.main">(in module adataviz.adata)</a>
 </li>
+        </ul></li>
         <li><a href="adataviz.tools.html#adataviz.tools.merge_adata_regions">merge_adata_regions() (in module adataviz.tools)</a>
 </li>
         <li>
@@ -423,6 +457,8 @@
 
         <ul>
           <li><a href="adataviz.html#module-adataviz">adataviz</a>
+</li>
+          <li><a href="adataviz.adata.html#module-adataviz.adata">adataviz.adata</a>
 </li>
           <li><a href="adataviz.plotting.html#module-adataviz.plotting">adataviz.plotting</a>
 </li>
@@ -443,6 +479,10 @@
   <h2>N</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="adataviz.tools.html#adataviz.tools.normalize_adata">normalize_adata() (in module adataviz.tools)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="adataviz.utils.html#adataviz.utils.normalize_mc_by_cell">normalize_mc_by_cell() (in module adataviz.utils)</a>
 </li>
     </ul></td>
@@ -459,7 +499,7 @@
 </li>
         <li><a href="adataviz.plotting.html#adataviz.plotting.pieplot">pieplot() (in module adataviz.plotting)</a>
 </li>
-        <li><a href="adataviz.plotting.html#adataviz.plotting.plot_cluster">plot_cluster() (in module adataviz.plotting)</a>
+        <li><a href="adataviz.plotting.html#adataviz.plotting.plot_categorical">plot_categorical() (in module adataviz.plotting)</a>
 </li>
         <li><a href="adataviz.utils.html#adataviz.utils.plot_cmap_legend">plot_cmap_legend() (in module adataviz.utils)</a>
 </li>
@@ -481,8 +521,12 @@
 </li>
         <li><a href="adataviz.utils.html#adataviz.utils.plot_text_legend">plot_text_legend() (in module adataviz.utils)</a>
 </li>
-        <li><a href="adataviz.utils.html#adataviz.utils.prepare_color_palette">prepare_color_palette() (in module adataviz.utils)</a>
+        <li><a href="adataviz.tools.html#adataviz.tools.prepare_color_palette">prepare_color_palette() (in module adataviz.tools)</a>
+
+        <ul>
+          <li><a href="adataviz.utils.html#adataviz.utils.prepare_color_palette">(in module adataviz.utils)</a>
 </li>
+        </ul></li>
     </ul></td>
   </tr></table>
 </section>
@@ -490,6 +534,10 @@
 <section id="R" class="genindex-section">
   <h2>R</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="adataviz.adata.html#adataviz.adata.AnnDataCollection.read">read() (adataviz.adata.AnnDataCollection class method)</a>
+</li>
+    </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="adataviz.utils.html#adataviz.utils.read_google_sheet">read_google_sheet() (in module adataviz.utils)</a>
 </li>
@@ -523,11 +571,17 @@
   <h2>T</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="adataviz.utils.html#adataviz.utils.TextWithCircleHandler">TextWithCircleHandler (class in adataviz.utils)</a>
+        <li><a href="adataviz.tools.html#adataviz.tools.taxonomy">taxonomy() (in module adataviz.tools)</a>
+</li>
+        <li><a href="adataviz.adata.html#adataviz.adata.test_subset">test_subset() (in module adataviz.adata)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="adataviz.utils.html#adataviz.utils.TextWithCircleHandler">TextWithCircleHandler (class in adataviz.utils)</a>
+</li>
         <li><a href="adataviz.utils.html#adataviz.utils.tight_hue_range">tight_hue_range() (in module adataviz.utils)</a>
+</li>
+        <li><a href="adataviz.adata.html#adataviz.adata.AnnDataView.to_memory">to_memory() (adataviz.adata.AnnDataView method)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -536,6 +590,10 @@
 <section id="U" class="genindex-section">
   <h2>U</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="adataviz.adata.html#adataviz.adata.AnnDataCollection.update_paths">update_paths() (adataviz.adata.AnnDataCollection method)</a>
+</li>
+    </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="adataviz.plotting.html#adataviz.plotting.use_scientific_style">use_scientific_style() (in module adataviz.plotting)</a>
 </li>

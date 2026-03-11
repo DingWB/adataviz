@@ -211,6 +211,7 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../modules.html">adataviz</a><input aria-label="Toggle navigation of adataviz" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../adataviz.html">adataviz package</a><input aria-label="Toggle navigation of adataviz package" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../adataviz.adata.html">adataviz.adata module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../adataviz.plotting.html">adataviz.plotting module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../adataviz.tools.html">adataviz.tools module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../adataviz.utils.html">adataviz.utils module</a></li>
@@ -256,9 +257,6 @@
 <span></span><span class="ch">#!/usr/bin/env python</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="c1"># from .clustermap import (heatmap, ClusterMapPlotter, composite,</span>
-<span class="c1">#                          DendrogramPlotter)</span>
-<span class="c1"># from .oncoPrint import oncoprint, oncoPrintPlotter</span>
 <span class="c1"># __all__=[&#39;*&#39;]</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">._version</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span> <span class="k">as</span> <span class="n">__version__</span>
@@ -297,18 +295,22 @@
 	<span class="n">command</span><span class="o">=</span><span class="n">command</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 	<span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;plot&quot;</span><span class="p">:</span>
 		<span class="k">return</span> <span class="p">{</span>
-			<span class="s1">&#39;plot_cluster&#39;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">plot_cluster</span><span class="p">,</span>
-			<span class="s1">&#39;plot_gene&#39;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">plot_gene</span><span class="p">,</span>
+			<span class="s1">&#39;plot_categorical&#39;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">,</span>
+			<span class="s1">&#39;plot_continuous&#39;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">plot_continuous</span><span class="p">,</span>
 			<span class="s1">&#39;plot_genes&#39;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">plot_genes</span><span class="p">,</span>
 		<span class="p">}</span>
 	<span class="k">elif</span> <span class="n">command</span><span class="o">==</span><span class="s2">&quot;tool&quot;</span><span class="p">:</span>
 		<span class="k">return</span> <span class="p">{</span>
 			<span class="s2">&quot;scrna2pseudobulk&quot;</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">scrna2pseudobulk</span><span class="p">,</span>
 			<span class="s1">&#39;stat_pseudobulk&#39;</span><span class="p">:</span><span class="n">tl</span><span class="o">.</span><span class="n">stat_pseudobulk</span><span class="p">,</span>
+			<span class="s1">&#39;normalize_adata&#39;</span><span class="p">:</span><span class="n">tl</span><span class="o">.</span><span class="n">normalize_adata</span><span class="p">,</span>
 			<span class="s1">&#39;export_pseudobulk_adata&#39;</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">export_pseudobulk_adata</span><span class="p">,</span>
 			<span class="s1">&#39;parse_gtf&#39;</span><span class="p">:</span><span class="n">tl</span><span class="o">.</span><span class="n">parse_gtf</span><span class="p">,</span>
 			<span class="s1">&#39;downsample_adata&#39;</span><span class="p">:</span><span class="n">tl</span><span class="o">.</span><span class="n">downsample_adata</span><span class="p">,</span>
 			<span class="s1">&#39;get_obs&#39;</span><span class="p">:</span><span class="n">tl</span><span class="o">.</span><span class="n">get_obs</span><span class="p">,</span>
+			<span class="s1">&#39;composition&#39;</span><span class="p">:</span><span class="n">tl</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span>
+			<span class="s1">&#39;taxonomy&#39;</span><span class="p">:</span><span class="n">tl</span><span class="o">.</span><span class="n">taxonomy</span><span class="p">,</span>
+			<span class="s1">&#39;get_markers&#39;</span><span class="p">:</span><span class="n">tl</span><span class="o">.</span><span class="n">get_markers</span><span class="p">,</span>
 		<span class="p">}</span>
 	<span class="k">else</span><span class="p">:</span>
 		<span class="nb">print</span><span class="p">(</span><span class="n">doc_string</span><span class="p">)</span>

@@ -999,7 +999,7 @@ def get_genes_mean_frac(
 				clip_norm_value=clip_norm_value,hypo_score=hypo_score)
 
 		data=use_adata.to_df() # rows are cells or cell types, columns are genes
-		if modality not in ['RNA','ATAC'] and isinstance(expression_cutoff,str):
+		if modality in ['RNA','ATAC'] and isinstance(expression_cutoff,str):
 			if expression_cutoff=='median':
 				cutoff=data.stack().median()
 			elif expression_cutoff=='mean':
