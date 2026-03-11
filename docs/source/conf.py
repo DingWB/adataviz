@@ -48,7 +48,7 @@ html_css_files = [
     'custom.css',
 ]
 html_js_files = [
-    'plotly_scroll.js',
+    # 'plotly_scroll.js',
 ]
 
 html_theme_options = {
