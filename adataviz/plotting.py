@@ -161,13 +161,14 @@ def interactive_embedding(
 		sample_idx = np.random.choice(n_points, size=downsample, replace=False) # numbers
 		obs = obs.iloc[sample_idx]
 
-	if not obs.dtypes[use_col] in ['object','category']:
+	if not obs.dtypes[use_col] in ['object','category']: # gene
 		vmin_quantile=float(int(vmin.replace('p','')) / 100)
 		vmax_quantile=float(int(vmax.replace('p','')) / 100)
 		# print(vmin_quantile,vmax_quantile,obs[use_col],obs.dtypes[use_col])
 		range_color=[obs[use_col].quantile(vmin_quantile), obs[use_col].quantile(vmax_quantile)]
 		color_discrete_map=None
-	else:
+		category_orders=None
+	else: # categorical variable
 		if colors is None:
 			# color_discrete_map=get_colors(use_adata,use_col,palette_path=palette_path)
 			color_discrete_map=load_color_palette(palette_path=palette_path,adata=use_adata,groups=use_col)
@@ -179,6 +180,7 @@ def interactive_embedding(
 				if k not in obs[use_col].unique().tolist():
 					del color_discrete_map[k] # type: ignore
 		range_color=None
+		category_orders=list(sorted(obs[use_col].unique().tolist()))
 	keep_cols=['cell',f'{coord}_0',f'{coord}_1']
 	if not variable is None:
 		keep_cols.append(variable)
@@ -200,6 +202,7 @@ def interactive_embedding(
 		x=f'{coord}_0',          # UMAP first dimension → X axis
 		y=f'{coord}_1',          # UMAP second dimension → Y axis
 		color=use_col, 
+		category_orders=category_orders,
 		hover_data=hover_data,
 		range_color=range_color,
 		color_discrete_sequence=px.colors.qualitative.D3, # color palette (professional, unobtrusive)
