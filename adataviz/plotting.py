@@ -167,6 +167,7 @@ def interactive_embedding(
 		# print(vmin_quantile,vmax_quantile,obs[use_col],obs.dtypes[use_col])
 		range_color=[obs[use_col].quantile(vmin_quantile), obs[use_col].quantile(vmax_quantile)]
 		color_discrete_map=None
+		category_orders = None
 	else: # categorical variable
 		if colors is None:
 			# color_discrete_map=get_colors(use_adata,use_col,palette_path=palette_path)
@@ -179,6 +180,9 @@ def interactive_embedding(
 				if k not in obs[use_col].unique().tolist():
 					del color_discrete_map[k] # type: ignore
 		range_color=None
+		order = sorted(obs[use_col].dropna().unique().tolist())
+		obs[use_col] = pd.Categorical(obs[use_col], categories=order, ordered=True)
+		category_orders = {use_col: order}
 	keep_cols=['cell',f'{coord}_0',f'{coord}_1']
 	if not variable is None:
 		keep_cols.append(variable)
@@ -186,12 +190,6 @@ def interactive_embedding(
 		keep_cols.append(gene)
 	obs=obs.reset_index(names="cell").loc[:,keep_cols]
 
-	# Ensure categorical ordering alphabetically so legend is sorted
-	category_orders = None
-	if obs.dtypes[use_col] in ['object','category']:
-		order = sorted(obs[use_col].dropna().unique().tolist())
-		obs[use_col] = pd.Categorical(obs[use_col], categories=order, ordered=True)
-		category_orders = {use_col: order}
 	# Create Plotly interactive scatter plot
 	hover_data={         # Fields to show on hover
 			"cell": True,    # cell ID
