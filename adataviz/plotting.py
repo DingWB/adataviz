@@ -202,7 +202,7 @@ def interactive_embedding(
 		x=f'{coord}_0',          # UMAP first dimension → X axis
 		y=f'{coord}_1',          # UMAP second dimension → Y axis
 		color=use_col, 
-		category_orders=category_orders,
+		category_orders=dict(use_col=category_orders),
 		hover_data=hover_data,
 		range_color=range_color,
 		color_discrete_sequence=px.colors.qualitative.D3, # color palette (professional, unobtrusive)
