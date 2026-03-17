@@ -5,7 +5,6 @@ import anndata
 import scanpy as sc
 import matplotlib.pylab as plt
 import numpy as np
-from matplotlib.colors import Normalize
 import seaborn as sns
 from .utils import (
     normalize_mc_by_cell,categorical_scatter,continuous_scatter

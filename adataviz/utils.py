@@ -1127,7 +1127,7 @@ def categorical_scatter(
 			size_norm = tight_hue_range(_data["size"], size_portion)
 
 			# snorm is the normalizer for size
-			size_norm = Normalize(vmin=size_norm[0], vmax=size_norm[1])
+			size_norm = matplotlib.colors.Normalize(vmin=size_norm[0], vmax=size_norm[1])
 
 		# discard s from _scatter_kws and use size in sns.scatterplot
 		s = _scatter_kws.pop("s")
@@ -1466,7 +1466,7 @@ def continuous_scatter(
 			# hue_norm = tight_hue_range(_data["hue"], hue_portion)
 			hue_norm=(_data["hue"].quantile(1-hue_portion),_data["hue"].quantile(hue_portion))
 		# cnorm is the normalizer for color
-		cnorm = Normalize(vmin=hue_norm[0], vmax=hue_norm[1])
+		cnorm = matplotlib.colors.Normalize(vmin=hue_norm[0], vmax=hue_norm[1])
 		if isinstance(cmap, str):
 			# from here, cmap become colormap object
 			cmap = copy.copy(get_cmap(cmap))
@@ -1492,7 +1492,7 @@ def continuous_scatter(
 			size_norm = tight_hue_range(_data["size"], size_portion)
 
 			# snorm is the normalizer for size
-			size_norm = Normalize(vmin=size_norm[0], vmax=size_norm[1])
+			size_norm = matplotlib.colors.Normalize(vmin=size_norm[0], vmax=size_norm[1])
 
 		# replace s with sizes
 		s = _scatter_kws.pop("s")
