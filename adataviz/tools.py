@@ -428,13 +428,15 @@ def load_obs(obs):
 		obs_path = os.path.abspath(os.path.expanduser(obs))
 		sep='\t' if obs_path.endswith('.tsv') or obs_path.endswith('.txt') else ','
 		obs = pd.read_csv(obs_path, index_col=0,sep=sep)
+		return obs
 	elif isinstance(obs,str) and obs.endswith('.h5ad'):
 		adata=anndata.read_h5ad(os.path.expanduser(obs),backed='r')
 		obs=adata.obs.copy()
 		adata.file.close()
+		return obs
 	else:
 		assert isinstance(obs,pd.DataFrame)
-	return obs
+		return obs.copy()
 
 def load_color_palette(palette_path=None,adata=None,groups=[]):
 	# read color palette
