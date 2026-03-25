@@ -340,11 +340,29 @@ def stat_pseudobulk(
 		return adata
 
 def normalize_adata(adata,embedding=True,outfile=None,
-					n_top_genes=5000,n_pcs=50,batch_col=None):
+					n_top_genes=5000,n_pcs=50,min_cells=5,batch_col=None,
+					normalization='CPM',gtf=None,target_sum=1e4):
 	adata=load_adata(adata,backed=None)
-	sc.pp.filter_genes(adata,min_cells=5)
-	sc.pp.normalize_total(adata, target_sum=1e4)
-	sc.pp.log1p(adata)
+	sc.pp.filter_genes(adata,min_cells=min_cells)
+
+	if normalization=='CPM':
+		# for new sc-RNA-seq pipeline, CPM is equal to TPM?
+		sc.pp.normalize_total(adata, target_sum=target_sum)
+		sc.pp.log1p(adata) # log(CPM)
+		adata.uns['Normalization']='log(CPM)'
+	else: #TPM
+		assert not gtf is None, "For TPM normalization, please provide gtf file."
+		df_gene = parse_gtf(gtf=gtf)
+		# ['chrom','beg','end','gene_name','gene_id','strand','gene_type']
+		# for genes with duplicated records, only keep the longest gene
+		df_gene['length']=df_gene.end - df_gene.beg
+		df_gene.sort_values('length',ascending=False,inplace=True) # type: ignore
+		df_gene.drop_duplicates('gene_name',keep='first',inplace=True) # type: ignore
+		df_gene.set_index('gene_name',inplace=True)
+		for col in ['chrom','beg','end','strand','gene_type','gene_id','length']:
+			adata.var[col]=adata.var_names.map(df_gene[col].to_dict())
+		adata=cal_tpm(adata,target_sum=target_sum,length_fillna=1000)
+	
 	if embedding:
 		sc.pp.highly_variable_genes(adata, n_top_genes=n_top_genes)
 		sc.tl.pca(adata)
