@@ -372,7 +372,7 @@ def normalize_adata(adata,embedding=True,outfile=None,
 		sc.tl.pca(adata)
 		sc.pl.pca_variance_ratio(adata, n_pcs=n_pcs) #log=True
 		if not batch_col is None:
-			sce.pp.harmony_integrate(adata, key='donor',
+			sce.pp.harmony_integrate(adata, key=batch_col,
 									basis='X_pca', max_iter_harmony=50)
 			use_rep = 'X_pca_harmony'
 		else:
