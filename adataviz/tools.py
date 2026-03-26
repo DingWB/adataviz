@@ -340,7 +340,7 @@ def stat_pseudobulk(
 		return adata
 
 def normalize_adata(adata,embedding=True,outfile=None,
-					n_top_genes=5000,n_pcs=50,min_cells=5,batch_col=None,
+					n_top_features=5000,n_pcs=50,min_cells=5,batch_col=None,
 					normalization='CPM',gtf=None,flanking=None,target_sum=1e4):
 	adata=load_adata(adata,backed=None)
 	sc.pp.filter_genes(adata,min_cells=min_cells)
@@ -368,7 +368,7 @@ def normalize_adata(adata,embedding=True,outfile=None,
 		adata=cal_tpm(adata,target_sum=target_sum,length_fillna=1000)
 	
 	if embedding:
-		sc.pp.highly_variable_genes(adata, n_top_genes=n_top_genes)
+		sc.pp.highly_variable_genes(adata, n_top_genes=n_top_features)
 		sc.tl.pca(adata)
 		sc.pl.pca_variance_ratio(adata, n_pcs=n_pcs) #log=True
 		if not batch_col is None:

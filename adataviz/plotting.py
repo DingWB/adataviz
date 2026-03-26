@@ -14,7 +14,7 @@ import plotly.express as px
 import plotly.io as pio
 import plotly.graph_objects as go
 from loguru import logger as logger
-logger.add(sys.stderr, level="DEBUG")
+# logger.add(sys.stderr, level="DEBUG")
 # logger.add(sys.stderr, level="ERROR")
 
 def use_scientific_style():

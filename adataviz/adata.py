@@ -9,8 +9,8 @@ import glob
 import json
 import time
 from loguru import logger as logger
-logger.remove()
-logger.add(sys.stderr, level="DEBUG")
+# logger.remove()
+# logger.add(sys.stderr, level="DEBUG")
 
 class AnnDataCollection:
     """Wrapper representing a merged collection of AnnData files.
