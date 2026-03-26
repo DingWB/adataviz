@@ -341,7 +341,7 @@ def stat_pseudobulk(
 
 def normalize_adata(adata,embedding=True,outfile=None,
 					n_top_genes=5000,n_pcs=50,min_cells=5,batch_col=None,
-					normalization='CPM',gtf=None,target_sum=1e4):
+					normalization='CPM',gtf=None,flanking=None,target_sum=1e4):
 	adata=load_adata(adata,backed=None)
 	sc.pp.filter_genes(adata,min_cells=min_cells)
 
@@ -355,6 +355,10 @@ def normalize_adata(adata,embedding=True,outfile=None,
 		df_gene = parse_gtf(gtf=gtf)
 		# ['chrom','beg','end','gene_name','gene_id','strand','gene_type']
 		# for genes with duplicated records, only keep the longest gene
+		if not flanking is None:
+			logger.info(f"Adding flanking {flanking} bp to gene body for TPM calculation.")
+			df_gene['beg']=df_gene.beg.apply(lambda x:max(x-flanking,0))
+			df_gene['end']=df_gene.end+flanking
 		df_gene['length']=df_gene.end - df_gene.beg
 		df_gene.sort_values('length',ascending=False,inplace=True) # type: ignore
 		df_gene.drop_duplicates('gene_name',keep='first',inplace=True) # type: ignore
