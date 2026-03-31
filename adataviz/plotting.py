@@ -56,7 +56,7 @@ def use_scientific_style():
 	# plt.rcParams.keys()
 
 def interactive_embedding(
-		adata=None,obs=None,variable=None,gene=None,
+		adata=None,obs=None,variable=None,gene=None,annotation=None,
 		coord="umap",vmin='p1',vmax='p99',cmap='jet',title=None,
 		width=900,height=750,colors=None,palette_path=None,
 		size=None,show=True,downsample=None,target_fill=0.05,
@@ -75,6 +75,8 @@ def interactive_embedding(
 		_description_, by default None
 	gene : _type_, optional
 		_description_, by default None
+	annotation: str
+		column to pass to mouse over
 	coord : str, optional
 		_description_, by default "umap"
 	vmin : str, optional
@@ -187,6 +189,8 @@ def interactive_embedding(
 		keep_cols.append(variable)
 	if not gene is None:
 		keep_cols.append(gene)
+	if not annotation is None:
+		keep_cols.append(annotation)
 	obs=obs.reset_index(names="cell").loc[:,keep_cols]
 
 	# Create Plotly interactive scatter plot
@@ -197,6 +201,8 @@ def interactive_embedding(
 		}
 	if not variable is None:
 		hover_data[variable]=True # type: ignore # when plotting gene expression, also show cell types when mouse hover
+	if not annotation is None:
+		hover_data[annotation]=True # type: ignore # when plotting gene expression, also show cell types when mouse hover
 	if not gene is None:
 		hover_data[gene]=":.3f" # type: ignore
 	fig = px.scatter(
