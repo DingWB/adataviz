@@ -4,6 +4,7 @@
 /.eggs/
 /.idea/
 **/__pycache__/
+/__pycache__/
 /adataviz.egg-info/
 notebooks/.ipynb_checkpoints/
 /notebooks/*.pdf

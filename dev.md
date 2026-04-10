@@ -26,3 +26,11 @@ ls docs
 
 vim .nojekyll #create empty file
 ```
+
+# Hooks
+```shell
+# install pixi
+curl -fsSL https://pixi.sh/install.sh | bash
+export PATH="$HOME/.pixi/bin:$PATH" && which pixi
+pixi run hooks-install
+```
