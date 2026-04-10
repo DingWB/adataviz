@@ -23,7 +23,7 @@ def df2stdout(df):
             sys.stdout.write(
                 "\t".join([str(i) for i in row.fillna("").tolist()]) + "\n"
             )
-        except (TypeError, UnicodeEncodeError, OSError, ValueError) as e:
+        except (TypeError, UnicodeEncodeError, OSError, ValueError):
             sys.stdout.close()
 
 
@@ -1086,7 +1086,9 @@ def normalize_mc_by_cell(
                 print("'prior_mean' not found in obs")
     elif normalize_per_cell and normalized_flag:
         # logger.info("Input adata is already normalized, skip normalize_per_cell !")
-        print("Input adata is already normalized, skip normalize_per_cell !") #TODO: use logger
+        print(
+            "Input adata is already normalized, skip normalize_per_cell !"
+        )  # TODO: use logger
     else:
         pass
     return use_adata
@@ -1375,8 +1377,8 @@ def categorical_scatter(
         )
         # coding & coded_marker
         text_anno = "text_anno"
-        if (coding is not None) and (coding != False): # noqa: E712
-            if coding == True: # noqa: E712
+        if (coding is not None) and (coding != False):  # noqa: E712
+            if coding == True:  # noqa: E712
                 _data["code"] = _data[
                     "hue"
                 ].cat.codes  # int; hue already cleaned, codes are contiguous

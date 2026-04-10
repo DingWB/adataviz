@@ -1,0 +1,41 @@
+[workspace]
+name = "adataviz-dev"
+version = "0.1.0"
+description = "Development environment for adataviz"
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+# Base deps shared by all environments (no pandas pin — comes from features)
+[dependencies]
+python = ">=3.10"
+pytest = "*"
+ruff = "*"
+pre-commit = "*"
+xarray = "*"
+
+[pypi-dependencies]
+adataviz = { path = ".", editable = true }
+
+[tasks]
+lint = "ruff check adataviz/ tests/"
+format = "ruff format adataviz/ tests/"
+hooks-install = "pre-commit install"
+
+# ── pandas 2 ──────────────────────────────────────────────────────────────────
+[feature.pandas2.dependencies]
+pandas = ">=2,<3"
+
+[feature.pandas2.tasks]
+test = "pytest tests/ -q"
+
+# ── pandas 3 ──────────────────────────────────────────────────────────────────
+[feature.pandas3.dependencies]
+pandas = ">=3,<4"
+
+[feature.pandas3.tasks]
+test = "pytest tests/ -q"
+
+# ── named environments ────────────────────────────────────────────────────────
+[environments]
+pandas2 = { features = ["pandas2"], solve-group = "pandas2" }
+pandas3 = { features = ["pandas3"], solve-group = "pandas3" }

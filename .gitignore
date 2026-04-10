@@ -1,4 +1,6 @@
 **/.DS_Store
+/.pixi/
+/pixi.lock
 /.eggs/
 /.idea/
 **/__pycache__/
