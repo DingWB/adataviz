@@ -722,7 +722,7 @@ def plot_color_dict_legend(
     hands = [
         mpatches.Patch(color=c, label=h) for h, c in D.items()
     ]  # kws:?mpatches.Patch; rasterized=True
-    # ms = lgd_kws.pop("markersize", 10) #TODO: make marker size adjustable
+    ms = lgd_kws.pop("markersize", 10)  # noqa: F841
     L = ax.legend(handles=hands, **lgd_kws)
     L._legend_box.align = "center"
     L.get_title().set_ha("center")
@@ -892,7 +892,7 @@ def plot_text_legend(
     lgd_kws.setdefault("bbox_to_anchor", (1, 1))
     lgd_kws.setdefault("title", title)
     lgd_kws.setdefault("markerfirst", True)
-    # ms = lgd_kws.pop("markersize", 10) #TODO: make marker size adjustable
+    ms = lgd_kws.pop("markersize", 10)  # noqa:F841
 
     # text_kws
     if text_kws is None:
