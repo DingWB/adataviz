@@ -64,10 +64,7 @@ def merge_adata_regions(
 			tmp_name = name
 		return name2index
 
-	if isinstance(pseudobulk_adata_path,str):
-		adata=anndata.read_h5ad(os.path.expanduser(pseudobulk_adata_path))
-	else:
-		adata=pseudobulk_adata_path
+	adata=load_adata(pseudobulk_adata_path,backed=None)
 	if use_raw:
 		if not adata.raw is None:
 			adata=adata.raw.to_adata()
@@ -117,7 +114,7 @@ def merge_adata_regions(
 def cal_stats(adata_path,obs1,modality="RNA",expression_cutoff=0,
 			  use_raw=False,normalize_per_cell=True,
 			  clip_norm_value=10,sum_only=False):
-	raw_adata=anndata.read_h5ad(os.path.expanduser(adata_path),backed='r')
+	raw_adata=load_adata(adata_path,backed='r')
 	adata=raw_adata[obs1.index.tolist(),:].to_memory()
 	raw_adata.file.close()
 	if modality not in ['RNA','ATAC']:
@@ -176,7 +173,7 @@ def scrna2pseudobulk(
 ):
 	assert use_raw == True, "For normalization (CPM or TPM), please set use_raw=True"
 	# assert modality=='RNA': # methylation
-	raw_adata=anndata.read_h5ad(os.path.expanduser(adata_path),backed='r')
+	raw_adata=load_adata(adata_path,backed='r')
 	if not obs_path is None:
 		if isinstance(obs_path,str):
 			obs=pd.read_csv(os.path.expanduser(obs_path),
@@ -271,7 +268,7 @@ def stat_pseudobulk(
 ):
 	if modality not in ['RNA','ATAC']: # methylation
 		assert normalize_per_cell==True, "For methylation, normalize_per_cell should be True"
-	raw_adata=anndata.read_h5ad(os.path.expanduser(adata_path),backed='r')
+	raw_adata=load_adata(adata_path,backed='r')
 	if not obs_path is None:
 		if isinstance(obs_path,str):
 			obs=pd.read_csv(os.path.expanduser(obs_path),
@@ -398,10 +395,7 @@ def export_pseudobulk_adata(adata,outdir="pseudobulk.bed",use_raw=False):
 		os.makedirs(outdir,exist_ok=True)
 	if not os.path.exists(outdir):
 		os.makedirs(outdir,exist_ok=True)
-	if isinstance(adata,str):
-		adata=anndata.read_h5ad(os.path.expanduser(adata))
-	else:
-		adata=adata
+	adata=load_adata(adata,backed=None)
 	if use_raw:
 		data=adata.raw.to_adata().to_df().T # raw counts
 	else:
@@ -496,7 +490,7 @@ def load_color_palette(palette_path=None,adata=None,groups=[]):
 	return color_palette
 
 def get_obs(adata_path, add_coord=True,usecols=None,index_name='cell',outfile=None):
-	adata = anndata.read_h5ad(os.path.expanduser(adata_path),backed='r')
+	adata=load_adata(adata_path,backed='r')
 	obs=adata.obs.copy()
 	obs.index.name=index_name
 	if add_coord:
@@ -519,7 +513,7 @@ def downsample_adata(adata_path,groupby="Group",obs_path=None,
 					 downsample=1500):
 	adata_path=os.path.expanduser(adata_path)
 	outfile=os.path.expanduser(outfile)
-	adata=anndata.read_h5ad(adata_path,backed='r')
+	adata=load_adata(adata_path,backed='r')
 	if not obs_path is None:
 		if isinstance(obs_path,str):
 			obs=pd.read_csv(os.path.expanduser(obs_path),
