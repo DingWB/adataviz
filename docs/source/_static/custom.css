@@ -5,13 +5,11 @@
 /* --- Google Fonts: Inter for body, JetBrains Mono for code --- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-/* --- Wider content area and narrower TOC on large screens --- */
-@media (min-width: 76em) {
-  .page {
-    --content-width: 80rem;
-    --sidebar-width: 15rem;
-    --toc-width: 13rem;
-  }
+/* --- Full-width content area --- */
+.page {
+  --content-width: 100%;
+  --sidebar-width: 15rem;
+  --toc-width: 13rem;
 }
 
 /* --- Heading styles --- */
