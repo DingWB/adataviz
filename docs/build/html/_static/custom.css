@@ -5,10 +5,12 @@
 /* --- Google Fonts: Inter for body, JetBrains Mono for code --- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-/* --- Wider content area on large screens --- */
+/* --- Wider content area and narrower TOC on large screens --- */
 @media (min-width: 76em) {
   .page {
-    --content-width: 70rem;
+    --content-width: 80rem;
+    --sidebar-width: 15rem;
+    --toc-width: 13rem;
   }
 }
 
@@ -57,19 +59,6 @@
 .content dl.field-list > dt {
   font-weight: 600;
   color: var(--color-brand-content);
-}
-
-/* Accent border only on top-level class/function signatures */
-.content dl.py.class > dt,
-.content dl.py.function > dt,
-.content dl.py.method > dt,
-.content dl.py.attribute > dt {
-  border-left: 3px solid var(--color-brand-primary);
-  padding-left: 0.8em;
-  padding-top: 0.2em;
-  padding-bottom: 0.2em;
-  background: var(--color-background-secondary);
-  border-radius: 0 4px 4px 0;
 }
 
 /* --- Sidebar navigation refinements --- */
