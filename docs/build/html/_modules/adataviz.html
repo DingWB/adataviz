@@ -10,7 +10,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/css/rtd_sphinx_search.min.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=3ec9162d" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=602d273f" />
     
     
 
@@ -209,9 +209,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../plot.html">Plotting (adataviz.pl)</a><input aria-label="Toggle navigation of Plotting (adataviz.pl)" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../notebooks/static_plots.html">Static Plotting Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/interactive_plots.html">Plot embedding (umap or tsne)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/interactive_plots.html#Plot-dot-heatmap">Plot dot heatmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/interactive_plots.html#Plot-boxplot">Plot boxplot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/interactive_plots.html">Interactive Plotting Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../modules.html">adataviz</a><input aria-label="Toggle navigation of adataviz" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -262,107 +260,112 @@
           <h1>Source code for adataviz</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="c1"># __all__=[&#39;*&#39;]</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">._version</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span> <span class="k">as</span> <span class="n">__version__</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_importlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fire</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._version</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span> <span class="k">as</span> <span class="n">__version__</span>  <span class="c1"># noqa: F401</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-<span class="w">	</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">	Lazy module loader for adataviz submodules.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Lazy module loader for adataviz submodules.</span>
 
-<span class="sd">	Loads ``tl`` (tools) and ``pl`` (plotting) submodules on first access</span>
-<span class="sd">	to avoid importing heavy dependencies (plotly, scanpy, seaborn)</span>
-<span class="sd">	at package import time.</span>
+<span class="sd">    Loads ``tl`` (tools) and ``pl`` (plotting) submodules on first access</span>
+<span class="sd">    to avoid importing heavy dependencies (plotly, scanpy, seaborn)</span>
+<span class="sd">    at package import time.</span>
 
-<span class="sd">	Parameters</span>
-<span class="sd">	----------</span>
-<span class="sd">	name : str</span>
-<span class="sd">		Attribute name. Supports &quot;tl&quot; for tools module and &quot;pl&quot; for</span>
-<span class="sd">		plotting module.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">            Attribute name. Supports &quot;tl&quot; for tools module and &quot;pl&quot; for</span>
+<span class="sd">            plotting module.</span>
 
-<span class="sd">	Returns</span>
-<span class="sd">	-------</span>
-<span class="sd">	module</span>
-<span class="sd">		The requested submodule.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    module</span>
+<span class="sd">            The requested submodule.</span>
 
-<span class="sd">	Raises</span>
-<span class="sd">	------</span>
-<span class="sd">	AttributeError</span>
-<span class="sd">		If ``name`` is not &quot;tl&quot; or &quot;pl&quot;.</span>
-<span class="sd">	&quot;&quot;&quot;</span>
-	<span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;tl&quot;</span><span class="p">:</span>
-		<span class="k">return</span> <span class="n">_importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;.tools&quot;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
-	<span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;pl&quot;</span><span class="p">:</span>
-		<span class="k">return</span> <span class="n">_importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;.plotting&quot;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
-	<span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;module </span><span class="si">{</span><span class="vm">__name__</span><span class="si">!r}</span><span class="s2"> has no attribute </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    AttributeError</span>
+<span class="sd">            If ``name`` is not &quot;tl&quot; or &quot;pl&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;tl&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;.tools&quot;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;pl&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;.plotting&quot;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;module </span><span class="si">{</span><span class="vm">__name__</span><span class="si">!r}</span><span class="s2"> has no attribute </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">fire</span>
 
 <span class="n">_ROOT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
 
 <div class="viewcode-block" id="adataviz">
 <a class="viewcode-back" href="../adataviz.html#adataviz.adataviz">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">adataviz</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">	</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">	Usage: adataviz command [options]\n</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Usage: adataviz command [options]\n</span>
 
-<span class="sd">	Available commands are:</span>
-<span class="sd">		plot:	plot adata</span>
-<span class="sd">		tool:	Other tools</span>
+<span class="sd">    Available commands are:</span>
+<span class="sd">            plot:	plot adata</span>
+<span class="sd">            tool:	Other tools</span>
 
-<span class="sd">	Parameters</span>
-<span class="sd">	----------</span>
-<span class="sd">	command :</span>
-<span class="sd">		choice from [&#39;plot&#39;, &#39;tool&#39;]</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    command :</span>
+<span class="sd">            choice from [&#39;plot&#39;, &#39;tool&#39;]</span>
 
-<span class="sd">	Returns</span>
-<span class="sd">	-------</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
 
-<span class="sd">	&quot;&quot;&quot;</span>
-	<span class="n">doc_string</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">doc_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">Available subcommands:</span>
 <span class="s2">	plot:	plot adata</span>
 <span class="s2">	tool:	Other tools</span>
 <span class="s2">		&quot;&quot;&quot;</span>
-	<span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-		<span class="k">return</span> <span class="n">doc_string</span>
-	<span class="n">command</span><span class="o">=</span><span class="n">command</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-	<span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;plot&quot;</span><span class="p">:</span>
-		<span class="k">return</span> <span class="p">{</span>
-			<span class="s1">&#39;plot_categorical&#39;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">,</span>
-			<span class="s1">&#39;plot_genes&#39;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">plot_genes</span><span class="p">,</span>
-		<span class="p">}</span>
-	<span class="k">elif</span> <span class="n">command</span><span class="o">==</span><span class="s2">&quot;tool&quot;</span><span class="p">:</span>
-		<span class="k">return</span> <span class="p">{</span>
-			<span class="s2">&quot;scrna2pseudobulk&quot;</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">scrna2pseudobulk</span><span class="p">,</span>
-			<span class="s1">&#39;stat_pseudobulk&#39;</span><span class="p">:</span><span class="n">tl</span><span class="o">.</span><span class="n">stat_pseudobulk</span><span class="p">,</span>
-			<span class="s1">&#39;normalize_adata&#39;</span><span class="p">:</span><span class="n">tl</span><span class="o">.</span><span class="n">normalize_adata</span><span class="p">,</span>
-			<span class="s1">&#39;export_pseudobulk_adata&#39;</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">export_pseudobulk_adata</span><span class="p">,</span>
-			<span class="s1">&#39;parse_gtf&#39;</span><span class="p">:</span><span class="n">tl</span><span class="o">.</span><span class="n">parse_gtf</span><span class="p">,</span>
-			<span class="s1">&#39;downsample_adata&#39;</span><span class="p">:</span><span class="n">tl</span><span class="o">.</span><span class="n">downsample_adata</span><span class="p">,</span>
-			<span class="s1">&#39;get_obs&#39;</span><span class="p">:</span><span class="n">tl</span><span class="o">.</span><span class="n">get_obs</span><span class="p">,</span>
-			<span class="s1">&#39;composition&#39;</span><span class="p">:</span><span class="n">tl</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span>
-			<span class="s1">&#39;taxonomy&#39;</span><span class="p">:</span><span class="n">tl</span><span class="o">.</span><span class="n">taxonomy</span><span class="p">,</span>
-			<span class="s1">&#39;get_markers&#39;</span><span class="p">:</span><span class="n">tl</span><span class="o">.</span><span class="n">get_markers</span><span class="p">,</span>
-		<span class="p">}</span>
-	<span class="k">else</span><span class="p">:</span>
-		<span class="nb">print</span><span class="p">(</span><span class="n">doc_string</span><span class="p">)</span>
-		<span class="n">exit</span><span class="p">()</span></div>
+    <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">doc_string</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">_pl</span> <span class="o">=</span> <span class="n">_importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;.plotting&quot;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
+    <span class="n">_tl</span> <span class="o">=</span> <span class="n">_importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;.tools&quot;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;plot&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;plot_categorical&quot;</span><span class="p">:</span> <span class="n">_pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">,</span>
+            <span class="s2">&quot;plot_genes&quot;</span><span class="p">:</span> <span class="n">_pl</span><span class="o">.</span><span class="n">plot_genes</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">elif</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;tool&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;scrna2pseudobulk&quot;</span><span class="p">:</span> <span class="n">_tl</span><span class="o">.</span><span class="n">scrna2pseudobulk</span><span class="p">,</span>
+            <span class="s2">&quot;stat_pseudobulk&quot;</span><span class="p">:</span> <span class="n">_tl</span><span class="o">.</span><span class="n">stat_pseudobulk</span><span class="p">,</span>
+            <span class="s2">&quot;normalize_adata&quot;</span><span class="p">:</span> <span class="n">_tl</span><span class="o">.</span><span class="n">normalize_adata</span><span class="p">,</span>
+            <span class="s2">&quot;export_pseudobulk_adata&quot;</span><span class="p">:</span> <span class="n">_tl</span><span class="o">.</span><span class="n">export_pseudobulk_adata</span><span class="p">,</span>
+            <span class="s2">&quot;parse_gtf&quot;</span><span class="p">:</span> <span class="n">_tl</span><span class="o">.</span><span class="n">parse_gtf</span><span class="p">,</span>
+            <span class="s2">&quot;downsample_adata&quot;</span><span class="p">:</span> <span class="n">_tl</span><span class="o">.</span><span class="n">downsample_adata</span><span class="p">,</span>
+            <span class="s2">&quot;get_obs&quot;</span><span class="p">:</span> <span class="n">_tl</span><span class="o">.</span><span class="n">get_obs</span><span class="p">,</span>
+            <span class="s2">&quot;composition&quot;</span><span class="p">:</span> <span class="n">_tl</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span>
+            <span class="s2">&quot;taxonomy&quot;</span><span class="p">:</span> <span class="n">_tl</span><span class="o">.</span><span class="n">taxonomy</span><span class="p">,</span>
+            <span class="s2">&quot;get_markers&quot;</span><span class="p">:</span> <span class="n">_tl</span><span class="o">.</span><span class="n">get_markers</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">doc_string</span><span class="p">)</span>
+        <span class="n">exit</span><span class="p">()</span></div>
 
-		
+
+
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../adataviz.html#adataviz.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="w">	</span><span class="sd">&quot;&quot;&quot;CLI entry point. Dispatches commands via Python Fire.&quot;&quot;&quot;</span>
-	<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">serialize</span>
-	<span class="n">fire</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Display</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">lines</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">lines</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">out</span><span class="p">)</span>
-	<span class="n">fire</span><span class="o">.</span><span class="n">Fire</span><span class="p">(</span><span class="n">adataviz</span><span class="p">,</span> <span class="n">serialize</span><span class="o">=</span><span class="n">serialize</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CLI entry point. Dispatches commands via Python Fire.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">serialize</span>
+
+    <span class="n">fire</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Display</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">lines</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">lines</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">out</span><span class="p">)</span>
+    <span class="n">fire</span><span class="o">.</span><span class="n">Fire</span><span class="p">(</span><span class="n">adataviz</span><span class="p">,</span> <span class="n">serialize</span><span class="o">=</span><span class="n">serialize</span><span class="p">)</span></div>
 
 
-<span class="k">if</span> <span class="vm">__name__</span><span class="o">==</span><span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-	<span class="n">main</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
 </pre></div>
         </article>
       </div>

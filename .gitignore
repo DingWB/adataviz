@@ -6,8 +6,7 @@
 **/__pycache__/
 /__pycache__/
 /adataviz.egg-info/
-notebooks/.ipynb_checkpoints/
+/notebooks/.ipynb_checkpoints/
 /notebooks/*.pdf
 /dist/
 adataviz/_version.py
-notebooks/.ipynb_checkpoints/plot-checkpoint.ipynb

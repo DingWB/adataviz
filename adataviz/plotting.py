@@ -232,20 +232,19 @@ def interactive_embedding(
     variable=None,
     gene=None,
     annotation=None,
-    coord="umap",
+    basis="umap",
     vmin="p1",
     vmax="p99",
     cmap="jet",
     title=None,
     width=900,
     height=750,
-    colors=None,
     palette=None,
     size=None,
     show=True,
     downsample=None,
     target_fill=0.05,
-    normalize_per_cell=True,
+    normalize_per_cell=False,
     clip_norm_value=10,
     renderer="notebook",
 ):
@@ -264,7 +263,7 @@ def interactive_embedding(
             _description_, by default None
     annotation: str
             column to pass to mouse over
-    coord : str, optional
+    basis : str, optional
             _description_, by default "umap"
     vmin : str, optional
             _description_, by default 'p1'
@@ -278,8 +277,6 @@ def interactive_embedding(
             _description_, by default 1000
     height : int, optional
             _description_, by default 800
-    colors : _type_, optional
-            _description_, by default None
     palette : _type_, optional
             _description_, by default None
     size : _type_, optional
@@ -342,12 +339,12 @@ def interactive_embedding(
             use_adata = use_adata[overlap_idx, :]  # type: ignore
 
     if gene is not None:
-        obs[gene] = use_adata.to_df()[gene].values  # type: ignore
+        obs[gene] = use_adata.to_df()[gene].tolist()  # type: ignore
     # cols=set(obs.columns.tolist())
-    if f"X_{coord}" in use_adata.obsm:  # type: ignore
-        # print(use_adata.obsm[f'X_{coord}'])
-        obs[f"{coord}_0"] = use_adata.obsm[f"X_{coord}"][:, 0]  # type: ignore
-        obs[f"{coord}_1"] = use_adata.obsm[f"X_{coord}"][:, 1]  # type: ignore
+    if f"X_{basis}" in use_adata.obsm:  # type: ignore
+        # print(use_adata.obsm[f'X_{basis}'])
+        obs[f"{basis}_0"] = np.asarray(use_adata.obsm[f"X_{basis}"][:, 0])  # type: ignore
+        obs[f"{basis}_1"] = np.asarray(use_adata.obsm[f"X_{basis}"][:, 1])  # type: ignore
         # print(obs.head())
     if adata is not None and adata.isbacked:  # type: ignore
         adata.file.close()  # type: ignore
@@ -370,13 +367,13 @@ def interactive_embedding(
         color_discrete_map = None
         category_orders = None
     else:  # categorical variable
-        if colors is None:
+        if isinstance(palette, str) and palette.endswith(".xlsx"):
             # color_discrete_map=get_colors(use_adata,use_col,palette=palette)
             color_discrete_map = load_color_palette(
                 palette=palette, adata=use_adata, groups=use_col
             )
         else:
-            color_discrete_map = colors
+            color_discrete_map = palette
         if color_discrete_map is not None:
             keys = list(color_discrete_map.keys())  # type: ignore
             for k in keys:
@@ -386,7 +383,7 @@ def interactive_embedding(
         order = sorted(obs[use_col].dropna().unique().tolist())
         obs[use_col] = pd.Categorical(obs[use_col], categories=order, ordered=True)
         category_orders = {use_col: order}
-    keep_cols = ["cell", f"{coord}_0", f"{coord}_1"]
+    keep_cols = ["cell", f"{basis}_0", f"{basis}_1"]
     if variable is not None:
         keep_cols.append(variable)
     if gene is not None:
@@ -398,8 +395,8 @@ def interactive_embedding(
     # Create Plotly interactive scatter plot
     hover_data = {  # Fields to show on hover
         "cell": True,  # cell ID
-        f"{coord}_0": ":0.3f",  # UMAP coordinates rounded to 3 decimals
-        f"{coord}_1": ":0.3f",
+        f"{basis}_0": ":0.3f",  # UMAP basisinates rounded to 3 decimals
+        f"{basis}_1": ":0.3f",
     }
     if variable is not None:
         hover_data[variable] = True  # type: ignore # when plotting gene expression, also show cell types when mouse hover
@@ -409,8 +406,8 @@ def interactive_embedding(
         hover_data[gene] = ":.3f"  # type: ignore
     fig = px.scatter(
         obs,
-        x=f"{coord}_0",  # UMAP first dimension → X axis
-        y=f"{coord}_1",  # UMAP second dimension → Y axis
+        x=f"{basis}_0",  # UMAP first dimension → X axis
+        y=f"{basis}_1",  # UMAP second dimension → Y axis
         color=use_col,
         category_orders=category_orders,
         hover_data=hover_data,
@@ -422,11 +419,11 @@ def interactive_embedding(
         render_mode="webgl",  # use WebGL rendering for better performance with large datasets
     )
     fig.update_xaxes(
-        range=[obs[f"{coord}_0"].min() - 0.5, obs[f"{coord}_0"].max() + 0.5],
+        range=[obs[f"{basis}_0"].min() - 0.5, obs[f"{basis}_0"].max() + 0.5],
         tickfont_size=12,
     )
     fig.update_yaxes(
-        range=[obs[f"{coord}_1"].min() - 0.5, obs[f"{coord}_1"].max() + 0.5],
+        range=[obs[f"{basis}_1"].min() - 0.5, obs[f"{basis}_1"].max() + 0.5],
         tickfont_size=12,
     )
 
@@ -450,7 +447,7 @@ def interactive_embedding(
         selector=dict(mode="markers"),
     )
     if title is None:
-        title = f"{coord.upper()} Visualization (Colored by {use_col})"
+        title = f"{basis.upper()} Visualization (Colored by {use_col})"
     fig.update_layout(
         title=dict(
             text=title,
@@ -458,8 +455,8 @@ def interactive_embedding(
             x=0.5,  # center the title
             pad=dict(t=10),
         ),
-        xaxis_title=f"{coord}_0".upper(),
-        yaxis_title=f"{coord}_1".upper(),
+        xaxis_title=f"{basis}_0".upper(),
+        yaxis_title=f"{basis}_1".upper(),
         autosize=True,
         width=width,
         height=height,
@@ -472,7 +469,7 @@ def interactive_embedding(
         ),
     )
     if show:
-        filename = f"{coord}.{use_col}"
+        filename = f"{basis}.{use_col}"
         show_fig(fig, filename=filename)
     else:
         return fig
@@ -727,7 +724,7 @@ def plot_gene(
     """Plot gene expression on an embedding and optionally a violin/strip plot.
 
     Reads the gene from a backed ``.h5ad`` file, projects expression values
-    onto the chosen embedding coordinates, and saves the scatter plot to PDF.
+    onto the chosen embedding basisinates, and saves the scatter plot to PDF.
     When *groupby* is provided, a violin plot grouped by that column is also
     generated.
 

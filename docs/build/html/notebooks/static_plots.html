@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Plot embedding (umap or tsne)" href="interactive_plots.html"><link rel="prev" title="Plotting (adataviz.pl)" href="../plot.html">
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Interactive Plotting Examples" href="interactive_plots.html"><link rel="prev" title="Plotting (adataviz.pl)" href="../plot.html">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
         <title>Static Plotting Examples - adataviz documentation</title>
@@ -12,7 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/css/rtd_sphinx_search.min.css" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=3ec9162d" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=602d273f" />
     
     
 
@@ -211,9 +211,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../plot.html">Plotting (adataviz.pl)</a><input aria-label="Toggle navigation of Plotting (adataviz.pl)" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Static Plotting Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="interactive_plots.html">Plot embedding (umap or tsne)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="interactive_plots.html#Plot-dot-heatmap">Plot dot heatmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="interactive_plots.html#Plot-boxplot">Plot boxplot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interactive_plots.html">Interactive Plotting Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../modules.html">adataviz</a><input aria-label="Toggle navigation of adataviz" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -283,8 +281,9 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/Projects/Github/adataviz&quot;</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="c1"># sys.path.append(os.path.expanduser(&quot;~/Projects/Github/adataviz&quot;))</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">adataviz</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">av</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">anndata</span>
 </pre></div>
@@ -295,15 +294,19 @@
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Path to the example AnnData file</span>
-<span class="n">adata_path</span> <span class="o">=</span> <span class="s2">&quot;/home/x-wding2/Projects/BICAN/adata/HMBA_v2/HMBA.Group.downsample_1500.h5ad&quot;</span>
+<span class="n">adata_path</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;/home/x-wding2/Projects/BICAN/adata/HMBA_v2/HMBA.Group.downsample_1500.h5ad&quot;</span>
+<span class="p">)</span>
 
 <span class="c1"># Quick look at the data</span>
-<span class="n">adata</span> <span class="o">=</span> <span class="n">anndata</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="n">adata_path</span><span class="p">,</span> <span class="n">backed</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">adata</span> <span class="o">=</span> <span class="n">anndata</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="n">adata_path</span><span class="p">,</span> <span class="n">backed</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shape: </span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Categorical columns: Neighborhood (</span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;Neighborhood&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2">), &quot;</span>
-      <span class="sa">f</span><span class="s2">&quot;Class (</span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;Class&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2">), &quot;</span>
-      <span class="sa">f</span><span class="s2">&quot;Subclass (</span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;Subclass&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2">), &quot;</span>
-      <span class="sa">f</span><span class="s2">&quot;Group (</span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;Group&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Categorical columns: Neighborhood (</span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;Neighborhood&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2">), &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;Class (</span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;Class&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2">), &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;Subclass (</span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;Subclass&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2">), &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;Group (</span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;Group&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span>
+<span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Embeddings: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">adata</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
@@ -327,11 +330,18 @@ Embeddings: [&#39;X_scVI&#39;, &#39;X_umap&#39;]
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic usage: color by Class with text annotation</span>
-<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">(</span><span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span><span class="n">basis</span><span class="o">=</span><span class="s1">&#39;umap&#39;</span><span class="p">,</span><span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;Class&#39;</span><span class="p">,</span><span class="n">coding</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">text_anno</span><span class="o">=</span><span class="s1">&#39;Class&#39;</span><span class="p">,</span>
-                       <span class="c1"># save=&quot;Class.umap.no_text.pdf&quot;,</span>
-                       <span class="n">palette</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="c1">#legend_kws=dict(bbox_to_anchor=(0.1,0.9),ncol=2),</span>
-                       <span class="n">axis_format</span><span class="o">=</span><span class="s1">&#39;tiny&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mf">3.5</span><span class="p">),</span> <span class="c1"># rectangle_marker=True</span>
-                       <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">(</span>
+    <span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span>
+    <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;umap&quot;</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">coding</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">text_anno</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="c1"># save=&quot;Class.umap.no_text.pdf&quot;,</span>
+    <span class="n">palette</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># legend_kws=dict(bbox_to_anchor=(0.1,0.9),ncol=2),</span>
+    <span class="n">axis_format</span><span class="o">=</span><span class="s2">&quot;tiny&quot;</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">),</span>  <span class="c1"># rectangle_marker=True</span>
+    <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -347,12 +357,27 @@ Embeddings: [&#39;X_scVI&#39;, &#39;X_umap&#39;]
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Color by Subclass with more legend columns and coding annotation</span>
-<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">(</span><span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span><span class="n">basis</span><span class="o">=</span><span class="s1">&#39;umap&#39;</span><span class="p">,</span><span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;Subclass&#39;</span><span class="p">,</span><span class="n">coding</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">text_anno</span><span class="o">=</span><span class="s1">&#39;Subclass&#39;</span><span class="p">,</span>
-                       <span class="c1"># save=&quot;Subclass.umap.no_text.pdf&quot;,</span>
-                       <span class="n">palette</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">legend_fontsize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">legend_title_fontsize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
-                       <span class="n">legend_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="c1"># bbox_to_anchor=(0.7,0.9)</span>
-                                      <span class="n">labelspacing</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span><span class="n">borderpad</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">handletextpad</span><span class="o">=</span><span class="mf">0.8</span><span class="p">),</span>
-                       <span class="n">axis_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mf">3.5</span><span class="p">),</span><span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">(</span>
+    <span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span>
+    <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;umap&quot;</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
+    <span class="n">coding</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">text_anno</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
+    <span class="c1"># save=&quot;Subclass.umap.no_text.pdf&quot;,</span>
+    <span class="n">palette</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">fontsize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">legend_fontsize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">legend_title_fontsize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+    <span class="n">legend_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># bbox_to_anchor=(0.7,0.9)</span>
+        <span class="n">labelspacing</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+        <span class="n">borderpad</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">handletextpad</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">axis_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">),</span>
+    <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -368,18 +393,42 @@ Embeddings: [&#39;X_scVI&#39;, &#39;X_umap&#39;]
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic usage: color by Subclass with outline (for selected cell types only)</span>
-<span class="n">palette</span><span class="o">=</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s1">&#39;Subclass&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;Subclass&#39;</span><span class="p">)[</span><span class="s1">&#39;color_hex_subclass&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
-<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">(</span><span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span><span class="n">basis</span><span class="o">=</span><span class="s1">&#39;umap&#39;</span><span class="p">,</span><span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;Subclass&#39;</span><span class="p">,</span><span class="n">coding</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">text_anno</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                       <span class="n">outline</span><span class="o">=</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">Subclass</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;STR D1 MSN&#39;</span><span class="p">,</span><span class="s1">&#39;STR D2 MSN&#39;</span><span class="p">,</span><span class="s1">&#39;STR Hybrid MSN&#39;</span><span class="p">,</span><span class="s1">&#39;Astrocyte&#39;</span><span class="p">,</span><span class="s1">&#39;Oligodendrocyte&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="kc">None</span><span class="p">),</span>
-                       <span class="n">outline_kws</span> <span class="o">=</span> <span class="p">{</span>
-                            <span class="s2">&quot;linewidth&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-                            <span class="s2">&quot;palette&quot;</span><span class="p">:</span> <span class="n">palette</span><span class="p">,</span>
-                            <span class="s2">&quot;linestyles&quot;</span><span class="p">:</span> <span class="s2">&quot;densely dashed&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;single_contour_pad&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">,</span><span class="s2">&quot;smooth_sigma&quot;</span><span class="p">:</span> <span class="mi">5</span>
-                        <span class="p">},</span>
-                       <span class="n">palette</span><span class="o">=</span><span class="n">palette</span><span class="p">,</span><span class="c1">#legend_kws=dict(bbox_to_anchor=(0.1,0.9),ncol=2),</span>
-                       <span class="n">axis_format</span><span class="o">=</span><span class="s1">&#39;tiny&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mf">3.5</span><span class="p">),</span> <span class="c1"># rectangle_marker=True</span>
-                       <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">palette</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;Subclass&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;Subclass&quot;</span><span class="p">)[</span><span class="s2">&quot;color_hex_subclass&quot;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="p">)</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">(</span>
+    <span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span>
+    <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;umap&quot;</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
+    <span class="n">coding</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">text_anno</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">outline</span><span class="o">=</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">Subclass</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span>
+        <span class="k">if</span> <span class="n">x</span>
+        <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;STR D1 MSN&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;STR D2 MSN&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;STR Hybrid MSN&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Astrocyte&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Oligodendrocyte&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">else</span> <span class="kc">None</span>
+    <span class="p">),</span>
+    <span class="n">outline_kws</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;linewidth&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;palette&quot;</span><span class="p">:</span> <span class="n">palette</span><span class="p">,</span>
+        <span class="s2">&quot;linestyles&quot;</span><span class="p">:</span> <span class="s2">&quot;densely dashed&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;single_contour_pad&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">,</span>
+        <span class="s2">&quot;smooth_sigma&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">palette</span><span class="o">=</span><span class="n">palette</span><span class="p">,</span>  <span class="c1"># legend_kws=dict(bbox_to_anchor=(0.1,0.9),ncol=2),</span>
+    <span class="n">axis_format</span><span class="o">=</span><span class="s2">&quot;tiny&quot;</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">),</span>  <span class="c1"># rectangle_marker=True</span>
+    <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -401,11 +450,11 @@ Embeddings: [&#39;X_scVI&#39;, &#39;X_umap&#39;]
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot GAD2 (GABAergic neuron marker) colored on UMAP, with violin by Class</span>
 <span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_gene</span><span class="p">(</span>
     <span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span>
-    <span class="n">gene</span><span class="o">=</span><span class="s1">&#39;GAD2&#39;</span><span class="p">,</span>
-    <span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;Class&#39;</span><span class="p">,</span>
-    <span class="n">basis</span><span class="o">=</span><span class="s1">&#39;umap&#39;</span><span class="p">,</span>
-    <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdBu_r&#39;</span><span class="p">,</span>
-    <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;GAD2_example&#39;</span><span class="p">,</span>
+    <span class="n">gene</span><span class="o">=</span><span class="s2">&quot;GAD2&quot;</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;umap&quot;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;RdBu_r&quot;</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;GAD2_example&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -431,10 +480,10 @@ Embeddings: [&#39;X_scVI&#39;, &#39;X_umap&#39;]
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot SLC17A7 (glutamatergic marker) without groupby (UMAP only)</span>
 <span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_gene</span><span class="p">(</span>
     <span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span>
-    <span class="n">gene</span><span class="o">=</span><span class="s1">&#39;DRD2&#39;</span><span class="p">,</span>
-    <span class="n">basis</span><span class="o">=</span><span class="s1">&#39;umap&#39;</span><span class="p">,</span>
-    <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;turbo&#39;</span><span class="p">,</span>
-    <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;DRD2_example&#39;</span><span class="p">,</span>
+    <span class="n">gene</span><span class="o">=</span><span class="s2">&quot;DRD2&quot;</span><span class="p">,</span>
+    <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;umap&quot;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;turbo&quot;</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;DRD2_example&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -455,15 +504,15 @@ Embeddings: [&#39;X_scVI&#39;, &#39;X_umap&#39;]
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load obs for barplot/pieplot (these accept a DataFrame directly)</span>
-<span class="n">adata</span> <span class="o">=</span> <span class="n">anndata</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="n">adata_path</span><span class="p">,</span> <span class="n">backed</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">adata</span> <span class="o">=</span> <span class="n">anndata</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="n">adata_path</span><span class="p">,</span> <span class="n">backed</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
 <span class="n">obs</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 <span class="n">adata</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 <span class="c1"># Build color palettes from the existing color columns in obs</span>
 <span class="n">color_palettes</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;neighborhood&#39;</span><span class="p">,</span> <span class="s1">&#39;class&#39;</span><span class="p">,</span> <span class="s1">&#39;subclass&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span><span class="p">]:</span>
-    <span class="n">col_name</span> <span class="o">=</span> <span class="n">level</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span> <span class="k">if</span> <span class="n">level</span> <span class="o">!=</span> <span class="s1">&#39;neighborhood&#39;</span> <span class="k">else</span> <span class="s1">&#39;Neighborhood&#39;</span>
-    <span class="n">hex_col</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;color_hex_</span><span class="si">{</span><span class="n">level</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;neighborhood&quot;</span><span class="p">,</span> <span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="s2">&quot;subclass&quot;</span><span class="p">,</span> <span class="s2">&quot;group&quot;</span><span class="p">]:</span>
+    <span class="n">col_name</span> <span class="o">=</span> <span class="n">level</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span> <span class="k">if</span> <span class="n">level</span> <span class="o">!=</span> <span class="s2">&quot;neighborhood&quot;</span> <span class="k">else</span> <span class="s2">&quot;Neighborhood&quot;</span>
+    <span class="n">hex_col</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;color_hex_</span><span class="si">{</span><span class="n">level</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">if</span> <span class="n">hex_col</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">color_palettes</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">obs</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">col_name</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">col_name</span><span class="p">)[</span><span class="n">hex_col</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
@@ -488,9 +537,9 @@ Available color palettes: [&#39;Neighborhood&#39;, &#39;Class&#39;, &#39;Subclas
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stacked barplot: Class composition per donor</span>
 <span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">stacked_barplot</span><span class="p">(</span>
     <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span>
-    <span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;donor_id&#39;</span><span class="p">,</span>
-    <span class="n">column</span><span class="o">=</span><span class="s1">&#39;Class&#39;</span><span class="p">,</span>
-    <span class="n">palette</span><span class="o">=</span><span class="n">color_palettes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Class&#39;</span><span class="p">),</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;donor_id&quot;</span><span class="p">,</span>
+    <span class="n">column</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">palette</span><span class="o">=</span><span class="n">color_palettes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Class&quot;</span><span class="p">),</span>
     <span class="n">width</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
     <span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
 <span class="p">)</span>
@@ -526,11 +575,11 @@ Available color palettes: [&#39;Neighborhood&#39;, &#39;Class&#39;, &#39;Subclas
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stacked barplot: Subclass composition per Neighborhood</span>
-<span class="n">ax</span><span class="o">=</span><span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">stacked_barplot</span><span class="p">(</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">stacked_barplot</span><span class="p">(</span>
     <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span>
-    <span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;anatomical_region_merged&#39;</span><span class="p">,</span>
-    <span class="n">column</span><span class="o">=</span><span class="s1">&#39;Subclass&#39;</span><span class="p">,</span>
-    <span class="n">palette</span><span class="o">=</span><span class="n">color_palettes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Subclass&#39;</span><span class="p">),</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;anatomical_region_merged&quot;</span><span class="p">,</span>
+    <span class="n">column</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
+    <span class="n">palette</span><span class="o">=</span><span class="n">color_palettes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Subclass&quot;</span><span class="p">),</span>
     <span class="n">width</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
     <span class="n">height</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
 <span class="p">)</span>
@@ -556,12 +605,46 @@ Available color palettes: [&#39;Neighborhood&#39;, &#39;Class&#39;, &#39;Subclas
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">keep_genes</span><span class="o">=</span><span class="p">[</span>
-<span class="s1">&#39;GAD2&#39;</span><span class="p">,</span><span class="s1">&#39;LMX1A&#39;</span><span class="p">,</span><span class="s1">&#39;NTNG1&#39;</span><span class="p">,</span><span class="s1">&#39;PCDH19&#39;</span><span class="p">,</span><span class="s1">&#39;PTPRE&#39;</span><span class="p">,</span><span class="s1">&#39;RASGRF1&#39;</span><span class="p">,</span><span class="s1">&#39;CAPN5&#39;</span><span class="p">,</span><span class="s1">&#39;VCAN&#39;</span><span class="p">,</span><span class="s1">&#39;FHOD3&#39;</span><span class="p">,</span><span class="s1">&#39;LRFN2&#39;</span><span class="p">,</span><span class="s1">&#39;GRIK4&#39;</span><span class="p">,</span><span class="s1">&#39;NRG3&#39;</span><span class="p">,</span><span class="s1">&#39;EBF3&#39;</span><span class="p">,</span>
-<span class="s1">&#39;SOX6&#39;</span><span class="p">,</span><span class="s1">&#39;RGS6&#39;</span><span class="p">,</span><span class="s1">&#39;KCND3&#39;</span><span class="p">,</span><span class="s1">&#39;ST3GAL1&#39;</span><span class="p">,</span><span class="s1">&#39;SV2C&#39;</span><span class="p">,</span><span class="s1">&#39;GPR26&#39;</span><span class="p">,</span><span class="s1">&#39;NTN1&#39;</span><span class="p">,</span><span class="s1">&#39;RIMS1&#39;</span><span class="p">,</span><span class="s1">&#39;PEX5L&#39;</span><span class="p">,</span><span class="s1">&#39;IL1RAP&#39;</span><span class="p">,</span><span class="s1">&#39;SDC1&#39;</span><span class="p">,</span><span class="s1">&#39;ROBO2&#39;</span><span class="p">,</span><span class="s1">&#39;GALNTL6&#39;</span><span class="p">,</span><span class="s1">&#39;B3GALT1&#39;</span><span class="p">,</span><span class="s1">&#39;DCC&#39;</span><span class="p">,</span>
-<span class="s1">&#39;CALB1&#39;</span><span class="p">,</span><span class="s1">&#39;VWA5B1&#39;</span><span class="p">,</span><span class="s1">&#39;CDH2&#39;</span><span class="p">,</span><span class="s1">&#39;NIN&#39;</span><span class="p">,</span><span class="s1">&#39;ALCAM&#39;</span><span class="p">,</span><span class="s1">&#39;ZFHX3&#39;</span><span class="p">,</span><span class="s1">&#39;NRP2&#39;</span><span class="p">,</span><span class="s1">&#39;ST8SIA2&#39;</span><span class="p">,</span><span class="s1">&#39;TMTC1&#39;</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">keep_genes</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;GAD2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LMX1A&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NTNG1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PCDH19&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PTPRE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RASGRF1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CAPN5&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;VCAN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FHOD3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LRFN2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GRIK4&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NRG3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EBF3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SOX6&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RGS6&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;KCND3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ST3GAL1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SV2C&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GPR26&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NTN1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RIMS1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PEX5L&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;IL1RAP&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SDC1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ROBO2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GALNTL6&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;B3GALT1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DCC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CALB1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;VWA5B1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CDH2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NIN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ALCAM&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ZFHX3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NRP2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ST8SIA2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TMTC1&quot;</span><span class="p">,</span>
 <span class="p">]</span>
-<span class="n">cell_type_order</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;SN-VTR GAD2 Dopa&#39;</span><span class="p">,</span><span class="s1">&#39;SN SOX6 Dopa&#39;</span><span class="p">,</span><span class="s1">&#39;SN-VTR CALB1 Dopa&#39;</span><span class="p">]</span>
+<span class="n">cell_type_order</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;SN-VTR GAD2 Dopa&quot;</span><span class="p">,</span> <span class="s2">&quot;SN SOX6 Dopa&quot;</span><span class="p">,</span> <span class="s2">&quot;SN-VTR CALB1 Dopa&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -569,38 +652,73 @@ Available color palettes: [&#39;Neighborhood&#39;, &#39;Class&#39;, &#39;Subclas
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">keep_genes</span><span class="o">=</span><span class="p">[</span>
-<span class="s1">&#39;GAD2&#39;</span><span class="p">,</span><span class="s1">&#39;LMX1A&#39;</span><span class="p">,</span><span class="s1">&#39;NTNG1&#39;</span><span class="p">,</span><span class="s1">&#39;PCDH19&#39;</span><span class="p">,</span><span class="s1">&#39;PTPRE&#39;</span><span class="p">,</span><span class="s1">&#39;VCAN&#39;</span><span class="p">,</span><span class="s1">&#39;FHOD3&#39;</span><span class="p">,</span><span class="s1">&#39;LRFN2&#39;</span><span class="p">,</span><span class="s1">&#39;GRIK4&#39;</span><span class="p">,</span><span class="s1">&#39;NRG3&#39;</span><span class="p">,</span><span class="s1">&#39;EBF3&#39;</span><span class="p">,</span>
-<span class="s1">&#39;SOX6&#39;</span><span class="p">,</span><span class="s1">&#39;KCND3&#39;</span><span class="p">,</span><span class="s1">&#39;ST3GAL1&#39;</span><span class="p">,</span><span class="s1">&#39;SV2C&#39;</span><span class="p">,</span><span class="s1">&#39;GPR26&#39;</span><span class="p">,</span><span class="s1">&#39;NTN1&#39;</span><span class="p">,</span><span class="s1">&#39;PEX5L&#39;</span><span class="p">,</span><span class="s1">&#39;IL1RAP&#39;</span><span class="p">,</span><span class="s1">&#39;DCC&#39;</span><span class="p">,</span>
-<span class="s1">&#39;CALB1&#39;</span><span class="p">,</span><span class="s1">&#39;VWA5B1&#39;</span><span class="p">,</span><span class="s1">&#39;CDH2&#39;</span><span class="p">,</span><span class="s1">&#39;NIN&#39;</span><span class="p">,</span><span class="s1">&#39;ALCAM&#39;</span><span class="p">,</span><span class="s1">&#39;ZFHX3&#39;</span><span class="p">,</span><span class="s1">&#39;TMTC1&#39;</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">keep_genes</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;GAD2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LMX1A&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NTNG1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PCDH19&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PTPRE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;VCAN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FHOD3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LRFN2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GRIK4&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NRG3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EBF3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SOX6&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;KCND3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ST3GAL1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SV2C&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GPR26&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NTN1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PEX5L&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;IL1RAP&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DCC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CALB1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;VWA5B1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CDH2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NIN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ALCAM&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ZFHX3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TMTC1&quot;</span><span class="p">,</span>
 <span class="p">]</span>
-<span class="n">cm1</span><span class="o">=</span><span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_genes</span><span class="p">(</span>
+<span class="n">cm1</span> <span class="o">=</span> <span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_genes</span><span class="p">(</span>
     <span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span>
     <span class="n">query_str</span><span class="o">=</span><span class="s2">&quot;Subclass==&#39;M Dopa&#39;&quot;</span><span class="p">,</span>
     <span class="n">obs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;Group&#39;</span><span class="p">,</span>
-    <span class="n">parent_col</span><span class="o">=</span><span class="s1">&#39;Subclass&#39;</span><span class="p">,</span>
-    <span class="n">modality</span><span class="o">=</span><span class="s1">&#39;RNA&#39;</span><span class="p">,</span> <span class="c1"># mc or RNA</span>
-    <span class="n">use_raw</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1"># True for RNA</span>
-    <span class="n">expression_cutoff</span><span class="o">=</span><span class="s1">&#39;p5&#39;</span><span class="p">,</span> <span class="c1"># for RNA, could be int, median, mean of p5, p95 and so on</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Group&quot;</span><span class="p">,</span>
+    <span class="n">parent_col</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
+    <span class="n">modality</span><span class="o">=</span><span class="s2">&quot;RNA&quot;</span><span class="p">,</span>  <span class="c1"># mc or RNA</span>
+    <span class="n">use_raw</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># True for RNA</span>
+    <span class="n">expression_cutoff</span><span class="o">=</span><span class="s2">&quot;p5&quot;</span><span class="p">,</span>  <span class="c1"># for RNA, could be int, median, mean of p5, p95 and so on</span>
     <span class="n">genes</span><span class="o">=</span><span class="n">keep_genes</span><span class="p">,</span>
     <span class="n">cell_type_order</span><span class="o">=</span><span class="n">cell_type_order</span><span class="p">,</span>
     <span class="n">gene_order</span><span class="o">=</span><span class="n">keep_genes</span><span class="p">,</span>
     <span class="n">row_cluster</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">col_cluster</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Reds&#39;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Reds&quot;</span><span class="p">,</span>
     <span class="n">group_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">parent_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;M_Dopa RNA&#39;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;M_Dopa RNA&quot;</span><span class="p">,</span>
     <span class="n">palette</span><span class="o">=</span><span class="s2">&quot;/home/x-wding2/Projects/BICAN/adata/HMBA_v2/HMBA_color_palette.xlsx&quot;</span><span class="p">,</span>
-    <span class="n">legend_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">extendfrac</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span><span class="n">extend</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Mean logCPM&#39;</span><span class="p">),</span>
+    <span class="n">legend_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">extendfrac</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Mean logCPM&quot;</span><span class="p">),</span>
     <span class="n">normalize_per_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">clip_norm_value</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
     <span class="n">hypo_score</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
-    <span class="n">plot_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vmax</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">xticklabels_kws</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;labelrotation&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="s1">&#39;labelcolor&#39;</span><span class="p">:</span> <span class="s1">&#39;black&#39;</span><span class="p">,</span><span class="s1">&#39;labelsize&#39;</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span><span class="s1">&#39;bottom&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">},</span><span class="n">yticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-    <span class="n">outname</span><span class="o">=</span><span class="s2">&quot;M_Dopa.RNA.pdf&quot;</span><span class="p">)</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
+    <span class="n">plot_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">vmax</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">xticklabels_kws</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;labelrotation&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">30</span><span class="p">,</span>
+            <span class="s2">&quot;labelcolor&quot;</span><span class="p">:</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;labelsize&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+            <span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">yticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">outname</span><span class="o">=</span><span class="s2">&quot;M_Dopa.RNA.pdf&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -636,24 +754,61 @@ Estimated legend width: 12.172222222222222 mm
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">keep_genes</span><span class="o">=</span><span class="p">[</span>
-<span class="c1"># MEDIUM SPINY NEURONS (MSN) - High Confidence</span>
-    <span class="s1">&#39;MEIS2&#39;</span><span class="p">,</span> <span class="s1">&#39;BCL11B&#39;</span><span class="p">,</span> <span class="s1">&#39;PPP1R1B&#39;</span><span class="p">,</span> <span class="s1">&#39;GNG7&#39;</span><span class="p">,</span>  <span class="s1">&#39;ADCY5&#39;</span><span class="p">,</span> <span class="c1">#&#39;EGR1&#39;,&#39;MEIS1&#39;,</span>
-    <span class="s1">&#39;CHRM1&#39;</span><span class="p">,</span> <span class="s1">&#39;CHRM4&#39;</span><span class="p">,</span> <span class="s1">&#39;GRM4&#39;</span><span class="p">,</span> <span class="s1">&#39;KCNJ4&#39;</span><span class="p">,</span><span class="s1">&#39;GAD2&#39;</span><span class="p">,</span> <span class="s1">&#39;GAD1&#39;</span><span class="p">,</span><span class="s1">&#39;ARPP21&#39;</span><span class="p">,</span><span class="s1">&#39;FOSL2&#39;</span><span class="p">,</span><span class="s1">&#39;RFX3&#39;</span><span class="p">,</span><span class="s1">&#39;FOXO3&#39;</span><span class="p">,</span><span class="s1">&#39;PDE10A&#39;</span><span class="p">,</span><span class="c1">#&#39;SLC4A4&#39;,&#39;PHACTR1&#39;,  # MSN Signaling, &#39;NPAS2&#39;</span>
-    <span class="s1">&#39;FOXP1&#39;</span><span class="p">,</span> <span class="s1">&#39;FOXO1&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;DRD1&#39;</span><span class="p">,</span>  <span class="c1"># D1-MSN (Direct Pathway)</span>
-    <span class="s1">&#39;DRD2&#39;</span><span class="p">,</span> <span class="s1">&#39;ADORA2A&#39;</span><span class="p">,</span> <span class="s1">&#39;OPRD1&#39;</span><span class="p">,</span> <span class="c1"># D2-MSN (Indirect Pathway):</span>
-
-<span class="c1"># M Dopa</span>
-    <span class="s1">&#39;NR4A2&#39;</span><span class="p">,</span><span class="s1">&#39;PBX1&#39;</span><span class="p">,</span><span class="s1">&#39;SLC6A3&#39;</span><span class="p">,</span><span class="s1">&#39;TH&#39;</span><span class="p">,</span>  <span class="s1">&#39;EBF3&#39;</span><span class="p">,</span> <span class="s1">&#39;SLC18A2&#39;</span><span class="p">,</span> <span class="s1">&#39;LMX1A&#39;</span><span class="p">,</span> <span class="s1">&#39;LMX1B&#39;</span><span class="p">,</span> <span class="s1">&#39;PITX3&#39;</span><span class="p">,</span> <span class="s1">&#39;RET&#39;</span><span class="p">,</span> <span class="s1">&#39;KCNJ6&#39;</span><span class="p">,</span>  <span class="c1">#&#39;NFIA&#39;,</span>
-
-<span class="c1"># CHOLINERGIC INTERNEURONS (ChI) - High Confidence</span>
-    <span class="s1">&#39;SLC18A3&#39;</span><span class="p">,</span><span class="s1">&#39;GRK5&#39;</span><span class="p">,</span><span class="s1">&#39;CHAT&#39;</span><span class="p">,</span>  <span class="s1">&#39;SLC5A7&#39;</span><span class="p">,</span> <span class="s1">&#39;LHX6&#39;</span><span class="p">,</span> <span class="s1">&#39;LHX8&#39;</span><span class="p">,</span> <span class="s1">&#39;GDNF&#39;</span><span class="p">,</span> <span class="c1"># &#39;TLE3&#39;, &#39;ARX&#39;, &#39;INPP4B&#39;,&#39;NTRK1&#39;,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">keep_genes</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># MEDIUM SPINY NEURONS (MSN) - High Confidence</span>
+    <span class="s2">&quot;MEIS2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BCL11B&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PPP1R1B&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GNG7&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ADCY5&quot;</span><span class="p">,</span>  <span class="c1">#&#39;EGR1&#39;,&#39;MEIS1&#39;,</span>
+    <span class="s2">&quot;CHRM1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CHRM4&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GRM4&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;KCNJ4&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GAD2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GAD1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ARPP21&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FOSL2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RFX3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FOXO3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PDE10A&quot;</span><span class="p">,</span>  <span class="c1">#&#39;SLC4A4&#39;,&#39;PHACTR1&#39;,  # MSN Signaling, &#39;NPAS2&#39;</span>
+    <span class="s2">&quot;FOXP1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FOXO1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DRD1&quot;</span><span class="p">,</span>  <span class="c1"># D1-MSN (Direct Pathway)</span>
+    <span class="s2">&quot;DRD2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ADORA2A&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;OPRD1&quot;</span><span class="p">,</span>  <span class="c1"># D2-MSN (Indirect Pathway):</span>
+    <span class="c1"># M Dopa</span>
+    <span class="s2">&quot;NR4A2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PBX1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SLC6A3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TH&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EBF3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SLC18A2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LMX1A&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LMX1B&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PITX3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RET&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;KCNJ6&quot;</span><span class="p">,</span>  <span class="c1">#&#39;NFIA&#39;,</span>
+    <span class="c1"># CHOLINERGIC INTERNEURONS (ChI) - High Confidence</span>
+    <span class="s2">&quot;SLC18A3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GRK5&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CHAT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SLC5A7&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LHX6&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LHX8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GDNF&quot;</span><span class="p">,</span>  <span class="c1"># &#39;TLE3&#39;, &#39;ARX&#39;, &#39;INPP4B&#39;,&#39;NTRK1&#39;,</span>
     <span class="c1"># &#39;ACHE&#39;, acetylcholine (ACh), degradation of acetylcholine (ACh) happen largely extracellular</span>
 <span class="p">]</span>
 
-<span class="n">cell_type_order</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;STR D1 MSN&#39;</span><span class="p">,</span><span class="s1">&#39;STR D2 MSN&#39;</span><span class="p">,</span><span class="s1">&#39;STR Hybrid MSN&#39;</span><span class="p">,</span><span class="s1">&#39;M Dopa&#39;</span><span class="p">,</span><span class="s1">&#39;CN Cholinergic GABA&#39;</span><span class="p">]</span>
-<span class="n">gene_order</span><span class="o">=</span><span class="n">keep_genes</span>
+<span class="n">cell_type_order</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;STR D1 MSN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;STR D2 MSN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;STR Hybrid MSN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;M Dopa&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CN Cholinergic GABA&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">gene_order</span> <span class="o">=</span> <span class="n">keep_genes</span>
 </pre></div>
 </div>
 </div>
@@ -661,34 +816,41 @@ Estimated legend width: 12.172222222222222 mm
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cm1</span><span class="o">=</span><span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_genes</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cm1</span> <span class="o">=</span> <span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_genes</span><span class="p">(</span>
     <span class="n">adata</span><span class="o">=</span><span class="s2">&quot;/home/x-wding2/Projects/BG/adata/BG.gene-CHN.h5ad&quot;</span><span class="p">,</span>
     <span class="n">query_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">obs</span><span class="o">=</span><span class="s2">&quot;~/Projects/BG/clustering/100kb/obs.Dopa-ChI-MSN.tsv&quot;</span><span class="p">,</span>
-    <span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;Subclass&#39;</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
     <span class="n">parent_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">modality</span><span class="o">=</span><span class="s1">&#39;mc&#39;</span><span class="p">,</span> <span class="c1"># mc or RNA</span>
-    <span class="n">use_raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="c1"># True for RNA</span>
-    <span class="n">expression_cutoff</span><span class="o">=</span><span class="s1">&#39;p5&#39;</span><span class="p">,</span> <span class="c1"># for RNA, could be int, median, mean of p5, p95 and so on</span>
+    <span class="n">modality</span><span class="o">=</span><span class="s2">&quot;mc&quot;</span><span class="p">,</span>  <span class="c1"># mc or RNA</span>
+    <span class="n">use_raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># True for RNA</span>
+    <span class="n">expression_cutoff</span><span class="o">=</span><span class="s2">&quot;p5&quot;</span><span class="p">,</span>  <span class="c1"># for RNA, could be int, median, mean of p5, p95 and so on</span>
     <span class="n">genes</span><span class="o">=</span><span class="n">keep_genes</span><span class="p">,</span>
     <span class="n">cell_type_order</span><span class="o">=</span><span class="n">cell_type_order</span><span class="p">,</span>
     <span class="n">gene_order</span><span class="o">=</span><span class="n">gene_order</span><span class="p">,</span>
     <span class="n">row_cluster</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">col_cluster</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Blues_r&#39;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Blues_r&quot;</span><span class="p">,</span>
     <span class="n">group_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">parent_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;mCH&#39;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;mCH&quot;</span><span class="p">,</span>
     <span class="n">palette</span><span class="o">=</span><span class="s2">&quot;/home/x-wding2/Projects/BG/metadata/BG_color_palette.xlsx&quot;</span><span class="p">,</span>
-    <span class="n">legend_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">extendfrac</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span><span class="n">extend</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Mean mCH&#39;</span><span class="p">),</span>
+    <span class="n">legend_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">extendfrac</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Mean mCH&quot;</span><span class="p">),</span>
     <span class="n">normalize_per_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">clip_norm_value</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
     <span class="n">hypo_score</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
-    <span class="n">plot_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vmax</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span><span class="n">yticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-                 <span class="n">xticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">labelrotation</span><span class="o">=-</span><span class="mi">30</span><span class="p">,</span> <span class="n">labelcolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span><span class="n">bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-    <span class="n">outname</span><span class="o">=</span><span class="s2">&quot;Dopa-ChI-MSN.mCH.pdf&quot;</span><span class="p">)</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
+    <span class="n">plot_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">vmax</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+        <span class="n">yticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">xticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">labelrotation</span><span class="o">=-</span><span class="mi">30</span><span class="p">,</span> <span class="n">labelcolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">outname</span><span class="o">=</span><span class="s2">&quot;Dopa-ChI-MSN.mCH.pdf&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -733,7 +895,7 @@ Estimated legend width: 46.56805555555555 mm
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Plot embedding (umap or tsne)</div>
+                <div class="title">Interactive Plotting Examples</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
