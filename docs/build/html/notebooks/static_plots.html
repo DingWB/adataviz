@@ -1,0 +1,812 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Plot embedding (umap or tsne)" href="interactive_plots.html"><link rel="prev" title="Plotting (adataviz.pl)" href="../plot.html">
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
+        <title>Static Plotting Examples - adataviz documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/rtd_sphinx_search.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=3ec9162d" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  --color-brand-primary: #5B63D3;
+  --color-brand-content: #5B63D3;
+  --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-stack--monospace: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  --font-stack--headings: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #8B93FF;
+  --color-brand-content: #8B93FF;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #8B93FF;
+  --color-brand-content: #8B93FF;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>Documentation website</em> is online! 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">adataviz  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  <span class="sidebar-brand-text">adataviz  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../plot.html">Plotting (adataviz.pl)</a><input aria-label="Toggle navigation of Plotting (adataviz.pl)" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Static Plotting Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interactive_plots.html">Plot embedding (umap or tsne)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interactive_plots.html#Plot-dot-heatmap">Plot dot heatmap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interactive_plots.html#Plot-boxplot">Plot boxplot</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../modules.html">adataviz</a><input aria-label="Toggle navigation of adataviz" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../adataviz.html">adataviz package</a><input aria-label="Toggle navigation of adataviz package" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../adataviz.adata.html">adataviz.adata module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../adataviz.palettes.html">adataviz.palettes module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../adataviz.plotting.html">adataviz.plotting module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../adataviz.tools.html">adataviz.tools module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../adataviz.utils.html">adataviz.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../setup.html">setup module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../citation.html">Citation</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="https://github.com/DingWB/adataviz/blob/main/docs/source/notebooks/static_plots.ipynb?plain=true" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/DingWB/adataviz/edit/main/docs/source/notebooks/static_plots.ipynb" rel="edit" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="Static-Plotting-Examples">
+<h1>Static Plotting Examples<a class="headerlink" href="#Static-Plotting-Examples" title="Link to this heading">¶</a></h1>
+<p>This notebook demonstrates the usage of <code class="docutils literal notranslate"><span class="pre">adataviz</span></code> static plotting functions:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_categorical</span></code> – UMAP colored by categorical annotations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_gene</span></code> – UMAP colored by gene expression + violin plot</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stacked_barplot</span></code> – cell type composition across groups</p></li>
+</ul>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/Projects/Github/adataviz&quot;</span><span class="p">))</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">adataviz</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">av</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">anndata</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Path to the example AnnData file</span>
+<span class="n">adata_path</span> <span class="o">=</span> <span class="s2">&quot;/home/x-wding2/Projects/BICAN/adata/HMBA_v2/HMBA.Group.downsample_1500.h5ad&quot;</span>
+
+<span class="c1"># Quick look at the data</span>
+<span class="n">adata</span> <span class="o">=</span> <span class="n">anndata</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="n">adata_path</span><span class="p">,</span> <span class="n">backed</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shape: </span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Categorical columns: Neighborhood (</span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;Neighborhood&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2">), &quot;</span>
+      <span class="sa">f</span><span class="s2">&quot;Class (</span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;Class&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2">), &quot;</span>
+      <span class="sa">f</span><span class="s2">&quot;Subclass (</span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;Subclass&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2">), &quot;</span>
+      <span class="sa">f</span><span class="s2">&quot;Group (</span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;Group&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Embeddings: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">adata</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Shape: (70134, 36601)
+Categorical columns: Neighborhood (4), Class (12), Subclass (36), Group (60)
+Embeddings: [&#39;X_scVI&#39;, &#39;X_umap&#39;]
+</pre></div></div>
+</div>
+<section id="1.-plot_categorical-–-Categorical-UMAP-(or-TSNE)">
+<h2>1. <code class="docutils literal notranslate"><span class="pre">plot_categorical</span></code> – Categorical UMAP (or TSNE)<a class="headerlink" href="#1.-plot_categorical-–-Categorical-UMAP-(or-TSNE)" title="Link to this heading">¶</a></h2>
+<p>Plot a UMAP embedding colored by a categorical variable (e.g. <code class="docutils literal notranslate"><span class="pre">Class</span></code>), with labeled cluster centroids.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic usage: color by Class with text annotation</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">(</span><span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span><span class="n">basis</span><span class="o">=</span><span class="s1">&#39;umap&#39;</span><span class="p">,</span><span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;Class&#39;</span><span class="p">,</span><span class="n">coding</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">text_anno</span><span class="o">=</span><span class="s1">&#39;Class&#39;</span><span class="p">,</span>
+                       <span class="c1"># save=&quot;Class.umap.no_text.pdf&quot;,</span>
+                       <span class="n">palette</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="c1">#legend_kws=dict(bbox_to_anchor=(0.1,0.9),ncol=2),</span>
+                       <span class="n">axis_format</span><span class="o">=</span><span class="s1">&#39;tiny&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mf">3.5</span><span class="p">),</span> <span class="c1"># rectangle_marker=True</span>
+                       <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_4_0.png" src="../_images/notebooks_static_plots_4_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Color by Subclass with more legend columns and coding annotation</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">(</span><span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span><span class="n">basis</span><span class="o">=</span><span class="s1">&#39;umap&#39;</span><span class="p">,</span><span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;Subclass&#39;</span><span class="p">,</span><span class="n">coding</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">text_anno</span><span class="o">=</span><span class="s1">&#39;Subclass&#39;</span><span class="p">,</span>
+                       <span class="c1"># save=&quot;Subclass.umap.no_text.pdf&quot;,</span>
+                       <span class="n">palette</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">legend_fontsize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">legend_title_fontsize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+                       <span class="n">legend_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="c1"># bbox_to_anchor=(0.7,0.9)</span>
+                                      <span class="n">labelspacing</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span><span class="n">borderpad</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">handletextpad</span><span class="o">=</span><span class="mf">0.8</span><span class="p">),</span>
+                       <span class="n">axis_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mf">3.5</span><span class="p">),</span><span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_5_0.png" src="../_images/notebooks_static_plots_5_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic usage: color by Subclass with outline (for selected cell types only)</span>
+<span class="n">palette</span><span class="o">=</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s1">&#39;Subclass&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;Subclass&#39;</span><span class="p">)[</span><span class="s1">&#39;color_hex_subclass&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">(</span><span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span><span class="n">basis</span><span class="o">=</span><span class="s1">&#39;umap&#39;</span><span class="p">,</span><span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;Subclass&#39;</span><span class="p">,</span><span class="n">coding</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">text_anno</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">outline</span><span class="o">=</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">Subclass</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;STR D1 MSN&#39;</span><span class="p">,</span><span class="s1">&#39;STR D2 MSN&#39;</span><span class="p">,</span><span class="s1">&#39;STR Hybrid MSN&#39;</span><span class="p">,</span><span class="s1">&#39;Astrocyte&#39;</span><span class="p">,</span><span class="s1">&#39;Oligodendrocyte&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="kc">None</span><span class="p">),</span>
+                       <span class="n">outline_kws</span> <span class="o">=</span> <span class="p">{</span>
+                            <span class="s2">&quot;linewidth&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                            <span class="s2">&quot;palette&quot;</span><span class="p">:</span> <span class="n">palette</span><span class="p">,</span>
+                            <span class="s2">&quot;linestyles&quot;</span><span class="p">:</span> <span class="s2">&quot;densely dashed&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;single_contour_pad&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">,</span><span class="s2">&quot;smooth_sigma&quot;</span><span class="p">:</span> <span class="mi">5</span>
+                        <span class="p">},</span>
+                       <span class="n">palette</span><span class="o">=</span><span class="n">palette</span><span class="p">,</span><span class="c1">#legend_kws=dict(bbox_to_anchor=(0.1,0.9),ncol=2),</span>
+                       <span class="n">axis_format</span><span class="o">=</span><span class="s1">&#39;tiny&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mf">3.5</span><span class="p">),</span> <span class="c1"># rectangle_marker=True</span>
+                       <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_6_0.png" src="../_images/notebooks_static_plots_6_0.png" />
+</div>
+</div>
+</section>
+<section id="2.-plot_gene-–-Gene-Expression-on-UMAP-+-Violin-Plot">
+<h2>2. <code class="docutils literal notranslate"><span class="pre">plot_gene</span></code> – Gene Expression on UMAP + Violin Plot<a class="headerlink" href="#2.-plot_gene-–-Gene-Expression-on-UMAP-+-Violin-Plot" title="Link to this heading">¶</a></h2>
+<p>Plot a single gene’s expression on the UMAP embedding. When <code class="docutils literal notranslate"><span class="pre">groupby</span></code> is provided, a violin plot is also generated.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot GAD2 (GABAergic neuron marker) colored on UMAP, with violin by Class</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_gene</span><span class="p">(</span>
+    <span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span>
+    <span class="n">gene</span><span class="o">=</span><span class="s1">&#39;GAD2&#39;</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;Class&#39;</span><span class="p">,</span>
+    <span class="n">basis</span><span class="o">=</span><span class="s1">&#39;umap&#39;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdBu_r&#39;</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;GAD2_example&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_8_0.png" src="../_images/notebooks_static_plots_8_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_8_1.png" src="../_images/notebooks_static_plots_8_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot SLC17A7 (glutamatergic marker) without groupby (UMAP only)</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_gene</span><span class="p">(</span>
+    <span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span>
+    <span class="n">gene</span><span class="o">=</span><span class="s1">&#39;DRD2&#39;</span><span class="p">,</span>
+    <span class="n">basis</span><span class="o">=</span><span class="s1">&#39;umap&#39;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;turbo&#39;</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;DRD2_example&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_9_0.png" src="../_images/notebooks_static_plots_9_0.png" />
+</div>
+</div>
+</section>
+<section id="3.-stacked_barplot-–-Cell-Type-Composition">
+<h2>3. <code class="docutils literal notranslate"><span class="pre">stacked_barplot</span></code> – Cell Type Composition<a class="headerlink" href="#3.-stacked_barplot-–-Cell-Type-Composition" title="Link to this heading">¶</a></h2>
+<p>Show the proportion of cell types (e.g. <code class="docutils literal notranslate"><span class="pre">Class</span></code>) within each anatomical region or donor.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load obs for barplot/pieplot (these accept a DataFrame directly)</span>
+<span class="n">adata</span> <span class="o">=</span> <span class="n">anndata</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="n">adata_path</span><span class="p">,</span> <span class="n">backed</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">obs</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">adata</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="c1"># Build color palettes from the existing color columns in obs</span>
+<span class="n">color_palettes</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;neighborhood&#39;</span><span class="p">,</span> <span class="s1">&#39;class&#39;</span><span class="p">,</span> <span class="s1">&#39;subclass&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span><span class="p">]:</span>
+    <span class="n">col_name</span> <span class="o">=</span> <span class="n">level</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span> <span class="k">if</span> <span class="n">level</span> <span class="o">!=</span> <span class="s1">&#39;neighborhood&#39;</span> <span class="k">else</span> <span class="s1">&#39;Neighborhood&#39;</span>
+    <span class="n">hex_col</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;color_hex_</span><span class="si">{</span><span class="n">level</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">if</span> <span class="n">hex_col</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">color_palettes</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">obs</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">col_name</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">col_name</span><span class="p">)[</span><span class="n">hex_col</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Available color palettes:&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">color_palettes</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Available color palettes: [&#39;Neighborhood&#39;, &#39;Class&#39;, &#39;Subclass&#39;, &#39;Group&#39;]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stacked barplot: Class composition per donor</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">stacked_barplot</span><span class="p">(</span>
+    <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;donor_id&#39;</span><span class="p">,</span>
+    <span class="n">column</span><span class="o">=</span><span class="s1">&#39;Class&#39;</span><span class="p">,</span>
+    <span class="n">palette</span><span class="o">=</span><span class="n">color_palettes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Class&#39;</span><span class="p">),</span>
+    <span class="n">width</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Figure size 640x480 with 0 Axes&gt;
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_12_1.png" src="../_images/notebooks_static_plots_12_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: xlabel=&#39;donor_id&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stacked barplot: Subclass composition per Neighborhood</span>
+<span class="n">ax</span><span class="o">=</span><span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">stacked_barplot</span><span class="p">(</span>
+    <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;anatomical_region_merged&#39;</span><span class="p">,</span>
+    <span class="n">column</span><span class="o">=</span><span class="s1">&#39;Subclass&#39;</span><span class="p">,</span>
+    <span class="n">palette</span><span class="o">=</span><span class="n">color_palettes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Subclass&#39;</span><span class="p">),</span>
+    <span class="n">width</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Figure size 640x480 with 0 Axes&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_13_1.png" src="../_images/notebooks_static_plots_13_1.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">keep_genes</span><span class="o">=</span><span class="p">[</span>
+<span class="s1">&#39;GAD2&#39;</span><span class="p">,</span><span class="s1">&#39;LMX1A&#39;</span><span class="p">,</span><span class="s1">&#39;NTNG1&#39;</span><span class="p">,</span><span class="s1">&#39;PCDH19&#39;</span><span class="p">,</span><span class="s1">&#39;PTPRE&#39;</span><span class="p">,</span><span class="s1">&#39;RASGRF1&#39;</span><span class="p">,</span><span class="s1">&#39;CAPN5&#39;</span><span class="p">,</span><span class="s1">&#39;VCAN&#39;</span><span class="p">,</span><span class="s1">&#39;FHOD3&#39;</span><span class="p">,</span><span class="s1">&#39;LRFN2&#39;</span><span class="p">,</span><span class="s1">&#39;GRIK4&#39;</span><span class="p">,</span><span class="s1">&#39;NRG3&#39;</span><span class="p">,</span><span class="s1">&#39;EBF3&#39;</span><span class="p">,</span>
+<span class="s1">&#39;SOX6&#39;</span><span class="p">,</span><span class="s1">&#39;RGS6&#39;</span><span class="p">,</span><span class="s1">&#39;KCND3&#39;</span><span class="p">,</span><span class="s1">&#39;ST3GAL1&#39;</span><span class="p">,</span><span class="s1">&#39;SV2C&#39;</span><span class="p">,</span><span class="s1">&#39;GPR26&#39;</span><span class="p">,</span><span class="s1">&#39;NTN1&#39;</span><span class="p">,</span><span class="s1">&#39;RIMS1&#39;</span><span class="p">,</span><span class="s1">&#39;PEX5L&#39;</span><span class="p">,</span><span class="s1">&#39;IL1RAP&#39;</span><span class="p">,</span><span class="s1">&#39;SDC1&#39;</span><span class="p">,</span><span class="s1">&#39;ROBO2&#39;</span><span class="p">,</span><span class="s1">&#39;GALNTL6&#39;</span><span class="p">,</span><span class="s1">&#39;B3GALT1&#39;</span><span class="p">,</span><span class="s1">&#39;DCC&#39;</span><span class="p">,</span>
+<span class="s1">&#39;CALB1&#39;</span><span class="p">,</span><span class="s1">&#39;VWA5B1&#39;</span><span class="p">,</span><span class="s1">&#39;CDH2&#39;</span><span class="p">,</span><span class="s1">&#39;NIN&#39;</span><span class="p">,</span><span class="s1">&#39;ALCAM&#39;</span><span class="p">,</span><span class="s1">&#39;ZFHX3&#39;</span><span class="p">,</span><span class="s1">&#39;NRP2&#39;</span><span class="p">,</span><span class="s1">&#39;ST8SIA2&#39;</span><span class="p">,</span><span class="s1">&#39;TMTC1&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">cell_type_order</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;SN-VTR GAD2 Dopa&#39;</span><span class="p">,</span><span class="s1">&#39;SN SOX6 Dopa&#39;</span><span class="p">,</span><span class="s1">&#39;SN-VTR CALB1 Dopa&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">keep_genes</span><span class="o">=</span><span class="p">[</span>
+<span class="s1">&#39;GAD2&#39;</span><span class="p">,</span><span class="s1">&#39;LMX1A&#39;</span><span class="p">,</span><span class="s1">&#39;NTNG1&#39;</span><span class="p">,</span><span class="s1">&#39;PCDH19&#39;</span><span class="p">,</span><span class="s1">&#39;PTPRE&#39;</span><span class="p">,</span><span class="s1">&#39;VCAN&#39;</span><span class="p">,</span><span class="s1">&#39;FHOD3&#39;</span><span class="p">,</span><span class="s1">&#39;LRFN2&#39;</span><span class="p">,</span><span class="s1">&#39;GRIK4&#39;</span><span class="p">,</span><span class="s1">&#39;NRG3&#39;</span><span class="p">,</span><span class="s1">&#39;EBF3&#39;</span><span class="p">,</span>
+<span class="s1">&#39;SOX6&#39;</span><span class="p">,</span><span class="s1">&#39;KCND3&#39;</span><span class="p">,</span><span class="s1">&#39;ST3GAL1&#39;</span><span class="p">,</span><span class="s1">&#39;SV2C&#39;</span><span class="p">,</span><span class="s1">&#39;GPR26&#39;</span><span class="p">,</span><span class="s1">&#39;NTN1&#39;</span><span class="p">,</span><span class="s1">&#39;PEX5L&#39;</span><span class="p">,</span><span class="s1">&#39;IL1RAP&#39;</span><span class="p">,</span><span class="s1">&#39;DCC&#39;</span><span class="p">,</span>
+<span class="s1">&#39;CALB1&#39;</span><span class="p">,</span><span class="s1">&#39;VWA5B1&#39;</span><span class="p">,</span><span class="s1">&#39;CDH2&#39;</span><span class="p">,</span><span class="s1">&#39;NIN&#39;</span><span class="p">,</span><span class="s1">&#39;ALCAM&#39;</span><span class="p">,</span><span class="s1">&#39;ZFHX3&#39;</span><span class="p">,</span><span class="s1">&#39;TMTC1&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">cm1</span><span class="o">=</span><span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_genes</span><span class="p">(</span>
+    <span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span>
+    <span class="n">query_str</span><span class="o">=</span><span class="s2">&quot;Subclass==&#39;M Dopa&#39;&quot;</span><span class="p">,</span>
+    <span class="n">obs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;Group&#39;</span><span class="p">,</span>
+    <span class="n">parent_col</span><span class="o">=</span><span class="s1">&#39;Subclass&#39;</span><span class="p">,</span>
+    <span class="n">modality</span><span class="o">=</span><span class="s1">&#39;RNA&#39;</span><span class="p">,</span> <span class="c1"># mc or RNA</span>
+    <span class="n">use_raw</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1"># True for RNA</span>
+    <span class="n">expression_cutoff</span><span class="o">=</span><span class="s1">&#39;p5&#39;</span><span class="p">,</span> <span class="c1"># for RNA, could be int, median, mean of p5, p95 and so on</span>
+    <span class="n">genes</span><span class="o">=</span><span class="n">keep_genes</span><span class="p">,</span>
+    <span class="n">cell_type_order</span><span class="o">=</span><span class="n">cell_type_order</span><span class="p">,</span>
+    <span class="n">gene_order</span><span class="o">=</span><span class="n">keep_genes</span><span class="p">,</span>
+    <span class="n">row_cluster</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">col_cluster</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Reds&#39;</span><span class="p">,</span>
+    <span class="n">group_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">parent_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;M_Dopa RNA&#39;</span><span class="p">,</span>
+    <span class="n">palette</span><span class="o">=</span><span class="s2">&quot;/home/x-wding2/Projects/BICAN/adata/HMBA_v2/HMBA_color_palette.xlsx&quot;</span><span class="p">,</span>
+    <span class="n">legend_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">extendfrac</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span><span class="n">extend</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Mean logCPM&#39;</span><span class="p">),</span>
+    <span class="n">normalize_per_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">clip_norm_value</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">hypo_score</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
+    <span class="n">plot_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vmax</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">xticklabels_kws</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;labelrotation&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="s1">&#39;labelcolor&#39;</span><span class="p">:</span> <span class="s1">&#39;black&#39;</span><span class="p">,</span><span class="s1">&#39;labelsize&#39;</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span><span class="s1">&#39;bottom&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">},</span><span class="n">yticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
+    <span class="n">outname</span><span class="o">=</span><span class="s2">&quot;M_Dopa.RNA.pdf&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(1820, 27)
+Using expression cutoff: 0.0
+Starting..
+Calculating row orders..
+Reordering rows..
+Calculating col orders..
+Reordering cols..
+Plotting matrix..
+Inferred max_s (max size of scatter point) is: 122.7945351640952
+Plotting HeatmapAnnotations
+Collecting legends..
+Collecting annotation legends..
+Plotting legends..
+Estimated legend width: 12.172222222222222 mm
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_15_1.png" src="../_images/notebooks_static_plots_15_1.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">keep_genes</span><span class="o">=</span><span class="p">[</span>
+<span class="c1"># MEDIUM SPINY NEURONS (MSN) - High Confidence</span>
+    <span class="s1">&#39;MEIS2&#39;</span><span class="p">,</span> <span class="s1">&#39;BCL11B&#39;</span><span class="p">,</span> <span class="s1">&#39;PPP1R1B&#39;</span><span class="p">,</span> <span class="s1">&#39;GNG7&#39;</span><span class="p">,</span>  <span class="s1">&#39;ADCY5&#39;</span><span class="p">,</span> <span class="c1">#&#39;EGR1&#39;,&#39;MEIS1&#39;,</span>
+    <span class="s1">&#39;CHRM1&#39;</span><span class="p">,</span> <span class="s1">&#39;CHRM4&#39;</span><span class="p">,</span> <span class="s1">&#39;GRM4&#39;</span><span class="p">,</span> <span class="s1">&#39;KCNJ4&#39;</span><span class="p">,</span><span class="s1">&#39;GAD2&#39;</span><span class="p">,</span> <span class="s1">&#39;GAD1&#39;</span><span class="p">,</span><span class="s1">&#39;ARPP21&#39;</span><span class="p">,</span><span class="s1">&#39;FOSL2&#39;</span><span class="p">,</span><span class="s1">&#39;RFX3&#39;</span><span class="p">,</span><span class="s1">&#39;FOXO3&#39;</span><span class="p">,</span><span class="s1">&#39;PDE10A&#39;</span><span class="p">,</span><span class="c1">#&#39;SLC4A4&#39;,&#39;PHACTR1&#39;,  # MSN Signaling, &#39;NPAS2&#39;</span>
+    <span class="s1">&#39;FOXP1&#39;</span><span class="p">,</span> <span class="s1">&#39;FOXO1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DRD1&#39;</span><span class="p">,</span>  <span class="c1"># D1-MSN (Direct Pathway)</span>
+    <span class="s1">&#39;DRD2&#39;</span><span class="p">,</span> <span class="s1">&#39;ADORA2A&#39;</span><span class="p">,</span> <span class="s1">&#39;OPRD1&#39;</span><span class="p">,</span> <span class="c1"># D2-MSN (Indirect Pathway):</span>
+
+<span class="c1"># M Dopa</span>
+    <span class="s1">&#39;NR4A2&#39;</span><span class="p">,</span><span class="s1">&#39;PBX1&#39;</span><span class="p">,</span><span class="s1">&#39;SLC6A3&#39;</span><span class="p">,</span><span class="s1">&#39;TH&#39;</span><span class="p">,</span>  <span class="s1">&#39;EBF3&#39;</span><span class="p">,</span> <span class="s1">&#39;SLC18A2&#39;</span><span class="p">,</span> <span class="s1">&#39;LMX1A&#39;</span><span class="p">,</span> <span class="s1">&#39;LMX1B&#39;</span><span class="p">,</span> <span class="s1">&#39;PITX3&#39;</span><span class="p">,</span> <span class="s1">&#39;RET&#39;</span><span class="p">,</span> <span class="s1">&#39;KCNJ6&#39;</span><span class="p">,</span>  <span class="c1">#&#39;NFIA&#39;,</span>
+
+<span class="c1"># CHOLINERGIC INTERNEURONS (ChI) - High Confidence</span>
+    <span class="s1">&#39;SLC18A3&#39;</span><span class="p">,</span><span class="s1">&#39;GRK5&#39;</span><span class="p">,</span><span class="s1">&#39;CHAT&#39;</span><span class="p">,</span>  <span class="s1">&#39;SLC5A7&#39;</span><span class="p">,</span> <span class="s1">&#39;LHX6&#39;</span><span class="p">,</span> <span class="s1">&#39;LHX8&#39;</span><span class="p">,</span> <span class="s1">&#39;GDNF&#39;</span><span class="p">,</span> <span class="c1"># &#39;TLE3&#39;, &#39;ARX&#39;, &#39;INPP4B&#39;,&#39;NTRK1&#39;,</span>
+    <span class="c1"># &#39;ACHE&#39;, acetylcholine (ACh), degradation of acetylcholine (ACh) happen largely extracellular</span>
+<span class="p">]</span>
+
+<span class="n">cell_type_order</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;STR D1 MSN&#39;</span><span class="p">,</span><span class="s1">&#39;STR D2 MSN&#39;</span><span class="p">,</span><span class="s1">&#39;STR Hybrid MSN&#39;</span><span class="p">,</span><span class="s1">&#39;M Dopa&#39;</span><span class="p">,</span><span class="s1">&#39;CN Cholinergic GABA&#39;</span><span class="p">]</span>
+<span class="n">gene_order</span><span class="o">=</span><span class="n">keep_genes</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cm1</span><span class="o">=</span><span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_genes</span><span class="p">(</span>
+    <span class="n">adata</span><span class="o">=</span><span class="s2">&quot;/home/x-wding2/Projects/BG/adata/BG.gene-CHN.h5ad&quot;</span><span class="p">,</span>
+    <span class="n">query_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">obs</span><span class="o">=</span><span class="s2">&quot;~/Projects/BG/clustering/100kb/obs.Dopa-ChI-MSN.tsv&quot;</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;Subclass&#39;</span><span class="p">,</span>
+    <span class="n">parent_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">modality</span><span class="o">=</span><span class="s1">&#39;mc&#39;</span><span class="p">,</span> <span class="c1"># mc or RNA</span>
+    <span class="n">use_raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="c1"># True for RNA</span>
+    <span class="n">expression_cutoff</span><span class="o">=</span><span class="s1">&#39;p5&#39;</span><span class="p">,</span> <span class="c1"># for RNA, could be int, median, mean of p5, p95 and so on</span>
+    <span class="n">genes</span><span class="o">=</span><span class="n">keep_genes</span><span class="p">,</span>
+    <span class="n">cell_type_order</span><span class="o">=</span><span class="n">cell_type_order</span><span class="p">,</span>
+    <span class="n">gene_order</span><span class="o">=</span><span class="n">gene_order</span><span class="p">,</span>
+    <span class="n">row_cluster</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">col_cluster</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Blues_r&#39;</span><span class="p">,</span>
+    <span class="n">group_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">parent_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;mCH&#39;</span><span class="p">,</span>
+    <span class="n">palette</span><span class="o">=</span><span class="s2">&quot;/home/x-wding2/Projects/BG/metadata/BG_color_palette.xlsx&quot;</span><span class="p">,</span>
+    <span class="n">legend_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">extendfrac</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span><span class="n">extend</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Mean mCH&#39;</span><span class="p">),</span>
+    <span class="n">normalize_per_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">clip_norm_value</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">hypo_score</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
+    <span class="n">plot_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vmax</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span><span class="n">yticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                 <span class="n">xticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">labelrotation</span><span class="o">=-</span><span class="mi">30</span><span class="p">,</span> <span class="n">labelcolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span><span class="n">bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
+    <span class="n">outname</span><span class="o">=</span><span class="s2">&quot;Dopa-ChI-MSN.mCH.pdf&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Normalizing cell level fraction by alpha and beta (prior_mean)
+(145394, 40)
+Starting..
+Calculating row orders..
+Reordering rows..
+Calculating col orders..
+Reordering cols..
+Plotting matrix..
+Inferred max_s (max size of scatter point) is: 87.47432584626135
+Plotting HeatmapAnnotations
+Collecting legends..
+Collecting annotation legends..
+Plotting legends..
+Estimated legend width: 46.56805555555555 mm
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_17_1.png" src="../_images/notebooks_static_plots_17_1.png" />
+</div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="interactive_plots.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Plot embedding (umap or tsne)</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../plot.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Plotting (adataviz.pl)</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, Wubin Ding
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/DingWB/adataviz" aria-label="GitHub"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg></a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Static Plotting Examples</a><ul>
+<li><a class="reference internal" href="#1.-plot_categorical-–-Categorical-UMAP-(or-TSNE)">1. <code class="docutils literal notranslate"><span class="pre">plot_categorical</span></code> – Categorical UMAP (or TSNE)</a></li>
+<li><a class="reference internal" href="#2.-plot_gene-–-Gene-Expression-on-UMAP-+-Violin-Plot">2. <code class="docutils literal notranslate"><span class="pre">plot_gene</span></code> – Gene Expression on UMAP + Violin Plot</a></li>
+<li><a class="reference internal" href="#3.-stacked_barplot-–-Cell-Type-Composition">3. <code class="docutils literal notranslate"><span class="pre">stacked_barplot</span></code> – Cell Type Composition</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=8a448e45"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../_static/js/rtd_search_config.js"></script>
+    <script src="../_static/js/rtd_sphinx_search.min.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+    <script src="../_static/custom.js?v=6945d1e9"></script>
+    </body>
+</html>

@@ -1,0 +1,881 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="adataviz.tools module" href="adataviz.tools.html"><link rel="prev" title="adataviz.palettes module" href="adataviz.palettes.html">
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
+        <title>adataviz.plotting module - adataviz documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/css/rtd_sphinx_search.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3ec9162d" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  --color-brand-primary: #5B63D3;
+  --color-brand-content: #5B63D3;
+  --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-stack--monospace: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  --font-stack--headings: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #8B93FF;
+  --color-brand-content: #8B93FF;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #8B93FF;
+  --color-brand-content: #8B93FF;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>Documentation website</em> is online! 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">adataviz  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <span class="sidebar-brand-text">adataviz  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="plot.html">Plotting (adataviz.pl)</a><input aria-label="Toggle navigation of Plotting (adataviz.pl)" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/static_plots.html">Static Plotting Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/interactive_plots.html">Plot embedding (umap or tsne)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/interactive_plots.html#Plot-dot-heatmap">Plot dot heatmap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/interactive_plots.html#Plot-boxplot">Plot boxplot</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">adataviz</a><input aria-label="Toggle navigation of adataviz" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="adataviz.html">adataviz package</a><input aria-label="Toggle navigation of adataviz package" checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="adataviz.adata.html">adataviz.adata module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="adataviz.palettes.html">adataviz.palettes module</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">adataviz.plotting module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="adataviz.tools.html">adataviz.tools module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="adataviz.utils.html">adataviz.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="setup.html">setup module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="https://github.com/DingWB/adataviz/blob/main/docs/source/adataviz.plotting.rst?plain=true" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/DingWB/adataviz/edit/main/docs/source/adataviz.plotting.rst" rel="edit" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="module-adataviz.plotting">
+<span id="adataviz-plotting-module"></span><h1>adataviz.plotting module<a class="headerlink" href="#module-adataviz.plotting" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.plotting.get_boxplot_data">
+<span class="sig-prename descclassname"><span class="pre">adataviz.plotting.</span></span><span class="sig-name descname"><span class="pre">get_boxplot_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/plotting.html#get_boxplot_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.plotting.get_boxplot_data" title="Link to this definition">¶</a></dt>
+<dd><p>Extract a two-column DataFrame of group labels and gene values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>AnnData</em>) – Annotated data matrix (may be backed).</p></li>
+<li><p><strong>variable</strong> (<em>str</em>) – Column in <em>obs</em> that defines the grouping variable.</p></li>
+<li><p><strong>gene</strong> (<em>str</em>) – Gene name whose expression values are extracted.</p></li>
+<li><p><strong>obs</strong> (<em>str</em><em>, </em><em>DataFrame</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Cell metadata. Path to a TSV/CSV file or a DataFrame.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with columns <code class="docutils literal notranslate"><span class="pre">[variable,</span> <span class="pre">gene]</span></code> for overlapping cells.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.plotting.get_genes_mean_frac">
+<span class="sig-prename descclassname"><span class="pre">adataviz.plotting.</span></span><span class="sig-name descname"><span class="pre">get_genes_mean_frac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Subclass'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RNA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expression_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p5'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">genes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_per_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_norm_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hypo_score</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/plotting.html#get_genes_mean_frac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.plotting.get_genes_mean_frac" title="Link to this definition">¶</a></dt>
+<dd><p>Compute per-group mean expression and expressing-cell fraction.</p>
+<p>For single-cell data the mean and fraction are computed on the fly;
+for pseudobulk data with a pre-computed <code class="docutils literal notranslate"><span class="pre">'mean'</span></code> layer the values
+are read directly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>AnnData</em><em> or </em><em>str</em>) – Annotated data matrix or path to an <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file.</p></li>
+<li><p><strong>obs</strong> (<em>str</em><em>, </em><em>DataFrame</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Cell metadata. Path to a TSV/CSV file or a DataFrame. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+uses <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code>.</p></li>
+<li><p><strong>groupby</strong> (<em>str</em><em>, </em><em>optional</em>) – Column in <em>obs</em> to group cells by. Default is <code class="docutils literal notranslate"><span class="pre">'Subclass'</span></code>.</p></li>
+<li><p><strong>modality</strong> (<em>str</em><em>, </em><em>optional</em>) – Data modality (<code class="docutils literal notranslate"><span class="pre">'RNA'</span></code>, <code class="docutils literal notranslate"><span class="pre">'ATAC'</span></code>, or methylation).
+Default is <code class="docutils literal notranslate"><span class="pre">'RNA'</span></code>.</p></li>
+<li><p><strong>layer</strong> (<em>str</em><em>, </em><em>optional</em>) – Layer name used to read pre-computed mean values from pseudobulk
+adata. Default is <code class="docutils literal notranslate"><span class="pre">'mean'</span></code>.</p></li>
+<li><p><strong>use_raw</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use <code class="docutils literal notranslate"><span class="pre">adata.raw</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>expression_cutoff</strong> (<em>str</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – Threshold for a gene to be considered “expressed”. Can be a
+percentile string (<code class="docutils literal notranslate"><span class="pre">'p5'</span></code>), <code class="docutils literal notranslate"><span class="pre">'median'</span></code>, <code class="docutils literal notranslate"><span class="pre">'mean'</span></code>, or a
+numeric value. Default is <code class="docutils literal notranslate"><span class="pre">'p5'</span></code>.</p></li>
+<li><p><strong>genes</strong> (<em>list</em><em> of </em><em>str</em>) – Gene names to compute statistics for.</p></li>
+<li><p><strong>normalize_per_cell</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to normalise methylation per cell. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>clip_norm_value</strong> (<em>float</em><em>, </em><em>optional</em>) – Clipping value for per-cell normalisation. Default is <code class="docutils literal notranslate"><span class="pre">10</span></code>.</p></li>
+<li><p><strong>hypo_score</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to compute hypomethylation score. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tidy DataFrame with columns <code class="docutils literal notranslate"><span class="pre">[groupby,</span> <span class="pre">'Gene',</span> <span class="pre">'Mean',</span> <span class="pre">'frac']</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.plotting.has_stats">
+<span class="sig-prename descclassname"><span class="pre">adataviz.plotting.</span></span><span class="sig-name descname"><span class="pre">has_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/plotting.html#has_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.plotting.has_stats" title="Link to this definition">¶</a></dt>
+<dd><p>Check whether an AnnData object contains pre-computed summary statistics.</p>
+<p>Looks for layers <code class="docutils literal notranslate"><span class="pre">'min'</span></code>, <code class="docutils literal notranslate"><span class="pre">'q25'</span></code>, <code class="docutils literal notranslate"><span class="pre">'q50'</span></code>, <code class="docutils literal notranslate"><span class="pre">'q75'</span></code>, <code class="docutils literal notranslate"><span class="pre">'max'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'mean'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'std'</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>adata</strong> (<em>AnnData</em><em> or </em><em>str</em>) – Annotated data matrix or path to an <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if all required stat layers are present.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.plotting.interactive_boxplot">
+<span class="sig-prename descclassname"><span class="pre">adataviz.plotting.</span></span><span class="sig-name descname"><span class="pre">interactive_boxplot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">700</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">renderer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'notebook'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/plotting.html#interactive_boxplot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.plotting.interactive_boxplot" title="Link to this definition">¶</a></dt>
+<dd><p>Create an interactive Plotly boxplot for a gene grouped by a variable.</p>
+<p>Automatically detects whether <em>adata</em> contains pre-computed summary
+statistics (pseudobulk) or raw data and dispatches to the appropriate
+plotting function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>AnnData</em><em> or </em><em>str</em>) – Annotated data matrix or path to an <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file.</p></li>
+<li><p><strong>variable</strong> (<em>str</em>) – Grouping column.</p></li>
+<li><p><strong>gene</strong> (<em>str</em>) – Gene name to plot on the Y axis.</p></li>
+<li><p><strong>obs</strong> (<em>str</em><em>, </em><em>DataFrame</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Cell metadata. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code>.</p></li>
+<li><p><strong>palette</strong> (<em>str</em><em>, </em><em>dict</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Color palette for box colours.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Plot title.</p></li>
+<li><p><strong>width</strong> (<em>int</em><em>, </em><em>optional</em>) – Figure width in pixels. Default is <code class="docutils literal notranslate"><span class="pre">1100</span></code>.</p></li>
+<li><p><strong>height</strong> (<em>int</em><em>, </em><em>optional</em>) – Figure height in pixels. Default is <code class="docutils literal notranslate"><span class="pre">700</span></code>.</p></li>
+<li><p><strong>show</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to display the figure. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>renderer</strong> (<em>str</em><em>, </em><em>optional</em>) – Plotly renderer backend. Default is <code class="docutils literal notranslate"><span class="pre">'notebook'</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The figure object if <code class="docutils literal notranslate"><span class="pre">show=False</span></code>, otherwise <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>plotly.graph_objects.Figure or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.plotting.interactive_dotHeatmap">
+<span class="sig-prename descclassname"><span class="pre">adataviz.plotting.</span></span><span class="sig-name descname"><span class="pre">interactive_dotHeatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">genes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Subclass'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RNA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expression_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p5'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_per_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_norm_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">900</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">700</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'greens'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p99'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reversescale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">renderer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'notebook'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/plotting.html#interactive_dotHeatmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.plotting.interactive_dotHeatmap" title="Link to this definition">¶</a></dt>
+<dd><p>Create an interactive Plotly dot-heatmap for multiple genes.</p>
+<p>Dot size encodes the fraction of expressing cells and colour encodes
+the mean expression value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>AnnData</em><em>, </em><em>str</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Annotated data matrix or path to an <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file.</p></li>
+<li><p><strong>obs</strong> (<em>str</em><em>, </em><em>DataFrame</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Cell metadata.</p></li>
+<li><p><strong>genes</strong> (<em>list</em><em> of </em><em>str</em>) – Genes to plot.</p></li>
+<li><p><strong>groupby</strong> (<em>str</em><em>, </em><em>optional</em>) – Column in <em>obs</em> to group cells by. Default is <code class="docutils literal notranslate"><span class="pre">'Subclass'</span></code>.</p></li>
+<li><p><strong>modality</strong> (<em>str</em><em>, </em><em>optional</em>) – Data modality. Default is <code class="docutils literal notranslate"><span class="pre">'RNA'</span></code>.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Plot title. Defaults to <em>groupby</em>.</p></li>
+<li><p><strong>use_raw</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use <code class="docutils literal notranslate"><span class="pre">adata.raw</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>expression_cutoff</strong> (<em>str</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – Threshold for a gene to be considered expressed.
+Default is <code class="docutils literal notranslate"><span class="pre">'p5'</span></code>.</p></li>
+<li><p><strong>normalize_per_cell</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to normalise methylation per cell. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>clip_norm_value</strong> (<em>float</em><em>, </em><em>optional</em>) – Clipping value for per-cell normalisation. Default is <code class="docutils literal notranslate"><span class="pre">10</span></code>.</p></li>
+<li><p><strong>width</strong> (<em>int</em><em>, </em><em>optional</em>) – Figure width in pixels. Default is <code class="docutils literal notranslate"><span class="pre">900</span></code>.</p></li>
+<li><p><strong>height</strong> (<em>int</em><em>, </em><em>optional</em>) – Figure height in pixels. Default is <code class="docutils literal notranslate"><span class="pre">700</span></code>.</p></li>
+<li><p><strong>gene_order</strong> (<em>list</em><em> of </em><em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Explicit ordering of genes on the Y axis.</p></li>
+<li><p><strong>colorscale</strong> (<em>str</em><em>, </em><em>optional</em>) – Plotly colour scale name. Default is <code class="docutils literal notranslate"><span class="pre">'greens'</span></code>.</p></li>
+<li><p><strong>vmin</strong> (<em>str</em><em>, </em><em>optional</em>) – Colour-range lower bound as a percentile string (e.g. <code class="docutils literal notranslate"><span class="pre">'p1'</span></code>).
+Default is <code class="docutils literal notranslate"><span class="pre">'p1'</span></code>.</p></li>
+<li><p><strong>vmax</strong> (<em>str</em><em>, </em><em>optional</em>) – Colour-range upper bound as a percentile string (e.g. <code class="docutils literal notranslate"><span class="pre">'p99'</span></code>).
+Default is <code class="docutils literal notranslate"><span class="pre">'p99'</span></code>.</p></li>
+<li><p><strong>show</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to display the figure immediately. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>reversescale</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to reverse the colour scale. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>size_min</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimum marker size in pixels. Default is <code class="docutils literal notranslate"><span class="pre">5</span></code>.</p></li>
+<li><p><strong>size_max</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum marker size in pixels. Default is <code class="docutils literal notranslate"><span class="pre">30</span></code>.</p></li>
+<li><p><strong>renderer</strong> (<em>str</em><em>, </em><em>optional</em>) – Plotly renderer backend. Default is <code class="docutils literal notranslate"><span class="pre">'notebook'</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The figure object if <code class="docutils literal notranslate"><span class="pre">show=False</span></code>, otherwise <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>plotly.graph_objects.Figure or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.plotting.interactive_embedding">
+<span class="sig-prename descclassname"><span class="pre">adataviz.plotting.</span></span><span class="sig-name descname"><span class="pre">interactive_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'umap'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p99'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">900</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">750</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">downsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_fill</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_per_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_norm_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">renderer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'notebook'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/plotting.html#interactive_embedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.plotting.interactive_embedding" title="Link to this definition">¶</a></dt>
+<dd><p>Plot interactive embedding plot with plotly for a given AnnData object or path of .h5ad.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>obs</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>variable</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>gene</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>annotation</strong> (<em>str</em>) – column to pass to mouse over</p></li>
+<li><p><strong>coord</strong> (<em>str</em><em>, </em><em>optional</em>) – _description_, by default “umap”</p></li>
+<li><p><strong>vmin</strong> (<em>str</em><em>, </em><em>optional</em>) – _description_, by default ‘p1’</p></li>
+<li><p><strong>vmax</strong> (<em>str</em><em>, </em><em>optional</em>) – _description_, by default ‘p99’</p></li>
+<li><p><strong>cmap</strong> (<em>str</em><em>, </em><em>optional</em>) – _description_, by default ‘jet’</p></li>
+<li><p><strong>title</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>width</strong> (<em>int</em><em>, </em><em>optional</em>) – _description_, by default 1000</p></li>
+<li><p><strong>height</strong> (<em>int</em><em>, </em><em>optional</em>) – _description_, by default 800</p></li>
+<li><p><strong>colors</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>palette</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>size</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>target_fill</strong> (<em>float</em><em>, </em><em>optional</em>) – _description_, by default 0.05</p></li>
+<li><p><strong>show</strong> (<em>bool</em><em>, </em><em>optional</em>) – _description_, by default True</p></li>
+<li><p><strong>renderer</strong> (<em>str</em><em>, </em><em>optional</em>) – Plotly renderer backend, by default <code class="docutils literal notranslate"><span class="pre">&quot;notebook&quot;</span></code>.
+Available renderers: <code class="docutils literal notranslate"><span class="pre">'plotly_mimetype'</span></code>, <code class="docutils literal notranslate"><span class="pre">'jupyterlab'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'nteract'</span></code>, <code class="docutils literal notranslate"><span class="pre">'vscode'</span></code>, <code class="docutils literal notranslate"><span class="pre">'notebook'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'notebook_connected'</span></code>, <code class="docutils literal notranslate"><span class="pre">'kaggle'</span></code>, <code class="docutils literal notranslate"><span class="pre">'azure'</span></code>, <code class="docutils literal notranslate"><span class="pre">'colab'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'cocalc'</span></code>, <code class="docutils literal notranslate"><span class="pre">'databricks'</span></code>, <code class="docutils literal notranslate"><span class="pre">'json'</span></code>, <code class="docutils literal notranslate"><span class="pre">'png'</span></code>, <code class="docutils literal notranslate"><span class="pre">'jpeg'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'jpg'</span></code>, <code class="docutils literal notranslate"><span class="pre">'svg'</span></code>, <code class="docutils literal notranslate"><span class="pre">'pdf'</span></code>, <code class="docutils literal notranslate"><span class="pre">'browser'</span></code>, <code class="docutils literal notranslate"><span class="pre">'firefox'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'chrome'</span></code>, <code class="docutils literal notranslate"><span class="pre">'chromium'</span></code>, <code class="docutils literal notranslate"><span class="pre">'iframe'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'iframe_connected'</span></code>, <code class="docutils literal notranslate"><span class="pre">'sphinx_gallery'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'sphinx_gallery_png'</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_type_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.plotting.pieplot">
+<span class="sig-prename descclassname"><span class="pre">adataviz.plotting.</span></span><span class="sig-name descname"><span class="pre">pieplot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Age'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/plotting.html#pieplot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.plotting.pieplot" title="Link to this definition">¶</a></dt>
+<dd><p>Create a pie chart showing the distribution of cells across groups.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obs</strong> (<em>DataFrame</em><em>, </em><em>str</em>) – Cell metadata. Can be a DataFrame, a path to an <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file, a
+<code class="docutils literal notranslate"><span class="pre">.csv</span></code> file, or a tab-separated text file.</p></li>
+<li><p><strong>groupby</strong> (<em>str</em><em>, </em><em>optional</em>) – Column in <em>obs</em> whose value counts define the pie slices.
+Default is <code class="docutils literal notranslate"><span class="pre">'Age'</span></code>.</p></li>
+<li><p><strong>palette</strong> (<em>str</em><em>, </em><em>dict</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Color palette. Can be a <code class="docutils literal notranslate"><span class="pre">{group:</span> <span class="pre">hex_color}</span></code> dict or a path to
+an Excel palette file. <code class="docutils literal notranslate"><span class="pre">None</span></code> uses matplotlib defaults.</p></li>
+<li><p><strong>order</strong> (<em>list</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Explicit ordering of pie slices. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, categories are
+sorted alphabetically.</p></li>
+<li><p><strong>save</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Path to save the figure. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, saves to
+<code class="docutils literal notranslate"><span class="pre">'{groupby}.piechart.pdf'</span></code>.</p></li>
+<li><p><strong>explode</strong> (<em>float</em><em>, </em><em>optional</em>) – Fraction by which each slice is offset from the centre.
+Default is <code class="docutils literal notranslate"><span class="pre">0.05</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.plotting.plot_categorical">
+<span class="sig-prename descclassname"><span class="pre">adataviz.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_categorical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'umap'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Subclass'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coded_marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sheet_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(4,</span> <span class="pre">3.5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_title_fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker_fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker_pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tiny'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/plotting.html#plot_categorical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.plotting.plot_categorical" title="Link to this definition">¶</a></dt>
+<dd><p>Create a categorical scatter plot (e.g. UMAP) colored by a grouping variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>AnnData</em><em> or </em><em>str</em>) – AnnData object or path to an <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Pre-existing axes to draw on. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a new figure is created.</p></li>
+<li><p><strong>basis</strong> (<em>str</em><em>, </em><em>optional</em>) – Embedding key in <code class="docutils literal notranslate"><span class="pre">adata.obsm</span></code> (without the <code class="docutils literal notranslate"><span class="pre">X_</span></code> prefix).
+Default is <code class="docutils literal notranslate"><span class="pre">'umap'</span></code>.</p></li>
+<li><p><strong>groupby</strong> (<em>str</em><em>, </em><em>optional</em>) – Column in <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code> used to color the scatter plot.
+Default is <code class="docutils literal notranslate"><span class="pre">'Subclass'</span></code>.</p></li>
+<li><p><strong>coding</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, assign numeric codes to each group and display them as
+markers on the plot. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>coded_marker</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, show the numeric code inside each group’s marker.
+Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>save</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Path to save the figure. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the figure is not saved.</p></li>
+<li><p><strong>palette</strong> (<em>str</em><em>, </em><em>dict</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Color palette. Can be a path to an Excel palette file, a
+<code class="docutils literal notranslate"><span class="pre">{category:</span> <span class="pre">hex_color}</span></code> dict, or <code class="docutils literal notranslate"><span class="pre">None</span></code> to use colours stored
+in <code class="docutils literal notranslate"><span class="pre">adata.uns</span></code>.</p></li>
+<li><p><strong>sheet_name</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Sheet name to read from the palette Excel file. Defaults to
+<em>groupby</em>.</p></li>
+<li><p><strong>show</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to call <code class="docutils literal notranslate"><span class="pre">plt.show()</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>optional</em>) – Figure size <code class="docutils literal notranslate"><span class="pre">(width,</span> <span class="pre">height)</span></code> in inches. Default is <code class="docutils literal notranslate"><span class="pre">(4,</span> <span class="pre">3.5)</span></code>.</p></li>
+<li><p><strong>ncol</strong> (<em>int</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Number of columns in the legend. <code class="docutils literal notranslate"><span class="pre">None</span></code> lets matplotlib decide.</p></li>
+<li><p><strong>fontsize</strong> (<em>int</em><em>, </em><em>optional</em>) – Font size for text annotations on the plot. Default is <code class="docutils literal notranslate"><span class="pre">5</span></code>.</p></li>
+<li><p><strong>legend_fontsize</strong> (<em>int</em><em>, </em><em>optional</em>) – Font size for legend entries. Default is <code class="docutils literal notranslate"><span class="pre">5</span></code>.</p></li>
+<li><p><strong>legend_kws</strong> (<em>dict</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Extra keyword arguments forwarded to the legend.</p></li>
+<li><p><strong>legend_title_fontsize</strong> (<em>int</em><em>, </em><em>optional</em>) – Font size for the legend title. Default is <code class="docutils literal notranslate"><span class="pre">5</span></code>.</p></li>
+<li><p><strong>marker_fontsize</strong> (<em>int</em><em>, </em><em>optional</em>) – Font size for coded markers. Default is <code class="docutils literal notranslate"><span class="pre">4</span></code>.</p></li>
+<li><p><strong>marker_pad</strong> (<em>float</em><em>, </em><em>optional</em>) – Padding around coded markers. Default is <code class="docutils literal notranslate"><span class="pre">0.1</span></code>.</p></li>
+<li><p><strong>linewidth</strong> (<em>float</em><em>, </em><em>optional</em>) – Edge linewidth of scatter points. Default is <code class="docutils literal notranslate"><span class="pre">0.5</span></code>.</p></li>
+<li><p><strong>axis_format</strong> (<em>str</em><em>, </em><em>optional</em>) – Axis appearance style (e.g. <code class="docutils literal notranslate"><span class="pre">'tiny'</span></code>, <code class="docutils literal notranslate"><span class="pre">'arrow'</span></code>). Default is
+<code class="docutils literal notranslate"><span class="pre">'tiny'</span></code>.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>optional</em>) – Point transparency. Default is <code class="docutils literal notranslate"><span class="pre">0.7</span></code>.</p></li>
+<li><p><strong>text_kws</strong> (<em>dict</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Extra keyword arguments for text annotations.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments (such as outline, outline_kws et.al) passed to
+<a class="reference internal" href="adataviz.utils.html#adataviz.utils.categorical_scatter" title="adataviz.utils.categorical_scatter"><code class="xref py py-func docutils literal notranslate"><span class="pre">categorical_scatter()</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.plotting.plot_gene">
+<span class="sig-prename descclassname"><span class="pre">adataviz.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_gene</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CADM1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hue_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'extendfrac':</span> <span class="pre">0.1}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tiny'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scatter_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obsm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'umap'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_per_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stripplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hypo_score</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_norm_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_cells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'parula'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/plotting.html#plot_gene"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.plotting.plot_gene" title="Link to this definition">¶</a></dt>
+<dd><p>Plot gene expression on an embedding and optionally a violin/strip plot.</p>
+<p>Reads the gene from a backed <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file, projects expression values
+onto the chosen embedding coordinates, and saves the scatter plot to PDF.
+When <em>groupby</em> is provided, a violin plot grouped by that column is also
+generated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>str</em>) – Path to an <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file.</p></li>
+<li><p><strong>obs</strong> (<em>str</em><em>, </em><em>DataFrame</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Cell metadata. Can be a path to a TSV file or a DataFrame.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code>.</p></li>
+<li><p><strong>groupby</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Column in <em>obs</em> to group cells for the violin/strip plot.</p></li>
+<li><p><strong>gene</strong> (<em>str</em><em>, </em><em>optional</em>) – Gene name to visualise. Default is <code class="docutils literal notranslate"><span class="pre">'CADM1'</span></code>.</p></li>
+<li><p><strong>query_str</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Pandas query string to subset <em>obs</em> before plotting.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Plot title. Defaults to <em>query_str</em>, <em>groupby</em>, or <em>gene</em>.</p></li>
+<li><p><strong>palette</strong> (<em>str</em><em>, </em><em>dict</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Color palette for the violin plot. Can be a path to an Excel
+palette file, a <code class="docutils literal notranslate"><span class="pre">{group:</span> <span class="pre">hex_color}</span></code> dict, or a column name in
+<code class="docutils literal notranslate"><span class="pre">adata.obs</span></code> containing hex colours.</p></li>
+<li><p><strong>hue_norm</strong> (<em>tuple</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">(vmin,</span> <span class="pre">vmax)</span></code> to normalise the colour mapping for the scatter.</p></li>
+<li><p><strong>cbar_kws</strong> (<em>dict</em><em>, </em><em>optional</em>) – Keyword arguments for the colourbar. Default is
+<code class="docutils literal notranslate"><span class="pre">dict(extendfrac=0.1)</span></code>.</p></li>
+<li><p><strong>axis_format</strong> (<em>str</em><em>, </em><em>optional</em>) – Axis appearance style. Default is <code class="docutils literal notranslate"><span class="pre">'tiny'</span></code>.</p></li>
+<li><p><strong>scatter_kws</strong> (<em>dict</em><em>, </em><em>optional</em>) – Extra keyword arguments forwarded to
+<a class="reference internal" href="adataviz.utils.html#adataviz.utils.continuous_scatter" title="adataviz.utils.continuous_scatter"><code class="xref py py-func docutils literal notranslate"><span class="pre">continuous_scatter()</span></code></a>.</p></li>
+<li><p><strong>obsm</strong> (<em>str</em><em>, </em><em>AnnData</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – AnnData (or path) supplying alternative <code class="docutils literal notranslate"><span class="pre">obsm</span></code> embeddings and
+extra <code class="docutils literal notranslate"><span class="pre">obs</span></code> columns.</p></li>
+<li><p><strong>basis</strong> (<em>str</em><em>, </em><em>optional</em>) – Embedding key (without <code class="docutils literal notranslate"><span class="pre">X_</span></code> prefix). Default is <code class="docutils literal notranslate"><span class="pre">'umap'</span></code>.</p></li>
+<li><p><strong>normalize_per_cell</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to normalise methylation values per cell. Default is
+<code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>stripplot</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, overlay a strip plot on the violin. Default is
+<code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>hypo_score</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to compute hypomethylation score. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>ylim</strong> (<em>tuple</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Y-axis limits for the violin plot.</p></li>
+<li><p><strong>clip_norm_value</strong> (<em>float</em><em>, </em><em>optional</em>) – Clipping value for per-cell normalisation. Default is <code class="docutils literal notranslate"><span class="pre">10</span></code>.</p></li>
+<li><p><strong>min_cells</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimum number of cells required for a group to be included in
+the violin plot. Default is <code class="docutils literal notranslate"><span class="pre">3</span></code>.</p></li>
+<li><p><strong>cmap</strong> (<em>str</em><em>, </em><em>optional</em>) – Colourmap for the scatter plot. Default is <code class="docutils literal notranslate"><span class="pre">'parula'</span></code>.</p></li>
+<li><p><strong>prefix</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – File-name prefix for saved PDFs. Defaults to
+<code class="docutils literal notranslate"><span class="pre">'{title}.{gene}.{groupby}'</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.plotting.plot_genes">
+<span class="sig-prename descclassname"><span class="pre">adataviz.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_genes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Subclass'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RNA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expression_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p5'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">genes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_type_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_cluster</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_cluster</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Greens_r'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'extend':</span> <span class="pre">'both',</span> <span class="pre">'extendfrac':</span> <span class="pre">0.1,</span> <span class="pre">'label':</span> <span class="pre">'Mean</span> <span class="pre">mCG'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_per_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_norm_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hypo_score</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">3.5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transpose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'test.pdf'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/plotting.html#plot_genes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.plotting.plot_genes" title="Link to this definition">¶</a></dt>
+<dd><p>Create a dot-heatmap for multiple genes using PyComplexHeatmap.</p>
+<p>Dot size encodes the fraction of cells expressing each gene (or showing
+hypomethylation), and colour encodes the mean expression (or
+methylation) level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>str</em>) – Path to an <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file.</p></li>
+<li><p><strong>query_str</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Pandas query string to subset observations.</p></li>
+<li><p><strong>obs</strong> (<em>str</em><em>, </em><em>DataFrame</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Cell metadata. Path to a TSV/CSV file or a DataFrame. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+uses <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code>.</p></li>
+<li><p><strong>groupby</strong> (<em>str</em><em> or </em><em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Column(s) in <em>obs</em> to group cells. If a list, groups are joined
+with <code class="docutils literal notranslate"><span class="pre">'+'</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">'Subclass'</span></code>.</p></li>
+<li><p><strong>parent_col</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Higher-level grouping column for hierarchical annotation.</p></li>
+<li><p><strong>modality</strong> (<em>str</em><em>, </em><em>optional</em>) – Data modality (<code class="docutils literal notranslate"><span class="pre">'RNA'</span></code>, <code class="docutils literal notranslate"><span class="pre">'ATAC'</span></code>, or methylation).
+Default is <code class="docutils literal notranslate"><span class="pre">'RNA'</span></code>.</p></li>
+<li><p><strong>use_raw</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use <code class="docutils literal notranslate"><span class="pre">adata.raw</span></code> for RNA. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>expression_cutoff</strong> (<em>str</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – Threshold to determine whether a gene is “expressed”. Can be a
+percentile string (<code class="docutils literal notranslate"><span class="pre">'p5'</span></code>), <code class="docutils literal notranslate"><span class="pre">'median'</span></code>, <code class="docutils literal notranslate"><span class="pre">'mean'</span></code>, or a
+numeric value. Default is <code class="docutils literal notranslate"><span class="pre">'p5'</span></code>.</p></li>
+<li><p><strong>genes</strong> (<em>list</em><em> of </em><em>str</em>) – Gene names to include.</p></li>
+<li><p><strong>cell_type_order</strong> (<em>list</em><em> of </em><em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Explicit ordering of cell types along the cell-type axis.</p></li>
+<li><p><strong>gene_order</strong> (<em>list</em><em> of </em><em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Explicit ordering of genes along the gene axis.</p></li>
+<li><p><strong>row_cluster</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to cluster rows. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>col_cluster</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to cluster columns. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>cmap</strong> (<em>str</em><em>, </em><em>optional</em>) – Colourmap for the dot fill. Default is <code class="docutils literal notranslate"><span class="pre">'Greens_r'</span></code>.</p></li>
+<li><p><strong>group_legend</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to show a legend for the groupby annotation.
+Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>parent_legend</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to show a legend for the parent annotation.
+Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Plot title. Defaults to <em>query_str</em> or <em>groupby</em>.</p></li>
+<li><p><strong>palette</strong> (<em>str</em><em>, </em><em>dict</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Color palette. Can be a path to an Excel file, a <code class="docutils literal notranslate"><span class="pre">{group:</span> <span class="pre">hex}</span></code>
+dict, or a column name in <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code> with hex colours.</p></li>
+<li><p><strong>legend_kws</strong> (<em>dict</em><em>, </em><em>optional</em>) – Keyword arguments for the colourbar legend.</p></li>
+<li><p><strong>normalize_per_cell</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to normalise methylation per cell. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>clip_norm_value</strong> (<em>float</em><em>, </em><em>optional</em>) – Clipping value for per-cell normalisation. Default is <code class="docutils literal notranslate"><span class="pre">10</span></code>.</p></li>
+<li><p><strong>hypo_score</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to compute hypomethylation score. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>optional</em>) – Figure size <code class="docutils literal notranslate"><span class="pre">(width,</span> <span class="pre">height)</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">(10,</span> <span class="pre">3.5)</span></code>.</p></li>
+<li><p><strong>marker</strong> (<em>str</em><em>, </em><em>optional</em>) – Marker shape for dots. Default is <code class="docutils literal notranslate"><span class="pre">'o'</span></code>.</p></li>
+<li><p><strong>plot_kws</strong> (<em>dict</em><em>, </em><em>optional</em>) – Extra keyword arguments forwarded to
+<code class="docutils literal notranslate"><span class="pre">DotClustermapPlotter</span></code>.</p></li>
+<li><p><strong>transpose</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, genes are on columns and cell types on rows.
+Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>outname</strong> (<em>str</em><em>, </em><em>optional</em>) – Output PDF file name. Default is <code class="docutils literal notranslate"><span class="pre">'test.pdf'</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(plot_data,</span> <span class="pre">df_cols,</span> <span class="pre">cm1)</span></code> – the tidy plotting DataFrame,
+the column-annotation DataFrame, and the
+<code class="docutils literal notranslate"><span class="pre">DotClustermapPlotter</span></code> object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.plotting.plot_interacrive_boxplot_from_stats">
+<span class="sig-prename descclassname"><span class="pre">adataviz.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_interacrive_boxplot_from_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">700</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/plotting.html#plot_interacrive_boxplot_from_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.plotting.plot_interacrive_boxplot_from_stats" title="Link to this definition">¶</a></dt>
+<dd><p>Create a Plotly boxplot from pre-computed pseudobulk summary statistics.</p>
+<p>Constructs boxes using the <code class="docutils literal notranslate"><span class="pre">'min'</span></code>, <code class="docutils literal notranslate"><span class="pre">'q25'</span></code>, <code class="docutils literal notranslate"><span class="pre">'q50'</span></code>, <code class="docutils literal notranslate"><span class="pre">'q75'</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">'max'</span></code> layers stored in <em>adata</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>AnnData</em>) – Pseudobulk AnnData with pre-computed stat layers.</p></li>
+<li><p><strong>variable</strong> (<em>str</em>) – Grouping variable (used as X axis label).</p></li>
+<li><p><strong>gene</strong> (<em>str</em>) – Gene name to plot.</p></li>
+<li><p><strong>palette</strong> (<em>str</em><em>, </em><em>dict</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Color palette for box colours.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Plot title. Defaults to <code class="docutils literal notranslate"><span class="pre">'Boxplot:</span> <span class="pre">{gene}</span> <span class="pre">by</span> <span class="pre">{variable}'</span></code>.</p></li>
+<li><p><strong>width</strong> (<em>int</em><em>, </em><em>optional</em>) – Figure width in pixels. Default is <code class="docutils literal notranslate"><span class="pre">1100</span></code>.</p></li>
+<li><p><strong>height</strong> (<em>int</em><em>, </em><em>optional</em>) – Figure height in pixels. Default is <code class="docutils literal notranslate"><span class="pre">700</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>plotly.graph_objects.Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.plotting.plot_interactive_boxlot_from_data">
+<span class="sig-prename descclassname"><span class="pre">adataviz.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_interactive_boxlot_from_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">700</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/plotting.html#plot_interactive_boxlot_from_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.plotting.plot_interactive_boxlot_from_data" title="Link to this definition">¶</a></dt>
+<dd><p>Create a Plotly boxplot from raw single-cell expression data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>AnnData</em>) – Annotated data matrix.</p></li>
+<li><p><strong>obs</strong> (<em>str</em><em> or </em><em>DataFrame</em>) – Cell metadata used to extract group labels and gene expression.</p></li>
+<li><p><strong>variable</strong> (<em>str</em>) – Grouping column in <em>obs</em>.</p></li>
+<li><p><strong>gene</strong> (<em>str</em>) – Gene name to plot on the Y axis.</p></li>
+<li><p><strong>palette</strong> (<em>str</em><em>, </em><em>dict</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Color palette for box colours.</p></li>
+<li><p><strong>width</strong> (<em>int</em><em>, </em><em>optional</em>) – Figure width in pixels. Default is <code class="docutils literal notranslate"><span class="pre">1100</span></code>.</p></li>
+<li><p><strong>height</strong> (<em>int</em><em>, </em><em>optional</em>) – Figure height in pixels. Default is <code class="docutils literal notranslate"><span class="pre">700</span></code>.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Plot title. Defaults to <code class="docutils literal notranslate"><span class="pre">'Boxplot:</span> <span class="pre">{gene}</span> <span class="pre">by</span> <span class="pre">{variable}'</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>plotly.graph_objects.Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.plotting.plot_pseudotime">
+<span class="sig-prename descclassname"><span class="pre">adataviz.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_pseudotime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pseudotime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dpt_pseudotime.tsv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Age'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dpt_pseudotime'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(5,</span> <span class="pre">3.5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Pseudotime'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/plotting.html#plot_pseudotime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.plotting.plot_pseudotime" title="Link to this definition">¶</a></dt>
+<dd><p>Plot pseudotime as a violin plot grouped by a categorical variable.</p>
+<p>Examples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plot_pseudotime</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">),</span> <span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;MajorType&#39;</span><span class="p">,</span> <span class="n">rotate</span><span class="o">=-</span><span class="mi">45</span><span class="p">)</span>
+<span class="n">plot_pseudotime</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">3.5</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;CellClass&#39;</span><span class="p">)</span>
+<span class="n">plot_pseudotime</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">3.5</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;Age&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pseudotime</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to a TSV file with pseudotime values. Default is
+<code class="docutils literal notranslate"><span class="pre">'dpt_pseudotime.tsv'</span></code>.</p></li>
+<li><p><strong>groupby</strong> (<em>str</em><em>, </em><em>optional</em>) – Column to group cells by. Default is <code class="docutils literal notranslate"><span class="pre">'Age'</span></code>.</p></li>
+<li><p><strong>y</strong> (<em>str</em><em>, </em><em>optional</em>) – Column containing pseudotime values. Default is
+<code class="docutils literal notranslate"><span class="pre">'dpt_pseudotime'</span></code>.</p></li>
+<li><p><strong>hue</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Additional grouping variable for the violin plot.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>optional</em>) – Figure size <code class="docutils literal notranslate"><span class="pre">(width,</span> <span class="pre">height)</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">(5,</span> <span class="pre">3.5)</span></code>.</p></li>
+<li><p><strong>save</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Path to save the figure. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, saves to
+<code class="docutils literal notranslate"><span class="pre">'{groupby}.pseudotime_violin.pdf'</span></code>.</p></li>
+<li><p><strong>rotate</strong> (<em>float</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Rotation angle for x-tick labels.</p></li>
+<li><p><strong>yield</strong> (<em>str</em><em>, </em><em>optional</em>) – Y-axis label. Default is <code class="docutils literal notranslate"><span class="pre">'Pseudotime'</span></code>.</p></li>
+<li><p><strong>palette</strong> (<em>str</em><em>, </em><em>dict</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Color palette. Can be a <code class="docutils literal notranslate"><span class="pre">{group:</span> <span class="pre">hex_color}</span></code> dict or a path
+to an Excel palette file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.plotting.show_fig">
+<span class="sig-prename descclassname"><span class="pre">adataviz.plotting.</span></span><span class="sig-name descname"><span class="pre">show_fig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'plot'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/plotting.html#show_fig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.plotting.show_fig" title="Link to this definition">¶</a></dt>
+<dd><p>Display a Plotly figure with an interactive toolbar configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fig</strong> (<em>plotly.graph_objects.Figure</em>) – The Plotly figure to display.</p></li>
+<li><p><strong>filename</strong> (<em>str</em><em>, </em><em>optional</em>) – Base filename used when exporting the figure to SVG via the toolbar
+download button. Default is <code class="docutils literal notranslate"><span class="pre">'plot'</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.plotting.stacked_barplot">
+<span class="sig-prename descclassname"><span class="pre">adataviz.plotting.</span></span><span class="sig-name descname"><span class="pre">stacked_barplot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Age'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CellClass'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xticklabels_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lgd_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/plotting.html#stacked_barplot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.plotting.stacked_barplot" title="Link to this definition">¶</a></dt>
+<dd><p>Plot stacked barplot to show cell type composition in each <em>groupby</em> group.</p>
+<p>For example Age, brain regions, etc.</p>
+<p>Examples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">stacked_barplot</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s1">&#39;MajorType&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">stacked_barplot</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s1">&#39;CellClass&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.plotting.stacked_violinplot">
+<span class="sig-prename descclassname"><span class="pre">adataviz.plotting.</span></span><span class="sig-name descname"><span class="pre">stacked_violinplot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_genes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Age'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(6,</span> <span class="pre">4)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'viridis'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/plotting.html#stacked_violinplot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.plotting.stacked_violinplot" title="Link to this definition">¶</a></dt>
+<dd><p>Plot a stacked violin plot for selected genes using scanpy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>AnnData</em>) – Annotated data matrix.</p></li>
+<li><p><strong>use_genes</strong> (<em>list</em><em> of </em><em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Gene names to plot.</p></li>
+<li><p><strong>groupby</strong> (<em>str</em><em>, </em><em>optional</em>) – Column in <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code> to group cells by. Default is <code class="docutils literal notranslate"><span class="pre">'Age'</span></code>.</p></li>
+<li><p><strong>cell_groups</strong> (<em>list</em><em> of </em><em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – List where the first element is an <code class="docutils literal notranslate"><span class="pre">obs</span></code> column used to subset
+cells (via <em>parent</em>).</p></li>
+<li><p><strong>parent</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Value within <code class="docutils literal notranslate"><span class="pre">cell_groups[0]</span></code> to select cells from.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>optional</em>) – Figure size <code class="docutils literal notranslate"><span class="pre">(width,</span> <span class="pre">height)</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">(6,</span> <span class="pre">4)</span></code>.</p></li>
+<li><p><strong>cmap</strong> (<em>str</em><em>, </em><em>optional</em>) – Colourmap. Default is <code class="docutils literal notranslate"><span class="pre">'viridis'</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.plotting.use_scientific_style">
+<span class="sig-prename descclassname"><span class="pre">adataviz.plotting.</span></span><span class="sig-name descname"><span class="pre">use_scientific_style</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/plotting.html#use_scientific_style"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.plotting.use_scientific_style" title="Link to this definition">¶</a></dt>
+<dd><p>Configure matplotlib rcParams for publication-quality figures.</p>
+<p>Sets font to Arial (8–11 pt), high DPI (300), tight/transparent saves,
+and Type 42 fonts for PDF/PS compatibility. Call once before plotting.</p>
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="adataviz.tools.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">adataviz.tools module</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="adataviz.palettes.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">adataviz.palettes module</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, Wubin Ding
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/DingWB/adataviz" aria-label="GitHub"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg></a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">adataviz.plotting module</a><ul>
+<li><a class="reference internal" href="#adataviz.plotting.get_boxplot_data"><code class="docutils literal notranslate"><span class="pre">get_boxplot_data()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.plotting.get_genes_mean_frac"><code class="docutils literal notranslate"><span class="pre">get_genes_mean_frac()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.plotting.has_stats"><code class="docutils literal notranslate"><span class="pre">has_stats()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.plotting.interactive_boxplot"><code class="docutils literal notranslate"><span class="pre">interactive_boxplot()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.plotting.interactive_dotHeatmap"><code class="docutils literal notranslate"><span class="pre">interactive_dotHeatmap()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.plotting.interactive_embedding"><code class="docutils literal notranslate"><span class="pre">interactive_embedding()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.plotting.pieplot"><code class="docutils literal notranslate"><span class="pre">pieplot()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.plotting.plot_categorical"><code class="docutils literal notranslate"><span class="pre">plot_categorical()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.plotting.plot_gene"><code class="docutils literal notranslate"><span class="pre">plot_gene()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.plotting.plot_genes"><code class="docutils literal notranslate"><span class="pre">plot_genes()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.plotting.plot_interacrive_boxplot_from_stats"><code class="docutils literal notranslate"><span class="pre">plot_interacrive_boxplot_from_stats()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.plotting.plot_interactive_boxlot_from_data"><code class="docutils literal notranslate"><span class="pre">plot_interactive_boxlot_from_data()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.plotting.plot_pseudotime"><code class="docutils literal notranslate"><span class="pre">plot_pseudotime()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.plotting.show_fig"><code class="docutils literal notranslate"><span class="pre">show_fig()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.plotting.stacked_barplot"><code class="docutils literal notranslate"><span class="pre">stacked_barplot()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.plotting.stacked_violinplot"><code class="docutils literal notranslate"><span class="pre">stacked_violinplot()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.plotting.use_scientific_style"><code class="docutils literal notranslate"><span class="pre">use_scientific_style()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/jquery.js?v=5d32c60e"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="_static/documentation_options.js?v=8a448e45"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="_static/js/rtd_search_config.js"></script>
+    <script src="_static/js/rtd_sphinx_search.min.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/custom.js?v=6945d1e9"></script>
+    </body>
+</html>

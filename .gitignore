@@ -9,5 +9,5 @@
 notebooks/.ipynb_checkpoints/
 /notebooks/*.pdf
 /dist/
-docs/build/
 adataviz/_version.py
+notebooks/.ipynb_checkpoints/plot-checkpoint.ipynb

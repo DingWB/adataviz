@@ -1,0 +1,837 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
+        <title>adataviz.palettes - adataviz documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/rtd_sphinx_search.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=3ec9162d" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  --color-brand-primary: #5B63D3;
+  --color-brand-content: #5B63D3;
+  --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-stack--monospace: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  --font-stack--headings: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #8B93FF;
+  --color-brand-content: #8B93FF;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #8B93FF;
+  --color-brand-content: #8B93FF;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>Documentation website</em> is online! 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">adataviz  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  <span class="sidebar-brand-text">adataviz  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../plot.html">Plotting (adataviz.pl)</a><input aria-label="Toggle navigation of Plotting (adataviz.pl)" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/static_plots.html">Static Plotting Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/interactive_plots.html">Plot embedding (umap or tsne)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/interactive_plots.html#Plot-dot-heatmap">Plot dot heatmap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/interactive_plots.html#Plot-boxplot">Plot boxplot</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../modules.html">adataviz</a><input aria-label="Toggle navigation of adataviz" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../adataviz.html">adataviz package</a><input aria-label="Toggle navigation of adataviz package" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../adataviz.adata.html">adataviz.adata module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../adataviz.palettes.html">adataviz.palettes module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../adataviz.plotting.html">adataviz.plotting module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../adataviz.tools.html">adataviz.tools module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../adataviz.utils.html">adataviz.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../setup.html">setup module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../citation.html">Citation</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for adataviz.palettes</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pylab</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">cm</span><span class="p">,</span> <span class="n">colors</span> <span class="k">as</span> <span class="n">mcolors</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearSegmentedColormap</span><span class="p">,</span> <span class="n">rgb2hex</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># Colorblindness adjusted vega_10</span>
+<span class="c1"># See https://github.com/scverse/scanpy/issues/387</span>
+<span class="n">vega_10</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">mcolors</span><span class="o">.</span><span class="n">to_hex</span><span class="p">,</span> <span class="n">cm</span><span class="o">.</span><span class="n">tab10</span><span class="o">.</span><span class="n">colors</span><span class="p">))</span>
+<span class="n">vega_10_scanpy</span> <span class="o">=</span> <span class="n">vega_10</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">vega_10_scanpy</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;#279e68&quot;</span>  <span class="c1"># green</span>
+<span class="n">vega_10_scanpy</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;#aa40fc&quot;</span>  <span class="c1"># purple</span>
+<span class="n">vega_10_scanpy</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;#b5bd61&quot;</span>  <span class="c1"># kakhi</span>
+
+<span class="n">default_10</span> <span class="o">=</span> <span class="n">vega_10_scanpy</span>
+
+<span class="c1"># default matplotlib 2.0 palette</span>
+<span class="c1"># see &#39;category20&#39; on https://github.com/vega/vega/wiki/Scales#scale-range-literals</span>
+<span class="n">vega_20</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">mcolors</span><span class="o">.</span><span class="n">to_hex</span><span class="p">,</span> <span class="n">cm</span><span class="o">.</span><span class="n">tab20</span><span class="o">.</span><span class="n">colors</span><span class="p">))</span>
+
+<span class="c1"># reorderd, some removed, some added</span>
+<span class="n">vega_20_scanpy</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># dark without grey:</span>
+    <span class="o">*</span><span class="n">vega_20</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">14</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span>
+    <span class="o">*</span><span class="n">vega_20</span><span class="p">[</span><span class="mi">16</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span>
+    <span class="c1"># light without grey:</span>
+    <span class="o">*</span><span class="n">vega_20</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">15</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span>
+    <span class="o">*</span><span class="n">vega_20</span><span class="p">[</span><span class="mi">17</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span>
+    <span class="c1"># manual additions:</span>
+    <span class="s2">&quot;#ad494a&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#8c6d31&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">vega_20_scanpy</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">vega_10_scanpy</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">vega_20_scanpy</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">vega_10_scanpy</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+<span class="n">vega_20_scanpy</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="n">vega_10_scanpy</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>  <span class="c1"># kakhi shifted by missing grey</span>
+
+<span class="n">default_20</span> <span class="o">=</span> <span class="n">vega_20_scanpy</span>
+
+<span class="c1"># https://graphicdesign.stackexchange.com/questions/3682/where-can-i-find-a-large-palette-set-of-contrasting-colors-for-coloring-many-d</span>
+<span class="c1"># update 1</span>
+<span class="c1"># orig reference https://research.wu.ac.at/en/publications/escaping-rgbland-selecting-colors-for-statistical-graphics-26</span>
+<span class="n">zeileis_28</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;#023fa5&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#7d87b9&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#bec1d4&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#d6bcc0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#bb7784&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#8e063b&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#4a6fe3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#8595e1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#b5bbe3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#e6afb9&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#e07b91&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#d33f6a&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#11c638&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#8dd593&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#c6dec7&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#ead3c6&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#f0b98d&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#ef9708&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#0fcfc0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#9cded6&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#d5eae7&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#f3e1eb&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#f6c4e1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#f79cd4&quot;</span><span class="p">,</span>
+    <span class="c1"># these last ones were added:</span>
+    <span class="s2">&quot;#7f7f7f&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#c7c7c7&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#1CE6FF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#336600&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">default_28</span> <span class="o">=</span> <span class="n">zeileis_28</span>
+
+<span class="c1"># from https://godsnotwheregodsnot.blogspot.com/2012/09/color-distribution-methodology.html</span>
+<span class="n">godsnot_102</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># &quot;#000000&quot;,  # remove the black, as often, we have black colored annotation</span>
+    <span class="s2">&quot;#FFFF00&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#1CE6FF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#FF34FF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#FF4A46&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#008941&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#006FA6&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#A30059&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#FFDBE5&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#7A4900&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#0000A6&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#63FFAC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#B79762&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#004D43&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#8FB0FF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#997D87&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#5A0007&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#809693&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#6A3A4C&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#1B4400&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#4FC601&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#3B5DFF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#4A3B53&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#FF2F80&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#61615A&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#BA0900&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#6B7900&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#00C2A0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#FFAA92&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#FF90C9&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#B903AA&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#D16100&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#DDEFFF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#000035&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#7B4F4B&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#A1C299&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#300018&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#0AA6D8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#013349&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#00846F&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#372101&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#FFB500&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#C2FFED&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#A079BF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#CC0744&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#C0B9B2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#C2FF99&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#001E09&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#00489C&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#6F0062&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#0CBD66&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#EEC3FF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#456D75&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#B77B68&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#7A87A1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#788D66&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#885578&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#FAD09F&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#FF8A9A&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#D157A0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#BEC459&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#456648&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#0086ED&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#886F4C&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#34362D&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#B4A8BD&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#00A6AA&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#452C2C&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#636375&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#A3C8C9&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#FF913F&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#938A81&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#575329&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#00FECF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#B05B6F&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#8CD0FF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#3B9700&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#04F757&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#C8A1A1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#1E6E00&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#7900D7&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#A77500&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#6367A9&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#A05837&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#6B002C&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#772600&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#D790FF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#9B9700&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#549E79&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#FFF69F&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#201625&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#72418F&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#BC23FF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#99ADC0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#3A2465&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#922329&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#5B4534&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#FDE8DC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#404E55&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#0089A3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#CB7E98&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#A4E804&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;#324E72&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">default_102</span> <span class="o">=</span> <span class="n">godsnot_102</span>
+
+
+<div class="viewcode-block" id="create_spatial_colormap_viridis_style">
+<a class="viewcode-back" href="../../adataviz.palettes.html#adataviz.palettes.create_spatial_colormap_viridis_style">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_spatial_colormap_viridis_style</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a colormap similar to viridis but optimized for spatial transcriptomics.</span>
+<span class="sd">    Background (0 expression) is dark blue/purple, increasing to bright yellow.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_colors</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;#0d0887&quot;</span><span class="p">,</span>  <span class="c1"># Dark purple (0 expression)</span>
+        <span class="s2">&quot;#2d1c8a&quot;</span><span class="p">,</span>  <span class="c1"># Deep purple</span>
+        <span class="s2">&quot;#46327e&quot;</span><span class="p">,</span>  <span class="c1"># Purple-blue</span>
+        <span class="s2">&quot;#5d4970&quot;</span><span class="p">,</span>  <span class="c1"># Mid purple</span>
+        <span class="s2">&quot;#756261&quot;</span><span class="p">,</span>  <span class="c1"># Purple-brown</span>
+        <span class="s2">&quot;#8e7d54&quot;</span><span class="p">,</span>  <span class="c1"># Brown-yellow</span>
+        <span class="s2">&quot;#a89947&quot;</span><span class="p">,</span>  <span class="c1"># Yellow-green</span>
+        <span class="s2">&quot;#c4b73b&quot;</span><span class="p">,</span>  <span class="c1"># Yellow</span>
+        <span class="s2">&quot;#e0d63b&quot;</span><span class="p">,</span>  <span class="c1"># Bright yellow</span>
+        <span class="s2">&quot;#fde724&quot;</span><span class="p">,</span>  <span class="c1"># Bright yellow (high expression)</span>
+    <span class="p">]</span>
+    <span class="n">n_bins</span> <span class="o">=</span> <span class="mi">256</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span><span class="s2">&quot;spatial_viridis&quot;</span><span class="p">,</span> <span class="n">_colors</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">n_bins</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cmap</span></div>
+
+
+
+<div class="viewcode-block" id="create_spatial_colormap_plasma_style">
+<a class="viewcode-back" href="../../adataviz.palettes.html#adataviz.palettes.create_spatial_colormap_plasma_style">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_spatial_colormap_plasma_style</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a plasma-style colormap for spatial transcriptomics.</span>
+<span class="sd">    Background is dark blue, increasing through purple to orange-red.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_colors</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;#0d0887&quot;</span><span class="p">,</span>  <span class="c1"># Dark blue (0 expression)</span>
+        <span class="s2">&quot;#350498&quot;</span><span class="p">,</span>  <span class="c1"># Deep purple</span>
+        <span class="s2">&quot;#5302a3&quot;</span><span class="p">,</span>  <span class="c1"># Purple</span>
+        <span class="s2">&quot;#7000a8&quot;</span><span class="p">,</span>  <span class="c1"># Magenta-purple</span>
+        <span class="s2">&quot;#8b0aa5&quot;</span><span class="p">,</span>  <span class="c1"># Magenta</span>
+        <span class="s2">&quot;#a31e9a&quot;</span><span class="p">,</span>  <span class="c1"># Pink-magenta</span>
+        <span class="s2">&quot;#b93289&quot;</span><span class="p">,</span>  <span class="c1"># Pink</span>
+        <span class="s2">&quot;#cc4678&quot;</span><span class="p">,</span>  <span class="c1"># Light pink</span>
+        <span class="s2">&quot;#db5c68&quot;</span><span class="p">,</span>  <span class="c1"># Salmon</span>
+        <span class="s2">&quot;#e97158&quot;</span><span class="p">,</span>  <span class="c1"># Orange-red</span>
+        <span class="s2">&quot;#f48849&quot;</span><span class="p">,</span>  <span class="c1"># Orange</span>
+        <span class="s2">&quot;#fba238&quot;</span><span class="p">,</span>  <span class="c1"># Yellow-orange</span>
+        <span class="s2">&quot;#febd2a&quot;</span><span class="p">,</span>  <span class="c1"># Yellow</span>
+        <span class="s2">&quot;#f0f921&quot;</span><span class="p">,</span>  <span class="c1"># Bright yellow (high expression)</span>
+    <span class="p">]</span>
+    <span class="n">n_bins</span> <span class="o">=</span> <span class="mi">256</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span><span class="s2">&quot;spatial_plasma&quot;</span><span class="p">,</span> <span class="n">_colors</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">n_bins</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cmap</span></div>
+
+
+
+<div class="viewcode-block" id="create_spatial_colormap_fluorescence">
+<a class="viewcode-back" href="../../adataviz.palettes.html#adataviz.palettes.create_spatial_colormap_fluorescence">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_spatial_colormap_fluorescence</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a fluorescence microscopy-style colormap.</span>
+<span class="sd">    Background is black, increasing through blue to cyan to white.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_colors</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;#000000&quot;</span><span class="p">,</span>  <span class="c1"># Black (0 expression)</span>
+        <span class="s2">&quot;#001122&quot;</span><span class="p">,</span>  <span class="c1"># Very dark blue</span>
+        <span class="s2">&quot;#002244&quot;</span><span class="p">,</span>  <span class="c1"># Dark blue</span>
+        <span class="s2">&quot;#003366&quot;</span><span class="p">,</span>  <span class="c1"># Deep blue</span>
+        <span class="s2">&quot;#004488&quot;</span><span class="p">,</span>  <span class="c1"># Blue</span>
+        <span class="s2">&quot;#0055aa&quot;</span><span class="p">,</span>  <span class="c1"># Bright blue</span>
+        <span class="s2">&quot;#0066cc&quot;</span><span class="p">,</span>  <span class="c1"># Cyan-blue</span>
+        <span class="s2">&quot;#0088ee&quot;</span><span class="p">,</span>  <span class="c1"># Light blue</span>
+        <span class="s2">&quot;#00aaff&quot;</span><span class="p">,</span>  <span class="c1"># Cyan</span>
+        <span class="s2">&quot;#44ccff&quot;</span><span class="p">,</span>  <span class="c1"># Light cyan</span>
+        <span class="s2">&quot;#88ddff&quot;</span><span class="p">,</span>  <span class="c1"># Very light cyan</span>
+        <span class="s2">&quot;#cceeff&quot;</span><span class="p">,</span>  <span class="c1"># Almost white cyan</span>
+        <span class="s2">&quot;#ffffff&quot;</span><span class="p">,</span>  <span class="c1"># White (high expression)</span>
+    <span class="p">]</span>
+    <span class="n">n_bins</span> <span class="o">=</span> <span class="mi">256</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span><span class="s2">&quot;spatial_fluor&quot;</span><span class="p">,</span> <span class="n">_colors</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">n_bins</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cmap</span></div>
+
+
+
+<div class="viewcode-block" id="create_spatial_colormap_hot">
+<a class="viewcode-back" href="../../adataviz.palettes.html#adataviz.palettes.create_spatial_colormap_hot">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_spatial_colormap_hot</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a hot colormap with dark gray background.</span>
+<span class="sd">    Background is dark gray, increasing through red to yellow to white.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_colors</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;#2a2a2a&quot;</span><span class="p">,</span>  <span class="c1"># Dark gray (0 expression)</span>
+        <span class="s2">&quot;#440000&quot;</span><span class="p">,</span>  <span class="c1"># Very dark red</span>
+        <span class="s2">&quot;#660000&quot;</span><span class="p">,</span>  <span class="c1"># Dark red</span>
+        <span class="s2">&quot;#880000&quot;</span><span class="p">,</span>  <span class="c1"># Red</span>
+        <span class="s2">&quot;#aa0000&quot;</span><span class="p">,</span>  <span class="c1"># Bright red</span>
+        <span class="s2">&quot;#cc2200&quot;</span><span class="p">,</span>  <span class="c1"># Red-orange</span>
+        <span class="s2">&quot;#ee4400&quot;</span><span class="p">,</span>  <span class="c1"># Orange</span>
+        <span class="s2">&quot;#ff6600&quot;</span><span class="p">,</span>  <span class="c1"># Bright orange</span>
+        <span class="s2">&quot;#ff8800&quot;</span><span class="p">,</span>  <span class="c1"># Yellow-orange</span>
+        <span class="s2">&quot;#ffaa00&quot;</span><span class="p">,</span>  <span class="c1"># Yellow</span>
+        <span class="s2">&quot;#ffcc00&quot;</span><span class="p">,</span>  <span class="c1"># Bright yellow</span>
+        <span class="s2">&quot;#ffee44&quot;</span><span class="p">,</span>  <span class="c1"># Light yellow</span>
+        <span class="s2">&quot;#ffffff&quot;</span><span class="p">,</span>  <span class="c1"># White (high expression)</span>
+    <span class="p">]</span>
+    <span class="n">n_bins</span> <span class="o">=</span> <span class="mi">256</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span><span class="s2">&quot;spatial_hot&quot;</span><span class="p">,</span> <span class="n">_colors</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">n_bins</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cmap</span></div>
+
+
+
+<div class="viewcode-block" id="get_cmap">
+<a class="viewcode-back" href="../../adataviz.palettes.html#adataviz.palettes.get_cmap">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_cmap</span><span class="p">(</span><span class="n">cmap</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a matplotlib colormap by name, compatible with different versions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cmap : str</span>
+<span class="sd">        Name of the colormap. Supports all standard matplotlib names</span>
+<span class="sd">        (&quot;viridis&quot;, &quot;turbo&quot;, etc.) and custom registered colormaps</span>
+<span class="sd">        (&quot;parula&quot;, &quot;exp1&quot;, &quot;exp2&quot;, &quot;meth1&quot;, &quot;meth2&quot;).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.colors.Colormap</span>
+<span class="sd">        The requested colormap object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">plt</span><span class="o">.</span><span class="n">colormaps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cmap</span><span class="p">)</span>  <span class="c1"># matplotlib &gt;= 3.5.1?</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">cmap</span><span class="p">)</span>  <span class="c1"># matplotlib &lt;=3.4.3?</span></div>
+
+
+
+<div class="viewcode-block" id="level_one_palette">
+<a class="viewcode-back" href="../../adataviz.palettes.html#adataviz.palettes.level_one_palette">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">level_one_palette</span><span class="p">(</span><span class="n">name_list</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a color palette mapping for categorical names.</span>
+
+<span class="sd">    Assigns a unique color to each unique value in ``name_list``</span>
+<span class="sd">    using the specified palette.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name_list : array-like</span>
+<span class="sd">        Series or list of category names (may contain duplicates/NaN).</span>
+<span class="sd">    order : list, optional</span>
+<span class="sd">        Desired order of categories. If None, categories are sorted</span>
+<span class="sd">        alphabetically.</span>
+<span class="sd">    palette : str or list, default &quot;auto&quot;</span>
+<span class="sd">        Color palette to use. &quot;auto&quot; selects tab10/tab20/rainbow</span>
+<span class="sd">        based on the number of unique categories. Can also be any</span>
+<span class="sd">        seaborn/matplotlib palette name or a list of colors.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Mapping of category names to RGB color tuples.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``order`` doesn&#39;t match the unique values in ``name_list``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">name_list</span><span class="o">.</span><span class="n">dropna</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">palette</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">name_set</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">palette</span> <span class="o">=</span> <span class="s2">&quot;tab10&quot;</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">name_set</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">:</span>
+            <span class="n">palette</span> <span class="o">=</span> <span class="s2">&quot;tab20&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">palette</span> <span class="o">=</span> <span class="s2">&quot;rainbow&quot;</span>
+
+    <span class="k">if</span> <span class="n">order</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">name_set</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="c1"># name set contains multiple dtype (e.g., str and np.NaN)</span>
+            <span class="c1"># do not sort</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">name_set</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">order</span><span class="p">)</span> <span class="o">!=</span> <span class="n">name_set</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">name_set</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Order is not equal to set(name_list).&quot;</span><span class="p">)</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
+    <span class="n">_colors</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="n">palette</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="n">color_palette</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">_colors</span><span class="p">):</span>
+        <span class="n">color_palette</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">color</span>
+    <span class="k">return</span> <span class="n">color_palette</span></div>
+
+
+
+<div class="viewcode-block" id="add_color_scheme">
+<a class="viewcode-back" href="../../adataviz.palettes.html#adataviz.palettes.add_color_scheme">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_color_scheme</span><span class="p">(</span>
+    <span class="n">adata</span><span class="p">,</span>
+    <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">palette_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">palette</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">na_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;#CCCCCC&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add a color palette to AnnData.uns based on an existing categorical column.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    adata : AnnData</span>
+<span class="sd">        Annotated data object</span>
+<span class="sd">    column : str</span>
+<span class="sd">        Name of the column in adata.obs to create colors for</span>
+<span class="sd">    palette_key : str, optional</span>
+<span class="sd">        Key name for the palette in adata.uns. If None, uses f&quot;{column}_colors&quot;</span>
+<span class="sd">    palette : str, list, or dict, optional</span>
+<span class="sd">        Color palette to use. Can be:</span>
+<span class="sd">        - matplotlib/seaborn palette name (e.g., &#39;tab10&#39;, &#39;Set1&#39;, &#39;viridis&#39;)</span>
+<span class="sd">        - list of hex colors</span>
+<span class="sd">        - dict mapping category values to hex colors</span>
+<span class="sd">        - None (uses default palettes sized to the number of categories)</span>
+<span class="sd">    na_color : str, default &#39;#CCCCCC&#39;</span>
+<span class="sd">        Color to use for NaN/missing values and for categories not found in a</span>
+<span class="sd">        dict palette</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict or str</span>
+<span class="sd">        For categorical data: dict mapping category → hex color, including</span>
+<span class="sd">        NaN → na_color if missing values are present.</span>
+<span class="sd">        For continuous data: the colormap name or palette passed in.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; add_color_scheme(adata, &#39;cell_type&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; add_color_scheme(adata, &#39;cluster&#39;, palette=&#39;Set1&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; add_color_scheme(adata, &#39;condition&#39;, palette={&#39;A&#39;: &#39;#FF0000&#39;, &#39;B&#39;: &#39;#0000FF&#39;})</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Column &#39;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&#39; not found in adata.obs&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">palette_key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">palette_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">_colors&quot;</span>
+
+    <span class="k">if</span> <span class="n">adata</span><span class="o">.</span><span class="n">uns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">adata</span><span class="o">.</span><span class="n">uns</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">has_na</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_object_dtype</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">StringDtype</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">):</span>
+            <span class="n">unique_vals</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">categories</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">unique_vals</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+        <span class="n">n_categories</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_vals</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">palette</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">color_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">cat</span><span class="p">:</span> <span class="n">palette</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cat</span><span class="p">,</span> <span class="n">na_color</span><span class="p">)</span> <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">unique_vals</span><span class="p">}</span>
+            <span class="k">if</span> <span class="n">has_na</span><span class="p">:</span>
+                <span class="n">color_map</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">]</span> <span class="o">=</span> <span class="n">na_color</span>
+            <span class="n">adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="n">palette_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">color_map</span><span class="p">[</span><span class="n">cat</span><span class="p">]</span> <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">unique_vals</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">color_map</span>
+
+        <span class="k">if</span> <span class="n">palette</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">n_categories</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="p">:</span>
+                <span class="n">palette</span> <span class="o">=</span> <span class="n">default_10</span>
+            <span class="k">elif</span> <span class="n">n_categories</span> <span class="o">&lt;=</span> <span class="mi">20</span><span class="p">:</span>
+                <span class="n">palette</span> <span class="o">=</span> <span class="n">default_20</span>
+            <span class="k">elif</span> <span class="n">n_categories</span> <span class="o">&lt;=</span> <span class="mi">28</span><span class="p">:</span>
+                <span class="n">palette</span> <span class="o">=</span> <span class="n">default_28</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">palette</span> <span class="o">=</span> <span class="n">default_102</span>
+            <span class="n">_colors</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="n">palette</span><span class="p">,</span> <span class="n">n_categories</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">palette</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">_colors</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="n">palette</span><span class="p">,</span> <span class="n">n_categories</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">palette</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">palette</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n_categories</span><span class="p">:</span>
+                <span class="n">_colors</span> <span class="o">=</span> <span class="p">(</span><span class="n">palette</span> <span class="o">*</span> <span class="p">((</span><span class="n">n_categories</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">palette</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))[</span>
+                    <span class="p">:</span><span class="n">n_categories</span>
+                <span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_colors</span> <span class="o">=</span> <span class="n">palette</span><span class="p">[:</span><span class="n">n_categories</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;palette must be a string, list, or dict of colors&quot;</span><span class="p">)</span>
+
+        <span class="n">hex_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">rgb2hex</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">_colors</span><span class="p">]</span>
+        <span class="n">adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="n">palette_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">hex_colors</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">unique_vals</span><span class="p">,</span> <span class="n">hex_colors</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">has_na</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">]</span> <span class="o">=</span> <span class="n">na_color</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">palette</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">palette</span> <span class="o">=</span> <span class="s2">&quot;viridis&quot;</span>
+        <span class="n">adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="n">palette_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">palette</span>
+        <span class="k">return</span> <span class="n">palette</span></div>
+
+
+
+<div class="viewcode-block" id="add_colors">
+<a class="viewcode-back" href="../../adataviz.palettes.html#adataviz.palettes.add_colors">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_colors</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">cat_col</span><span class="p">,</span> <span class="n">palette</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assign colors to AnnData categorical column in ``uns``.</span>
+
+<span class="sd">    Maps each category in ``adata.obs[cat_col]`` to a color from</span>
+<span class="sd">    ``palette`` and stores the list in ``adata.uns[f&quot;{cat_col}_colors&quot;]``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    adata : anndata.AnnData</span>
+<span class="sd">        AnnData object with a categorical column in ``.obs``.</span>
+<span class="sd">    cat_col : str</span>
+<span class="sd">        Name of the categorical column in ``adata.obs``.</span>
+<span class="sd">    palette : dict or pd.DataFrame</span>
+<span class="sd">        Color mapping. If dict, maps category names to hex colors.</span>
+<span class="sd">        If DataFrame, must have a &quot;Hex&quot; column with category names</span>
+<span class="sd">        as index.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_colors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_cat</span> <span class="ow">in</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">cat_col</span><span class="p">]</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">categories</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">palette</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="n">palette</span><span class="p">[</span><span class="n">_cat</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="n">palette</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">_cat</span><span class="p">,</span> <span class="s2">&quot;Hex&quot;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">_cat</span><span class="p">)</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#808080&quot;</span>
+        <span class="n">_colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+
+    <span class="n">adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cat_col</span><span class="si">}</span><span class="s2">_colors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_colors</span></div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, Wubin Ding
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/DingWB/adataviz" aria-label="GitHub"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg></a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../_static/documentation_options.js?v=8a448e45"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../../_static/js/rtd_search_config.js"></script>
+    <script src="../../_static/js/rtd_sphinx_search.min.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/custom.js?v=6945d1e9"></script>
+    </body>
+</html>

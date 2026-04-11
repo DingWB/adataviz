@@ -1,0 +1,794 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="adataviz.utils module" href="adataviz.utils.html"><link rel="prev" title="adataviz.plotting module" href="adataviz.plotting.html">
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
+        <title>adataviz.tools module - adataviz documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/css/rtd_sphinx_search.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3ec9162d" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  --color-brand-primary: #5B63D3;
+  --color-brand-content: #5B63D3;
+  --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-stack--monospace: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  --font-stack--headings: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #8B93FF;
+  --color-brand-content: #8B93FF;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #8B93FF;
+  --color-brand-content: #8B93FF;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>Documentation website</em> is online! 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">adataviz  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <span class="sidebar-brand-text">adataviz  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="plot.html">Plotting (adataviz.pl)</a><input aria-label="Toggle navigation of Plotting (adataviz.pl)" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/static_plots.html">Static Plotting Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/interactive_plots.html">Plot embedding (umap or tsne)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/interactive_plots.html#Plot-dot-heatmap">Plot dot heatmap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/interactive_plots.html#Plot-boxplot">Plot boxplot</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">adataviz</a><input aria-label="Toggle navigation of adataviz" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="adataviz.html">adataviz package</a><input aria-label="Toggle navigation of adataviz package" checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="adataviz.adata.html">adataviz.adata module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="adataviz.palettes.html">adataviz.palettes module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="adataviz.plotting.html">adataviz.plotting module</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">adataviz.tools module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="adataviz.utils.html">adataviz.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="setup.html">setup module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="https://github.com/DingWB/adataviz/blob/main/docs/source/adataviz.tools.rst?plain=true" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/DingWB/adataviz/edit/main/docs/source/adataviz.tools.rst" rel="edit" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="module-adataviz.tools">
+<span id="adataviz-tools-module"></span><h1>adataviz.tools module<a class="headerlink" href="#module-adataviz.tools" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.cal_stats">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">cal_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RNA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expression_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_per_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_norm_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sum_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#cal_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.cal_stats" title="Link to this definition">¶</a></dt>
+<dd><p>Compute per-gene summary statistics for a subset of cells.</p>
+<p>Loads the cells identified by <em>obs1</em> from a backed <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file and
+computes column-wise (per-gene) statistics including percentiles, sum,
+standard deviation, and the fraction of cells expressing each gene.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata_path</strong> (<em>str</em>) – Path to the <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file.</p></li>
+<li><p><strong>obs1</strong> (<em>pandas.DataFrame</em>) – Subset of cell metadata whose index selects the cells to use.</p></li>
+<li><p><strong>modality</strong> (<em>str</em><em>, </em><em>optional</em>) – Data modality (<code class="docutils literal notranslate"><span class="pre">'RNA'</span></code>, <code class="docutils literal notranslate"><span class="pre">'ATAC'</span></code>, or methylation).
+Default is <code class="docutils literal notranslate"><span class="pre">'RNA'</span></code>.</p></li>
+<li><p><strong>expression_cutoff</strong> (<em>float</em><em>, </em><em>optional</em>) – Threshold above which a gene is considered expressed (for RNA/ATAC).
+Default is <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p></li>
+<li><p><strong>use_raw</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use <code class="docutils literal notranslate"><span class="pre">adata.raw</span></code> for the expression matrix.
+Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>normalize_per_cell</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to normalise methylation per cell. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>clip_norm_value</strong> (<em>float</em><em>, </em><em>optional</em>) – Clipping value for per-cell normalisation. Default is <code class="docutils literal notranslate"><span class="pre">10</span></code>.</p></li>
+<li><p><strong>sum_only</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, return only sums and fractions (faster for pseudobulk
+creation). Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>If <code class="docutils literal notranslate"><span class="pre">sum_only=True</span></code>: <code class="docutils literal notranslate"><span class="pre">(sums,</span> <span class="pre">frac,</span> <span class="pre">gene_names)</span></code>.
+Otherwise: <code class="docutils literal notranslate"><span class="pre">(qs,</span> <span class="pre">sums,</span> <span class="pre">std,</span> <span class="pre">frac,</span> <span class="pre">gene_names)</span></code> where <em>qs</em> is a
+<code class="docutils literal notranslate"><span class="pre">(5,</span> <span class="pre">n_genes)</span></code> array of <code class="docutils literal notranslate"><span class="pre">[min,</span> <span class="pre">q25,</span> <span class="pre">q50,</span> <span class="pre">q75,</span> <span class="pre">max]</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.cal_tpm">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">cal_tpm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_sum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_fillna</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#cal_tpm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.cal_tpm" title="Link to this definition">¶</a></dt>
+<dd><p>Normalise an AnnData object to Transcripts Per Million (TPM).</p>
+<p>Requires <code class="docutils literal notranslate"><span class="pre">adata.var['length']</span></code> to contain gene lengths. The result
+is stored as <code class="docutils literal notranslate"><span class="pre">log1p(TPM)</span></code> in <code class="docutils literal notranslate"><span class="pre">adata.X</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>AnnData</em>) – Annotated data matrix with raw counts in <code class="docutils literal notranslate"><span class="pre">.X</span></code> and a <code class="docutils literal notranslate"><span class="pre">'length'</span></code>
+column in <code class="docutils literal notranslate"><span class="pre">.var</span></code>.</p></li>
+<li><p><strong>target_sum</strong> (<em>float</em><em>, </em><em>optional</em>) – Target total per cell after scaling. Default is <code class="docutils literal notranslate"><span class="pre">1e6</span></code>.</p></li>
+<li><p><strong>length_fillna</strong> (<em>int</em><em>, </em><em>optional</em>) – Fill value for missing gene lengths. Default is <code class="docutils literal notranslate"><span class="pre">1000</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The same object with <code class="docutils literal notranslate"><span class="pre">adata.X</span></code> replaced by <code class="docutils literal notranslate"><span class="pre">log1p(TPM)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>AnnData</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.composition">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">composition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratify_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">composition_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Region'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#composition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.composition" title="Link to this definition">¶</a></dt>
+<dd><p>Compute and export cell-type composition across groups to Excel.</p>
+<p>For each stratum (e.g. donor), calculates the proportion of each
+<em>composition_col</em> category within each <em>groupby</em> group and writes a
+colour-formatted Excel workbook with conditional formatting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obs</strong> (<em>str</em><em> or </em><em>DataFrame</em>) – Cell metadata.</p></li>
+<li><p><strong>groupby</strong> (<em>str</em>) – Column defining the primary grouping (rows in the output).</p></li>
+<li><p><strong>stratify_col</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Column to stratify by (e.g. donor). Each stratum produces a
+separate sheet. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, only an <code class="docutils literal notranslate"><span class="pre">'All'</span></code> sheet is written.</p></li>
+<li><p><strong>composition_col</strong> (<em>str</em><em>, </em><em>optional</em>) – Column whose value distribution is computed within each group.
+Default is <code class="docutils literal notranslate"><span class="pre">'Region'</span></code>.</p></li>
+<li><p><strong>outname</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Output Excel file name. Defaults to
+<code class="docutils literal notranslate"><span class="pre">'{composition_col}_composition.xlsx'</span></code>.</p></li>
+<li><p><strong>parent_col</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Higher-level grouping column for hierarchical row annotation.</p></li>
+<li><p><strong>sort_cols</strong> (<em>list</em><em> of </em><em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Columns to sort <em>obs</em> by before computing order.</p></li>
+<li><p><strong>adata</strong> (<em>AnnData</em><em> or </em><em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Used to look up colours from <code class="docutils literal notranslate"><span class="pre">adata.uns</span></code> if <em>color_palette</em>
+is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>color_palette</strong> (<em>str</em><em>, </em><em>dict</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Colour palette (path to Excel or dict). If <code class="docutils literal notranslate"><span class="pre">None</span></code> and <em>adata</em>
+is provided, colours are extracted from <code class="docutils literal notranslate"><span class="pre">adata.uns</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.downsample_adata">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">downsample_adata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Group'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Group.downsample_1500.h5ad'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">downsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1500</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#downsample_adata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.downsample_adata" title="Link to this definition">¶</a></dt>
+<dd><p>Downsample an AnnData to at most <em>downsample</em> cells per group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata_path</strong> (<em>str</em>) – Path to the source <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file.</p></li>
+<li><p><strong>groupby</strong> (<em>str</em><em>, </em><em>optional</em>) – Column defining groups. Default is <code class="docutils literal notranslate"><span class="pre">'Group'</span></code>.</p></li>
+<li><p><strong>obs_path</strong> (<em>str</em><em>, </em><em>DataFrame</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Cell metadata override. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code>.</p></li>
+<li><p><strong>outfile</strong> (<em>str</em><em>, </em><em>optional</em>) – Path for the downsampled <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> output.
+Default is <code class="docutils literal notranslate"><span class="pre">'Group.downsample_1500.h5ad'</span></code>.</p></li>
+<li><p><strong>downsample</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum cells per group. Default is <code class="docutils literal notranslate"><span class="pre">1500</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.export_pseudobulk_adata">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">export_pseudobulk_adata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pseudobulk.bed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#export_pseudobulk_adata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.export_pseudobulk_adata" title="Link to this definition">¶</a></dt>
+<dd><p>Export pseudobulk adata to bed</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.get_color_palette">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">get_color_palette</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Group'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#get_color_palette"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.get_color_palette" title="Link to this definition">¶</a></dt>
+<dd><p>Extract colour palettes from <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code> and save to an Excel file.</p>
+<p>Looks for columns named <code class="docutils literal notranslate"><span class="pre">color_hex_{level}</span></code> for each of
+<code class="docutils literal notranslate"><span class="pre">['Neighborhood',</span> <span class="pre">'Class',</span> <span class="pre">'Subclass',</span> <span class="pre">'Group']</span></code> and writes a
+<code class="docutils literal notranslate"><span class="pre">color_palette.xlsx</span></code> file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>AnnData</em><em> or </em><em>str</em>) – Annotated data matrix or path to an <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file.</p></li>
+<li><p><strong>groupby</strong> (<em>str</em><em>, </em><em>optional</em>) – Unused (reserved). Default is <code class="docutils literal notranslate"><span class="pre">'Group'</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.get_markers">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">get_markers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gtf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'markers'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">downsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#get_markers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.get_markers" title="Link to this definition">¶</a></dt>
+<dd><p>Identify marker genes at multiple hierarchical levels.</p>
+<p>Iterates over <em>levels</em> (e.g. <code class="docutils literal notranslate"><span class="pre">['Class',</span> <span class="pre">'Subclass',</span> <span class="pre">'Group']</span></code>),
+running Wilcoxon differential expression within each parent group,
+and saves an <code class="docutils literal notranslate"><span class="pre">markers.xlsx</span></code> summary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata_path</strong> (<em>str</em>) – Path to the <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file.</p></li>
+<li><p><strong>levels</strong> (<em>list</em><em> of </em><em>str</em>) – Hierarchical annotation levels from coarsest to finest.</p></li>
+<li><p><strong>gtf</strong> (<em>str</em>) – Path to a GTF file for gene name filtering.</p></li>
+<li><p><strong>obs</strong> (<em>str</em><em>, </em><em>DataFrame</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Cell metadata. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code>.</p></li>
+<li><p><strong>outdir</strong> (<em>str</em><em>, </em><em>optional</em>) – Directory for output files. Default is <code class="docutils literal notranslate"><span class="pre">'markers'</span></code>.</p></li>
+<li><p><strong>topn</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of top markers per cluster per level. Default is <code class="docutils literal notranslate"><span class="pre">20</span></code>.</p></li>
+<li><p><strong>downsample</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum cells per cluster for the test. Default is <code class="docutils literal notranslate"><span class="pre">2000</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.get_markers_worker">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">get_markers_worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_gene</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">downsample</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#get_markers_worker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.get_markers_worker" title="Link to this definition">¶</a></dt>
+<dd><p>Run differential expression for one group and return top markers.</p>
+<p>Uses Wilcoxon rank-sum test via scanpy to identify marker genes for
+each cluster at the given <em>level</em>. Results are cached to a TSV file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata1</strong> (<em>AnnData</em>) – Subset of the annotated data matrix (in memory).</p></li>
+<li><p><strong>obs</strong> (<em>DataFrame</em><em> or </em><em>None</em>) – Cell metadata to assign to <code class="docutils literal notranslate"><span class="pre">adata1.obs</span></code>. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses
+existing obs.</p></li>
+<li><p><strong>level</strong> (<em>str</em>) – Column in <em>obs</em> defining clusters for differential expression.</p></li>
+<li><p><strong>df_gene</strong> (<em>DataFrame</em>) – Gene annotation table with a <code class="docutils literal notranslate"><span class="pre">'gene_name'</span></code> column used to
+filter marker genes.</p></li>
+<li><p><strong>key</strong> (<em>str</em>) – Key name for <code class="docutils literal notranslate"><span class="pre">sc.tl.rank_genes_groups</span></code> and the output TSV file.</p></li>
+<li><p><strong>outdir</strong> (<em>str</em>) – Directory to save/load cached marker results.</p></li>
+<li><p><strong>topn</strong> (<em>int</em>) – Number of top marker genes to return per cluster.</p></li>
+<li><p><strong>downsample</strong> (<em>int</em>) – Maximum cells per cluster before running the test.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">{cluster_name:</span> <span class="pre">[gene1,</span> <span class="pre">gene2,</span> <span class="pre">...]}</span></code> with up to <em>topn</em> markers.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.get_obs">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">get_obs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_coord</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usecols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cell'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#get_obs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.get_obs" title="Link to this definition">¶</a></dt>
+<dd><p>Extract <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code> and optionally append embedding coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata_path</strong> (<em>str</em>) – Path to an <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file.</p></li>
+<li><p><strong>add_coord</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to append UMAP and/or t-SNE coordinates from
+<code class="docutils literal notranslate"><span class="pre">adata.obsm</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>usecols</strong> (<em>list</em><em> of </em><em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Subset of columns to keep. <code class="docutils literal notranslate"><span class="pre">None</span></code> keeps all.</p></li>
+<li><p><strong>index_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name assigned to the index column. Default is <code class="docutils literal notranslate"><span class="pre">'cell'</span></code>.</p></li>
+<li><p><strong>outfile</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Path to save the result as a TSV file. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the
+DataFrame is returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The obs DataFrame (reset index) or the <em>outfile</em> path.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame or str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.load_adata">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">load_adata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#load_adata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.load_adata" title="Link to this definition">¶</a></dt>
+<dd><p>Load an AnnData object from a file path or pass through an existing one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>AnnData</em><em> or </em><em>str</em>) – An existing AnnData object or a path to an <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file.</p></li>
+<li><p><strong>backed</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Backing mode for <code class="docutils literal notranslate"><span class="pre">anndata.read_h5ad()</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">'r'</span></code>
+(read-only backed mode).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>AnnData</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.load_color_palette">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">load_color_palette</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#load_color_palette"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.load_color_palette" title="Link to this definition">¶</a></dt>
+<dd><p>Load a colour palette from an Excel file or from <code class="docutils literal notranslate"><span class="pre">adata.uns</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>palette</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Path to an Excel file where each sheet is named after a grouping
+column and contains a <code class="docutils literal notranslate"><span class="pre">'Hex'</span></code> column with colour codes.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, colours are extracted from <code class="docutils literal notranslate"><span class="pre">adata.uns</span></code>.</p></li>
+<li><p><strong>adata</strong> (<em>AnnData</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Annotated data matrix used to look up colours in <code class="docutils literal notranslate"><span class="pre">adata.uns</span></code>
+when <em>palette</em> is not provided.</p></li>
+<li><p><strong>groups</strong> (<em>str</em><em> or </em><em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Grouping column name(s) to extract colours for.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>If a single group is given, returns <code class="docutils literal notranslate"><span class="pre">{category:</span> <span class="pre">hex_color}</span></code>.
+If multiple groups, returns <code class="docutils literal notranslate"><span class="pre">{group_col:</span> <span class="pre">{category:</span> <span class="pre">hex_color}}</span></code>.
+Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if no colours are found.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.load_obs">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">load_obs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#load_obs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.load_obs" title="Link to this definition">¶</a></dt>
+<dd><p>Load cell metadata from various sources.</p>
+<p>Accepts a file path (TSV, CSV, or <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code>) or a DataFrame. For
+<code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> files, reads <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code> in backed mode and closes the
+file handle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obs</strong> (<em>str</em><em> or </em><em>DataFrame</em>) – Path to a metadata file or an existing DataFrame.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A copy of the cell metadata.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.merge_adata_regions">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">merge_adata_regions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pseudobulk_adata_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_chroms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_chroms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['chrY',</span> <span class="pre">'chrM',</span> <span class="pre">'chrX']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#merge_adata_regions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.merge_adata_regions" title="Link to this definition">¶</a></dt>
+<dd><p>Aggregrate 5kb RNA or ATAC adata into 100kb (25kb, or 10kb)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pseudobulk_adata_path</strong> (<em>path</em>)</p></li>
+<li><p><strong>bin_size</strong> (<em>int</em>)</p></li>
+<li><p><strong>use_raw</strong></p></li>
+<li><p><strong>res</strong> (<em>int</em>) – 100000</p></li>
+<li><p><strong>filter_chroms</strong> (<em>bool</em>) – True</p></li>
+<li><p><strong>Returns</strong> – A dataframe</p></li>
+<li><p><strong>-------</strong></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.normalize_adata">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">normalize_adata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_top_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pcs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_cells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CPM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gtf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flanking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_sum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#normalize_adata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.normalize_adata" title="Link to this definition">¶</a></dt>
+<dd><p>Normalise an AnnData and optionally compute embeddings.</p>
+<p>Performs gene filtering, CPM or TPM normalisation, and optionally
+highly-variable-gene selection, PCA, Harmony batch correction,
+neighbour graph, Leiden clustering, and UMAP.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>AnnData</em><em> or </em><em>str</em>) – Annotated data matrix or path to an <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file.</p></li>
+<li><p><strong>embedding</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to compute PCA, neighbours, Leiden, and UMAP.
+Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>outfile</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Path to save the processed <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code>. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the AnnData
+object is returned.</p></li>
+<li><p><strong>n_top_features</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of highly variable genes to select. Default is <code class="docutils literal notranslate"><span class="pre">5000</span></code>.</p></li>
+<li><p><strong>n_pcs</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of principal components. Default is <code class="docutils literal notranslate"><span class="pre">50</span></code>.</p></li>
+<li><p><strong>min_cells</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimum number of cells a gene must be expressed in.
+Default is <code class="docutils literal notranslate"><span class="pre">5</span></code>.</p></li>
+<li><p><strong>batch_col</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Column in <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code> for Harmony batch correction.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no batch correction is performed.</p></li>
+<li><p><strong>normalization</strong> (<em>str</em><em>, </em><em>optional</em>) – Normalisation method: <code class="docutils literal notranslate"><span class="pre">'CPM'</span></code> or <code class="docutils literal notranslate"><span class="pre">'TPM'</span></code>. Default is
+<code class="docutils literal notranslate"><span class="pre">'CPM'</span></code>.</p></li>
+<li><p><strong>gtf</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Path to a GTF file (required for TPM).</p></li>
+<li><p><strong>flanking</strong> (<em>int</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Base pairs added to gene body for TPM length calculation.</p></li>
+<li><p><strong>target_sum</strong> (<em>float</em><em>, </em><em>optional</em>) – Target total per cell for scaling. Default is <code class="docutils literal notranslate"><span class="pre">1e4</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Normalised AnnData if <code class="docutils literal notranslate"><span class="pre">outfile</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>AnnData or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.prepare_color_palette">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">prepare_color_palette</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'palette.xlsx'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#prepare_color_palette"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.prepare_color_palette" title="Link to this definition">¶</a></dt>
+<dd><p>Generating a .xlsx file including all color palette.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>colors</strong> (<em>dict</em>) – A dict of dict, keys are categorical terms, values are HEX color code</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.scrna2pseudobulk">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">scrna2pseudobulk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">downsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Group'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_sum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gtf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#scrna2pseudobulk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.scrna2pseudobulk" title="Link to this definition">¶</a></dt>
+<dd><p>Aggregate single-cell RNA data into pseudobulk profiles per group.</p>
+<p>For each unique value in <em>groupby</em>, sums raw counts across cells
+(optionally downsampled), then optionally normalises to CPM or TPM.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata_path</strong> (<em>str</em>) – Path to the <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file.</p></li>
+<li><p><strong>downsample</strong> (<em>int</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Maximum number of cells per group to use. <code class="docutils literal notranslate"><span class="pre">None</span></code> disables
+downsampling. Default is <code class="docutils literal notranslate"><span class="pre">2000</span></code>.</p></li>
+<li><p><strong>obs_path</strong> (<em>str</em><em>, </em><em>DataFrame</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Cell metadata. Path to a TSV file or a DataFrame. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+uses <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code>.</p></li>
+<li><p><strong>groupby</strong> (<em>str</em><em>, </em><em>optional</em>) – Column defining groups. Default is <code class="docutils literal notranslate"><span class="pre">'Group'</span></code>.</p></li>
+<li><p><strong>use_raw</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use raw counts. Must be <code class="docutils literal notranslate"><span class="pre">True</span></code> for normalisation.
+Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>n_jobs</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel workers. <code class="docutils literal notranslate"><span class="pre">-1</span></code> uses all CPUs. Default is <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p></li>
+<li><p><strong>normalization</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Normalisation method: <code class="docutils literal notranslate"><span class="pre">'CPM'</span></code> or <code class="docutils literal notranslate"><span class="pre">'TPM'</span></code>. <code class="docutils literal notranslate"><span class="pre">None</span></code> keeps raw
+sums. Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>target_sum</strong> (<em>float</em><em>, </em><em>optional</em>) – Target total for CPM/TPM scaling. Default is <code class="docutils literal notranslate"><span class="pre">1e6</span></code>.</p></li>
+<li><p><strong>gtf</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Path to a GTF file (required for TPM normalisation).</p></li>
+<li><p><strong>save</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Path to save the resulting <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code>. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the AnnData
+object is returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Pseudobulk AnnData if <code class="docutils literal notranslate"><span class="pre">save</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>AnnData or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.stat_pseudobulk">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">stat_pseudobulk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">downsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Group'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expression_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RNA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_per_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_norm_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#stat_pseudobulk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.stat_pseudobulk" title="Link to this definition">¶</a></dt>
+<dd><p>Compute pseudobulk summary statistics (min/q25/q50/q75/max/std/frac) per group.</p>
+<p>For each group defined by <em>groupby</em>, computes per-gene percentiles,
+standard deviation, and the fraction of expressing (or hypomethylated)
+cells, storing results in <code class="docutils literal notranslate"><span class="pre">adata.layers</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata_path</strong> (<em>str</em>) – Path to the <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file.</p></li>
+<li><p><strong>downsample</strong> (<em>int</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Maximum number of cells per group. Default is <code class="docutils literal notranslate"><span class="pre">2000</span></code>.</p></li>
+<li><p><strong>obs_path</strong> (<em>str</em><em>, </em><em>DataFrame</em><em>, or </em><em>None</em><em>, </em><em>optional</em>) – Cell metadata. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code>.</p></li>
+<li><p><strong>groupby</strong> (<em>str</em><em>, </em><em>optional</em>) – Grouping column. Default is <code class="docutils literal notranslate"><span class="pre">'Group'</span></code>.</p></li>
+<li><p><strong>use_raw</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use <code class="docutils literal notranslate"><span class="pre">adata.raw</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>expression_cutoff</strong> (<em>float</em><em>, </em><em>optional</em>) – Threshold for marking a gene as expressed. Default is <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p></li>
+<li><p><strong>modality</strong> (<em>str</em><em>, </em><em>optional</em>) – Data modality (<code class="docutils literal notranslate"><span class="pre">'RNA'</span></code>, <code class="docutils literal notranslate"><span class="pre">'ATAC'</span></code>, or methylation).
+Default is <code class="docutils literal notranslate"><span class="pre">'RNA'</span></code>.</p></li>
+<li><p><strong>n_jobs</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel workers. <code class="docutils literal notranslate"><span class="pre">-1</span></code> uses all CPUs. Default is <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p></li>
+<li><p><strong>normalize_per_cell</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to normalise methylation per cell. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>clip_norm_value</strong> (<em>float</em><em>, </em><em>optional</em>) – Clipping value for normalisation. Default is <code class="docutils literal notranslate"><span class="pre">10</span></code>.</p></li>
+<li><p><strong>save</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Path to save the resulting <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code>. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the AnnData
+object is returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Pseudobulk AnnData with stat layers if <code class="docutils literal notranslate"><span class="pre">save</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>AnnData or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.tools.taxonomy">
+<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">taxonomy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Neighborhood',</span> <span class="pre">'Class',</span> <span class="pre">'Subclass',</span> <span class="pre">'Group']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Region'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#taxonomy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.taxonomy" title="Link to this definition">¶</a></dt>
+<dd><p>_summary_</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obs</strong> (<em>path</em><em> or </em><em>dataframe</em>) – path to obs file (tsv, csv or h5ad) or obs dataframe with
+_description_</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="adataviz.utils.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">adataviz.utils module</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="adataviz.plotting.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">adataviz.plotting module</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, Wubin Ding
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/DingWB/adataviz" aria-label="GitHub"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg></a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">adataviz.tools module</a><ul>
+<li><a class="reference internal" href="#adataviz.tools.cal_stats"><code class="docutils literal notranslate"><span class="pre">cal_stats()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.tools.cal_tpm"><code class="docutils literal notranslate"><span class="pre">cal_tpm()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.tools.composition"><code class="docutils literal notranslate"><span class="pre">composition()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.tools.downsample_adata"><code class="docutils literal notranslate"><span class="pre">downsample_adata()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.tools.export_pseudobulk_adata"><code class="docutils literal notranslate"><span class="pre">export_pseudobulk_adata()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.tools.get_color_palette"><code class="docutils literal notranslate"><span class="pre">get_color_palette()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.tools.get_markers"><code class="docutils literal notranslate"><span class="pre">get_markers()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.tools.get_markers_worker"><code class="docutils literal notranslate"><span class="pre">get_markers_worker()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.tools.get_obs"><code class="docutils literal notranslate"><span class="pre">get_obs()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.tools.load_adata"><code class="docutils literal notranslate"><span class="pre">load_adata()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.tools.load_color_palette"><code class="docutils literal notranslate"><span class="pre">load_color_palette()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.tools.load_obs"><code class="docutils literal notranslate"><span class="pre">load_obs()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.tools.merge_adata_regions"><code class="docutils literal notranslate"><span class="pre">merge_adata_regions()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.tools.normalize_adata"><code class="docutils literal notranslate"><span class="pre">normalize_adata()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.tools.prepare_color_palette"><code class="docutils literal notranslate"><span class="pre">prepare_color_palette()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.tools.scrna2pseudobulk"><code class="docutils literal notranslate"><span class="pre">scrna2pseudobulk()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.tools.stat_pseudobulk"><code class="docutils literal notranslate"><span class="pre">stat_pseudobulk()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.tools.taxonomy"><code class="docutils literal notranslate"><span class="pre">taxonomy()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/jquery.js?v=5d32c60e"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="_static/documentation_options.js?v=8a448e45"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="_static/js/rtd_search_config.js"></script>
+    <script src="_static/js/rtd_sphinx_search.min.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/custom.js?v=6945d1e9"></script>
+    </body>
+</html>

@@ -1,0 +1,251 @@
+/* ==========================================================================
+   adataviz – Furo theme overrides
+   ========================================================================== */
+
+/* --- Google Fonts: Inter for body, JetBrains Mono for code --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* --- Wider content area on large screens --- */
+@media (min-width: 76em) {
+  .page {
+    --content-width: 54rem;
+  }
+}
+
+/* --- Heading styles --- */
+.content h1 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  border-bottom: 2px solid var(--color-brand-primary);
+  padding-bottom: 0.4rem;
+  margin-bottom: 1.2rem;
+}
+
+.content h2 {
+  font-weight: 600;
+  margin-top: 2rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--color-foreground-border);
+}
+
+.content h3 {
+  font-weight: 600;
+  color: var(--color-brand-content);
+}
+
+/* --- Smoother body text --- */
+.content p,
+.content li {
+  line-height: 1.7;
+}
+
+/* --- Code blocks --- */
+.content pre {
+  border-radius: 8px;
+  font-size: 0.85em;
+  line-height: 1.55;
+  padding: 1em 1.2em;
+}
+
+.content code.literal {
+  border-radius: 4px;
+  padding: 0.15em 0.35em;
+  font-size: 0.88em;
+}
+
+/* --- API reference: parameter lists --- */
+.content dl.field-list > dt {
+  font-weight: 600;
+  color: var(--color-brand-content);
+}
+
+.content dl.py dt {
+  border-left: 3px solid var(--color-brand-primary);
+  padding-left: 0.8em;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  background: var(--color-background-secondary);
+  border-radius: 0 4px 4px 0;
+}
+
+/* --- Sidebar navigation refinements --- */
+.sidebar-tree .toctree-l1 > a {
+  font-weight: 600;
+}
+
+.sidebar-tree li > a {
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
+}
+
+/* --- Admonitions (note, warning, tip) --- */
+.admonition {
+  border-radius: 8px;
+  border-left-width: 4px;
+  padding: 0.8rem 1rem;
+}
+
+/* --- Tables --- */
+.content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+.content table thead th {
+  background: var(--color-background-secondary);
+  font-weight: 600;
+  border-bottom: 2px solid var(--color-foreground-border);
+  padding: 0.5rem 0.8rem;
+}
+
+.content table td {
+  padding: 0.4rem 0.8rem;
+  border-bottom: 1px solid var(--color-foreground-border);
+}
+
+/* --- Notebook output cells: allow wrapping --- */
+.content div.output pre,
+.content .output_area pre,
+.content .output_subarea pre,
+.content .nbsphinx-output pre,
+.content pre.nboutput,
+.content .nbsphinx .output pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* --- Notebook input cells: subtle left accent --- */
+.nbinput .input_area,
+.nbinput .highlight {
+  border-left: 3px solid var(--color-brand-primary);
+  border-radius: 0 8px 8px 0;
+}
+
+/* --- Links --- */
+.content a:hover {
+  text-decoration: underline;
+}
+
+/* --- Footer --- */
+.bottom-of-page {
+  font-size: 0.85em;
+  opacity: 0.7;
+}
+
+/* --- Smooth scroll --- */
+html {
+  scroll-behavior: smooth;
+}
+
+/* --- Back-to-top button (injected by custom.js) --- */
+#back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-brand-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 40px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+  z-index: 1000;
+}
+
+#back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+#back-to-top:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* --- Copy button on code blocks: reduce visual clutter --- */
+.copybtn {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.highlight:hover .copybtn {
+  opacity: 0.7;
+}
+/* Minimal custom.css: make the main page wider
+   Everything else removed per user request. */
+
+/* Increase main content width on wide screens */
+@media (min-width: 63em) {
+  .content {
+    width: 95% !important;
+    max-width: none !important;
+    margin: 0 auto !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    /* padding-right: 2rem !important; */
+  }
+
+  /* Decrease code block width for readability on wide screens */
+  .content .highlight pre,
+  .content pre.literal-block,
+  .content .highlighttable td.code {
+    max-width: 70% !important;
+    width: auto !important;
+    white-space: pre !important;
+    overflow-x: auto !important;
+    margin-right: 2rem !important;
+  }
+}
+
+/* Keep sensible width on small screens */
+@media (max-width: 63em) {
+  .content {
+    width: auto !important;
+    max-width: 46em !important;
+    padding: 0 1rem !important;
+    padding-right: 2rem !important; /* add right spacing */
+    position: relative !important;
+}
+}
+/* Remove any other custom rules by keeping file minimal */
+
+/* Persistent right spacer to prevent layout shifts when scripts modify widths */
+.content::after {
+  content: '';
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 2rem !important; /* matches padding-right */
+  pointer-events: none !important;
+}
+
+/* Allow long printed outputs (nbsphinx / notebook outputs) to wrap
+   without changing code-block behaviour. These selectors target common
+   notebook output containers and override the earlier `white-space: pre`.
+*/
+.content div.output pre,
+.content .output_area pre,
+.content .output_subarea pre,
+.content .nbsphinx-output pre,
+.content pre.nboutput,
+.content .nbsphinx .output pre {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  max-width: 100% !important;
+}
+
+/* Also make plain text outputs within literal blocks wrap */
+.content pre.literal-block {
+  white-space: pre-wrap !important;
+}

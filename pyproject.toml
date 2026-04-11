@@ -37,5 +37,8 @@ repository = "https://github.com/DingWB/adataviz"
 "Bug Tracker" = "https://github.com/DingWB/adataviz/issues"
 documentation = "https://dingwb.github.io/adataviz"
 
+[tool.ruff]
+exclude = ["docs/build"]
+
 [tool.ruff.lint.per-file-ignores]
 "notebooks/*.ipynb" = ["E402"]

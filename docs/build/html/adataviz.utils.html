@@ -1,0 +1,946 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="setup module" href="setup.html"><link rel="prev" title="adataviz.tools module" href="adataviz.tools.html">
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
+        <title>adataviz.utils module - adataviz documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/css/rtd_sphinx_search.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3ec9162d" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  --color-brand-primary: #5B63D3;
+  --color-brand-content: #5B63D3;
+  --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-stack--monospace: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  --font-stack--headings: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #8B93FF;
+  --color-brand-content: #8B93FF;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #8B93FF;
+  --color-brand-content: #8B93FF;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>Documentation website</em> is online! 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">adataviz  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <span class="sidebar-brand-text">adataviz  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="plot.html">Plotting (adataviz.pl)</a><input aria-label="Toggle navigation of Plotting (adataviz.pl)" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/static_plots.html">Static Plotting Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/interactive_plots.html">Plot embedding (umap or tsne)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/interactive_plots.html#Plot-dot-heatmap">Plot dot heatmap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/interactive_plots.html#Plot-boxplot">Plot boxplot</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">adataviz</a><input aria-label="Toggle navigation of adataviz" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="adataviz.html">adataviz package</a><input aria-label="Toggle navigation of adataviz package" checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="adataviz.adata.html">adataviz.adata module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="adataviz.palettes.html">adataviz.palettes module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="adataviz.plotting.html">adataviz.plotting module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="adataviz.tools.html">adataviz.tools module</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">adataviz.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="setup.html">setup module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="https://github.com/DingWB/adataviz/blob/main/docs/source/adataviz.utils.rst?plain=true" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/DingWB/adataviz/edit/main/docs/source/adataviz.utils.rst" rel="edit" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="module-adataviz.utils">
+<span id="adataviz-utils-module"></span><h1>adataviz.utils module<a class="headerlink" href="#module-adataviz.utils" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="adataviz.utils.TextWithCircleHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">TextWithCircleHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">marker_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#TextWithCircleHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.TextWithCircleHandler" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">HandlerBase</span></code></p>
+<p>Custom legend handler that renders a numbered circle as the legend marker.</p>
+<p>Used by <a class="reference internal" href="#adataviz.utils.plot_text_legend" title="adataviz.utils.plot_text_legend"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_text_legend()</span></code></a> to create coded legends where each
+category is represented by a colored circle containing a number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>marker_text</strong> (<em>str</em><em>, </em><em>default &quot;&quot;</em>) – Text to display inside the circle marker (typically a number code).</p></li>
+<li><p><strong>label_text</strong> (<em>str</em><em>, </em><em>default &quot;&quot;</em>) – Label text for the legend entry (category name).</p></li>
+<li><p><strong>text_kws</strong> (<em>dict</em><em>, </em><em>default {}</em>) – Keyword arguments for the marker text, including <code class="docutils literal notranslate"><span class="pre">bbox</span></code> for
+the circle style (boxstyle, facecolor, edgecolor, etc.).</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments passed to <code class="docutils literal notranslate"><span class="pre">HandlerBase</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="adataviz.utils.TextWithCircleHandler.create_artists">
+<span class="sig-name descname"><span class="pre">create_artists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">legend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orig_handle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xdescent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ydescent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#TextWithCircleHandler.create_artists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.TextWithCircleHandler.create_artists" title="Link to this definition">¶</a></dt>
+<dd><p>Create a Text artist with circle bbox as the legend marker.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.categorical_scatter">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">categorical_scatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'umap'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_anno</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">luminance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dodge_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dodge_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sizes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_portion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tiny'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoomxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outline_pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outline_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scatter_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rasterized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coded_marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_color_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rectangle_marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker_fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker_pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#categorical_scatter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.categorical_scatter" title="Link to this definition">¶</a></dt>
+<dd><p>This function was copied from ALLCools and made some modifications.
+Plot categorical scatter plot with versatile options.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rasterized</strong> – Whether to rasterize the figure.</p></li>
+<li><p><strong>return_fig</strong> – Whether to return the figure.</p></li>
+<li><p><strong>size_portion</strong> – The portion of the figure to be used for the size norm.</p></li>
+<li><p><strong>data</strong> – Dataframe that contains coordinates and categorical variables</p></li>
+<li><p><strong>ax</strong> – this function do not generate ax, must provide an ax</p></li>
+<li><p><strong>basis</strong> – coords name, if provided, will automatically search for x and y</p></li>
+<li><p><strong>x</strong> – x coord name</p></li>
+<li><p><strong>y</strong> – y coord name</p></li>
+<li><p><strong>hue</strong> (<em>str</em>) – categorical col name or series for color hue.</p></li>
+<li><p><strong>palette</strong> (<em>str</em><em> or </em><em>dict</em>) – palette for color hue.</p></li>
+<li><p><strong>color</strong> – specify single color for all the dots</p></li>
+<li><p><strong>text_anno</strong> – categorical col name or series for text annotation.</p></li>
+<li><p><strong>text_kws</strong> – <p>kwargs pass to plt.text, see: <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.text.html">https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.text.html</a>
+including bbox, to see parameter for bbox, go to: <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.FancyBboxPatch.html#matplotlib.patches.FancyBboxPatch">https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.FancyBboxPatch.html#matplotlib.patches.FancyBboxPatch</a>
+commonly used parameters are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">text_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span><span class="n">fontweight</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span>
+                        <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="c1"># color could be a dict, keys are text to be annotated</span>
+                        <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">boxstyle</span><span class="o">=</span><span class="s1">&#39;round&#39;</span><span class="p">,</span><span class="n">edgecolor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span><span class="n">fill</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                <span class="n">facecolor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span> <span class="c1"># facecolor could also be a dict</span>
+                                                <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+                        <span class="p">)</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>text_transform</strong> – transform for text annotation.</p></li>
+<li><p><strong>dodge_text</strong> – whether to dodge text annotation.</p></li>
+<li><p><strong>dodge_kws</strong> – kwargs for dodge text annotation.</p></li>
+<li><p><strong>show_legend</strong> – whether to show legend.</p></li>
+<li><p><strong>legend_kws</strong> – kwargs for legend.</p></li>
+<li><p><strong>s</strong> – single size value of all the dots.</p></li>
+<li><p><strong>size</strong> – mappable size of the dots.</p></li>
+<li><p><strong>sizes</strong> – mapping size to the sizes value.</p></li>
+<li><p><strong>size_norm</strong> – normalize size range for mapping.</p></li>
+<li><p><strong>axis_format</strong> – axis format.</p></li>
+<li><p><strong>max_points</strong> – maximum number of points to plot.</p></li>
+<li><p><strong>labelsize</strong> – label size pass to <cite>ax.text</cite></p></li>
+<li><p><strong>linewidth</strong> – line width pass to <cite>ax.scatter</cite></p></li>
+<li><p><strong>zoomxy</strong> – zoom factor for x and y-axis.</p></li>
+<li><p><strong>outline</strong> – categorical col name or series for outline.</p></li>
+<li><p><strong>outline_pad</strong> – outline padding.</p></li>
+<li><p><strong>outline_kws</strong> – kwargs for outline.</p></li>
+<li><p><strong>scatter_kws</strong> – kwargs for scatter.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>if return_fig is True, return the figure and axes.</em></p></li>
+<li><p><em>else, return None.</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.continuous_scatter">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">continuous_scatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'umap'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scatter_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hue_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hue_portion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'viridis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_portion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sizes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sizebar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_anno</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dodge_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dodge_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">luminance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.48</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tiny'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ticklabel_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoomxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outline_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outline_pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rasterized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#continuous_scatter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.continuous_scatter" title="Link to this definition">¶</a></dt>
+<dd><p>Plot scatter on given adata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>ax</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>basis</strong> (<em>str</em><em>, </em><em>optional</em>) – _description_, by default “umap”</p></li>
+<li><p><strong>x</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>y</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>scatter_kws</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>hue</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>hue_norm</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>hue_portion</strong> (<em>float</em><em>, </em><em>optional</em>) – _description_, by default 0.95</p></li>
+<li><p><strong>color</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>cmap</strong> (<em>str</em><em>, </em><em>optional</em>) – _description_, by default “viridis”</p></li>
+<li><p><strong>colorbar</strong> (<em>bool</em><em>, </em><em>optional</em>) – _description_, by default True</p></li>
+<li><p><strong>size</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>size_norm</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>size_portion</strong> (<em>float</em><em>, </em><em>optional</em>) – _description_, by default 0.95</p></li>
+<li><p><strong>sizes</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>sizebar</strong> (<em>bool</em><em>, </em><em>optional</em>) – _description_, by default True</p></li>
+<li><p><strong>text_anno</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>dodge_text</strong> (<em>bool</em><em>, </em><em>optional</em>) – _description_, by default False</p></li>
+<li><p><strong>dodge_kws</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>text_kws</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>luminance</strong> (<em>float</em><em>, </em><em>optional</em>) – _description_, by default 0.48</p></li>
+<li><p><strong>text_transform</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>axis_format</strong> (<em>str</em><em>, </em><em>optional</em>) – _description_, by default “tiny”</p></li>
+<li><p><strong>max_points</strong> (<em>int</em><em>, </em><em>optional</em>) – _description_, by default 50000</p></li>
+<li><p><strong>s</strong> (<em>str</em><em>, </em><em>optional</em>) – _description_, by default “auto”</p></li>
+<li><p><strong>labelsize</strong> (<em>int</em><em>, </em><em>optional</em>) – _description_, by default 6</p></li>
+<li><p><strong>ticklabel_size</strong> (<em>int</em><em>, </em><em>optional</em>) – _description_, by default 4</p></li>
+<li><p><strong>linewidth</strong> (<em>float</em><em>, </em><em>optional</em>) – _description_, by default 0.5</p></li>
+<li><p><strong>zoomxy</strong> (<em>float</em><em>, </em><em>optional</em>) – _description_, by default 1.05</p></li>
+<li><p><strong>outline</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>outline_kws</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>outline_pad</strong> (<em>int</em><em>, </em><em>optional</em>) – _description_, by default 2</p></li>
+<li><p><strong>return_fig</strong> (<em>bool</em><em>, </em><em>optional</em>) – _description_, by default False</p></li>
+<li><p><strong>rasterized</strong> (<em>str</em><em>, </em><em>optional</em>) – _description_, by default “auto”</p></li>
+<li><p><strong>cbar_kws</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>cbar_width</strong> (<em>int</em><em>, </em><em>optional</em>) – width of colorbar, by default 3 mm</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_type_</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – _description_</p></li>
+<li><p><strong>TypeError</strong> – _description_</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.density_contour">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">density_contour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lightgray'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_contour_pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestyles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'densely</span> <span class="pre">dashed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#density_contour"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.density_contour" title="Link to this definition">¶</a></dt>
+<dd><p>Draw density-based contour outlines around groups of points.</p>
+<p>Uses a Gaussian-smoothed 2D histogram to produce clean, smooth outlines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – Axes to draw on.</p></li>
+<li><p><strong>data</strong> (<em>pd.DataFrame</em><em> or </em><em>anndata.AnnData</em>) – Data containing coordinates.</p></li>
+<li><p><strong>x</strong> (<em>str</em>) – Column names for x and y coordinates.</p></li>
+<li><p><strong>y</strong> (<em>str</em>) – Column names for x and y coordinates.</p></li>
+<li><p><strong>groupby</strong> (<em>str</em><em> or </em><em>array-like</em><em>, </em><em>optional</em>) – Column name or series defining groups. Each group gets its own contour.</p></li>
+<li><p><strong>c</strong> (<em>str</em><em>, </em><em>default &quot;lightgray&quot;</em>) – Default contour color when palette is not provided.</p></li>
+<li><p><strong>single_contour_pad</strong> (<em>float</em><em>, </em><em>default 1</em>) – Multiplier for auto-computed smooth_sigma. Larger values produce
+contours with more padding around points. Only used when
+smooth_sigma is None.</p></li>
+<li><p><strong>linewidth</strong> (<em>float</em><em>, </em><em>default 1</em>) – Width of the contour lines.</p></li>
+<li><p><strong>linestyles</strong> (<em>str</em><em> or </em><em>tuple</em><em>, </em><em>default &quot;densely dashed&quot;</em>) – Linestyle for contour lines. Accepts standard matplotlib names
+(“solid”, “dashed”, etc.), compound names (“densely dashed”,
+“loosely dotted”, etc.), or dash tuples like (0, (5, 1)).</p></li>
+<li><p><strong>palette</strong> (<em>dict</em><em>, </em><em>optional</em>) – Mapping of group names to colors. If None, uses <code class="docutils literal notranslate"><span class="pre">c</span></code> for all groups.</p></li>
+<li><p><strong>smooth_sigma</strong> (<em>float</em><em>, </em><em>optional</em>) – Gaussian smoothing sigma applied to the 2D histogram (in grid units).
+Controls how smooth the contour is. Larger values produce rounder,
+more generalized outlines; smaller values follow the point
+distribution more closely. If None, auto-computed from the median
+nearest-neighbor distance of the group’s points, scaled to produce
+a smooth contour that closely follows the cluster shape.</p></li>
+<li><p><strong>grid_size</strong> (<em>int</em><em>, </em><em>default 200</em>) – Number of bins along each axis for the 2D histogram. Higher values
+give finer resolution but slower computation.</p></li>
+<li><p><strong>threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – Contour level on the normalized [0, 1] density field. Lower values
+draw contours further from the points (looser fit); higher values
+draw contours closer to the dense core (tighter fit). Typical
+range: 0.01 (very loose) to 0.2 (very tight). If None,
+auto-computed to enclose ~95% of points.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.despine">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">despine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bottom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#despine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.despine" title="Link to this definition">¶</a></dt>
+<dd><p>Remove the top and right spines from plot(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fig</strong> (<em>matplotlib figure</em><em>, </em><em>optional</em>) – Figure to despine all axes of, defaults to the current figure.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib axes</em><em>, </em><em>optional</em>) – Specific axes object to despine. Ignored if fig is provided.</p></li>
+<li><p><strong>top</strong> (<em>boolean</em><em>, </em><em>optional</em>) – If True, remove that spine.</p></li>
+<li><p><strong>right</strong> (<em>boolean</em><em>, </em><em>optional</em>) – If True, remove that spine.</p></li>
+<li><p><strong>left</strong> (<em>boolean</em><em>, </em><em>optional</em>) – If True, remove that spine.</p></li>
+<li><p><strong>bottom</strong> (<em>boolean</em><em>, </em><em>optional</em>) – If True, remove that spine.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.df2stdout">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">df2stdout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#df2stdout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.df2stdout" title="Link to this definition">¶</a></dt>
+<dd><p>Write a DataFrame to stdout in tab-separated format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame to write. Each row is printed as a tab-separated line.
+NaN values are replaced with empty strings.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.get_brain_region_structure">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">get_brain_region_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#get_brain_region_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.get_brain_region_structure" title="Link to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://atlas.brain-map.org/">https://atlas.brain-map.org/</a>
+BICAN: <a class="reference external" href="https://atlas.brain-map.org/atlasviewer/ontologies/11.json">https://atlas.brain-map.org/atlasviewer/ontologies/11.json</a>
+HBA: <a class="reference external" href="https://atlas.brain-map.org/atlasviewer/ontologies/7.json">https://atlas.brain-map.org/atlasviewer/ontologies/7.json</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.get_cmap">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">get_cmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmap</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#get_cmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.get_cmap" title="Link to this definition">¶</a></dt>
+<dd><p>Get a matplotlib colormap by name, including custom ones.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version Use: </span><a class="reference internal" href="adataviz.palettes.html#adataviz.palettes.get_cmap" title="adataviz.palettes.get_cmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">adataviz.palettes.get_cmap()</span></code></a> instead.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cmap</strong> (<em>str</em>) – Name of the colormap. Supports standard matplotlib names
+(“viridis”, “turbo”, etc.) and custom adataviz colormaps
+(“parula”, “exp1”, “exp2”, “meth1”, “meth2”).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The requested colormap object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib.colors.Colormap</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.level_one_palette">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">level_one_palette</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#level_one_palette"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.level_one_palette" title="Link to this definition">¶</a></dt>
+<dd><p>Generate a color palette for a list of category names.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version Use: </span><a class="reference internal" href="adataviz.palettes.html#adataviz.palettes.level_one_palette" title="adataviz.palettes.level_one_palette"><code class="xref py py-func docutils literal notranslate"><span class="pre">adataviz.palettes.level_one_palette()</span></code></a> instead.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name_list</strong> (<em>array-like</em>) – List or array of category names.</p></li>
+<li><p><strong>order</strong> (<em>list</em><em>, </em><em>optional</em>) – Desired order of categories. If None, sorted alphabetically.</p></li>
+<li><p><strong>palette</strong> (<em>str</em><em> or </em><em>list</em><em>, </em><em>default &quot;auto&quot;</em>) – Palette name or list of colors. “auto” selects from
+scanpy-style palettes based on the number of categories.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Mapping of category names to hex color strings.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.mpl_style">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">mpl_style</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#mpl_style"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.mpl_style" title="Link to this definition">¶</a></dt>
+<dd><p>Set publication-quality matplotlib defaults.</p>
+<p>Configures matplotlib to use:</p>
+<ul class="simple">
+<li><p>Font type 42 for PDF/PS (editable text in Illustrator)</p></li>
+<li><p>Arial sans-serif font</p></li>
+<li><p>80 DPI for display, 300 DPI for saved figures</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.normalize_mc_by_cell">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">normalize_mc_by_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_per_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_norm_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hypo_score</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#normalize_mc_by_cell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.normalize_mc_by_cell" title="Link to this definition">¶</a></dt>
+<dd><p>Normalize methylation fraction per cell by prior mean.</p>
+<p>Divides each cell’s methylation values by its prior mean (stored in
+<code class="docutils literal notranslate"><span class="pre">obs['prior_mean']</span></code>), which is typically determined by alpha and
+beta parameters of a Beta distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>use_adata</strong> (<em>anndata.AnnData</em>) – AnnData object with methylation fractions in <code class="docutils literal notranslate"><span class="pre">.X</span></code> and
+<code class="docutils literal notranslate"><span class="pre">prior_mean</span></code> column in <code class="docutils literal notranslate"><span class="pre">.obs</span></code>.</p></li>
+<li><p><strong>normalize_per_cell</strong> (<em>bool</em><em>, </em><em>default True</em>) – Whether to perform normalization. If False, returns the input
+unchanged.</p></li>
+<li><p><strong>clip_norm_value</strong> (<em>float</em><em> or </em><em>None</em><em>, </em><em>default 10</em>) – Maximum value to clip normalized values to. Set to None to
+disable clipping.</p></li>
+<li><p><strong>verbose</strong> (<em>int</em><em>, </em><em>default 1</em>) – Verbosity level. 0 = silent, 1 = print status messages.</p></li>
+<li><p><strong>hypo_score</strong> (<em>bool</em><em>, </em><em>default False</em>) – If True, compute hypomethylation score (prior_mean / value)
+instead of the standard normalized fraction (value / prior_mean).
+Higher hypo_score means more hypomethylated.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The input AnnData with <code class="docutils literal notranslate"><span class="pre">.X</span></code> modified in-place.
+Sets <code class="docutils literal notranslate"><span class="pre">uns['normalize_per_cell']</span> <span class="pre">=</span> <span class="pre">True</span></code> after normalization.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>anndata.AnnData</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.parse_gtf">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">parse_gtf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gtf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gencode.v43.annotation.gtf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#parse_gtf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.parse_gtf" title="Link to this definition">¶</a></dt>
+<dd><p>Parse a GENCODE/Ensembl GTF annotation file into a DataFrame.</p>
+<p>Extracts gene-level information including gene_id, gene_name,
+gene_type, genomic coordinates, and strand.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gtf</strong> (<em>str</em><em>, </em><em>default &quot;gencode.v43.annotation.gtf&quot;</em>) – Path to the GTF file. Supports <code class="docutils literal notranslate"><span class="pre">~</span></code> expansion.</p></li>
+<li><p><strong>outfile</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>default None</em>) – If provided, saves the parsed result as a tab-separated file
+at this path. If None, returns the DataFrame directly.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with columns: chrom, beg, end, gene_name, gene_id,
+strand, gene_type. Returned only when <code class="docutils literal notranslate"><span class="pre">outfile</span></code> is None.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.parse_json">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">parse_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#parse_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.parse_json" title="Link to this definition">¶</a></dt>
+<dd><p>Parse Allen Brain Atlas JSON ontology into a DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>url</strong> (<em>str</em>) – URL to the Allen Brain Atlas ontology JSON endpoint,
+e.g. <code class="docutils literal notranslate"><span class="pre">&quot;https://atlas.brain-map.org/atlasviewer/ontologies/11.json&quot;</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with columns: acronym, Hex, id, name,
+parent_structure_id, safe_name, structure_id_path.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.plot_cmap_legend">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">plot_cmap_legend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'turbo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ticklabel_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ticklabel_pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#plot_cmap_legend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.plot_cmap_legend" title="Link to this definition">¶</a></dt>
+<dd><p>Plot legend for cmap.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cax</strong> (<em>Axes into which the colorbar will be drawn.</em>)</p></li>
+<li><p><strong>ax</strong> (<em>axes to anchor.</em>)</p></li>
+<li><p><strong>cmap</strong> (<em>turbo</em><em>, </em><em>hsv</em><em>, </em><em>Set1</em><em>, </em><em>Dark2</em><em>, </em><em>Paired</em><em>, </em><em>Accent</em><em>,</em><em>tab20</em><em>,</em><em>exp1</em><em>,</em><em>exp2</em><em>,</em><em>meth1</em><em>,</em><em>meth2</em>)</p></li>
+<li><p><strong>label</strong> (<em>title for legend.</em>)</p></li>
+<li><p><strong>kws</strong> (<em>dict</em>) – kws passed to plt.colorbar (matplotlib.figure.Figure.colorbar).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cbar</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>axes of legend</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.plot_color_dict_legend">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">plot_color_dict_legend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">luminance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#plot_color_dict_legend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.plot_color_dict_legend" title="Link to this definition">¶</a></dt>
+<dd><p>plot legned for color dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>D</strong> (<em>a dict</em><em>, </em><em>key is categorical variable</em><em>, </em><em>values are colors.</em>)</p></li>
+<li><p><strong>ax</strong> (<em>axes to plot the legend.</em>)</p></li>
+<li><p><strong>title</strong> (<em>title</em><em> of </em><em>legend.</em>)</p></li>
+<li><p><strong>color_text</strong> (<em>whether to change the color</em><em> of </em><em>text based on the color in D.</em>)</p></li>
+<li><p><strong>label_side</strong> (<em>right</em><em> of </em><em>left.</em>)</p></li>
+<li><p><strong>kws</strong> (<em>kws passed to plt.legend.</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ax.legend</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.plot_marker_legend">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">plot_marker_legend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">luminance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#plot_marker_legend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.plot_marker_legend" title="Link to this definition">¶</a></dt>
+<dd><p>plot legned for different marker</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>D</strong> (<em>a dict</em><em>, </em><em>key is categorical variable</em><em>, </em><em>values are marker.</em>)</p></li>
+<li><p><strong>ax</strong> (<em>axes to plot the legend.</em>)</p></li>
+<li><p><strong>title</strong> (<em>title</em><em> of </em><em>legend.</em>)</p></li>
+<li><p><strong>color_text</strong> (<em>whether to change the color</em><em> of </em><em>text based on the color in D.</em>)</p></li>
+<li><p><strong>label_side</strong> (<em>right</em><em> of </em><em>left.</em>)</p></li>
+<li><p><strong>kws</strong> (<em>kws passed to plt.legend.</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ax.legend</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.plot_text_legend">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">plot_text_legend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code2label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boxstyle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Circle'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker_pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker_fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_kws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">luminance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#plot_text_legend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.plot_text_legend" title="Link to this definition">¶</a></dt>
+<dd><p>Plot a coded legend where each category has a numbered circle marker.</p>
+<p>Each legend entry shows a colored circle with a number code followed
+by the category label text. Useful when categories have integer codes
+displayed on the scatter plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>color_dict</strong> (<em>dict</em>) – Mapping of category names to colors (hex strings or RGB tuples).</p></li>
+<li><p><strong>code2label</strong> (<em>dict</em>) – Mapping of integer codes to category label strings,
+e.g. <code class="docutils literal notranslate"><span class="pre">{1:</span> <span class="pre">&quot;Excitatory&quot;,</span> <span class="pre">2:</span> <span class="pre">&quot;Inhibitory&quot;}</span></code>.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em><em>, </em><em>optional</em>) – Axes to attach the legend to. Uses current axes if None.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – Legend title.</p></li>
+<li><p><strong>color_text</strong> (<em>bool</em><em>, </em><em>default True</em>) – If True, color the label text to match the category color
+(for labels with luminance below <code class="docutils literal notranslate"><span class="pre">luminance</span></code>).</p></li>
+<li><p><strong>boxstyle</strong> (<em>str</em><em>, </em><em>default &quot;Circle&quot;</em>) – Shape of the marker box. Options: “Circle”, “Round”, “Square”.</p></li>
+<li><p><strong>marker_pad</strong> (<em>float</em><em>, </em><em>default 0.1</em>) – Padding inside the marker box (passed to matplotlib FancyBboxPatch).</p></li>
+<li><p><strong>legend_kws</strong> (<em>dict</em><em>, </em><em>optional</em>) – Additional keyword arguments passed to <code class="docutils literal notranslate"><span class="pre">ax.legend()</span></code>, such as
+<code class="docutils literal notranslate"><span class="pre">ncol</span></code>, <code class="docutils literal notranslate"><span class="pre">fontsize</span></code>, <code class="docutils literal notranslate"><span class="pre">bbox_to_anchor</span></code>, etc.</p></li>
+<li><p><strong>marker_fontsize</strong> (<em>float</em><em>, </em><em>default 4</em>) – Font size of the number text inside the circle marker.</p></li>
+<li><p><strong>text_kws</strong> (<em>dict</em><em>, </em><em>optional</em>) – Keyword arguments for the marker text rendering, including <code class="docutils literal notranslate"><span class="pre">bbox</span></code>
+sub-dict for circle styling (edgecolor, linewidth, facecolor, etc.).</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>default 0.7</em>) – Opacity of the circle marker background.</p></li>
+<li><p><strong>luminance</strong> (<em>float</em><em>, </em><em>default 0.5</em>) – Luminance threshold for deciding text color. Labels with color
+luminance above this value are shown in black; darker colors
+are shown in their own color.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.prepare_color_palette">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">prepare_color_palette</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'palette.xlsx'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#prepare_color_palette"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.prepare_color_palette" title="Link to this definition">¶</a></dt>
+<dd><p>Generate an Excel file with colored color palette sheets.</p>
+<p>Each key in <code class="docutils literal notranslate"><span class="pre">color_dict</span></code> becomes a sheet, with category names as
+the index and hex color codes in the “Hex” column. Cells are
+formatted with their corresponding background color for visual
+reference.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>color_dict</strong> (<em>dict</em><em> of </em><em>dict</em>) – Nested dictionary where outer keys are sheet names (e.g.
+“Class”, “Subclass”) and inner dicts map category names to
+hex color codes, e.g.
+<code class="docutils literal notranslate"><span class="pre">{&quot;Class&quot;:</span> <span class="pre">{&quot;Excitatory&quot;:</span> <span class="pre">&quot;#FF0000&quot;,</span> <span class="pre">&quot;Inhibitory&quot;:</span> <span class="pre">&quot;#0000FF&quot;}}</span></code>.</p></li>
+<li><p><strong>outpath</strong> (<em>str</em><em>, </em><em>default &quot;palette.xlsx&quot;</em>) – Output path for the Excel file. Supports <code class="docutils literal notranslate"><span class="pre">~</span></code> expansion.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.read_google_sheet">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">read_google_sheet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#read_google_sheet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.read_google_sheet" title="Link to this definition">¶</a></dt>
+<dd><p>Read a Google Sheets tab as a pandas DataFrame.</p>
+<p>Exports the sheet as TSV and reads it via <code class="docutils literal notranslate"><span class="pre">pd.read_csv</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> (<em>str</em>) – Full Google Sheets URL including the <code class="docutils literal notranslate"><span class="pre">gid</span></code> parameter,
+e.g. <code class="docutils literal notranslate"><span class="pre">&quot;https://docs.google.com/spreadsheets/d/&lt;ID&gt;/edit?gid=&lt;GID&gt;#gid=&lt;GID&gt;&quot;</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments passed to <code class="docutils literal notranslate"><span class="pre">pd.read_csv</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Contents of the specified sheet tab.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.serialize">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">serialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#serialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.serialize" title="Link to this definition">¶</a></dt>
+<dd><p>Serialize an object to stdout.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">x</span></code> is a DataFrame, writes it as tab-separated text via
+<a class="reference internal" href="#adataviz.utils.df2stdout" title="adataviz.utils.df2stdout"><code class="xref py py-func docutils literal notranslate"><span class="pre">df2stdout()</span></code></a>. Otherwise prints <code class="docutils literal notranslate"><span class="pre">x</span></code> directly. Does nothing
+if <code class="docutils literal notranslate"><span class="pre">x</span></code> is None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>pd.DataFrame</em><em>, </em><em>any</em><em>, or </em><em>None</em>) – Object to serialize.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.tight_hue_range">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">tight_hue_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hue_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">portion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#tight_hue_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.tight_hue_range" title="Link to this definition">¶</a></dt>
+<dd><p>Automatic select a SMALLEST data range that covers [portion] of the data.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.zoom_ax">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">zoom_ax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'both'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#zoom_ax"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.zoom_ax" title="Link to this definition">¶</a></dt>
+<dd><p>Zoom (expand) the axis limits of a matplotlib Axes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – Axes to zoom.</p></li>
+<li><p><strong>zoom_scale</strong> (<em>float</em>) – Scale factor for the axis limits. Values &gt; 1 zoom out
+(show more space), values &lt; 1 zoom in.</p></li>
+<li><p><strong>on</strong> (<em>str</em><em>, </em><em>default &quot;both&quot;</em>) – Which axes to zoom. Options: “both”, “x”, “y”.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.utils.zoom_min_max">
+<span class="sig-prename descclassname"><span class="pre">adataviz.utils.</span></span><span class="sig-name descname"><span class="pre">zoom_min_max</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/utils.html#zoom_min_max"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.utils.zoom_min_max" title="Link to this definition">¶</a></dt>
+<dd><p>Symmetrically expand a value range by a scale factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vmin</strong> (<em>float</em>) – Minimum value of the range.</p></li>
+<li><p><strong>vmax</strong> (<em>float</em>) – Maximum value of the range.</p></li>
+<li><p><strong>scale</strong> (<em>float</em>) – Scale factor. 1.0 = no change, 1.2 = 20% wider, etc.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The expanded (vmin, vmax) range.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple of (float, float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="setup.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">setup module</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="adataviz.tools.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">adataviz.tools module</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, Wubin Ding
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/DingWB/adataviz" aria-label="GitHub"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg></a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">adataviz.utils module</a><ul>
+<li><a class="reference internal" href="#adataviz.utils.TextWithCircleHandler"><code class="docutils literal notranslate"><span class="pre">TextWithCircleHandler</span></code></a><ul>
+<li><a class="reference internal" href="#adataviz.utils.TextWithCircleHandler.create_artists"><code class="docutils literal notranslate"><span class="pre">TextWithCircleHandler.create_artists()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#adataviz.utils.categorical_scatter"><code class="docutils literal notranslate"><span class="pre">categorical_scatter()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.continuous_scatter"><code class="docutils literal notranslate"><span class="pre">continuous_scatter()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.density_contour"><code class="docutils literal notranslate"><span class="pre">density_contour()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.despine"><code class="docutils literal notranslate"><span class="pre">despine()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.df2stdout"><code class="docutils literal notranslate"><span class="pre">df2stdout()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.get_brain_region_structure"><code class="docutils literal notranslate"><span class="pre">get_brain_region_structure()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.get_cmap"><code class="docutils literal notranslate"><span class="pre">get_cmap()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.level_one_palette"><code class="docutils literal notranslate"><span class="pre">level_one_palette()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.mpl_style"><code class="docutils literal notranslate"><span class="pre">mpl_style()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.normalize_mc_by_cell"><code class="docutils literal notranslate"><span class="pre">normalize_mc_by_cell()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.parse_gtf"><code class="docutils literal notranslate"><span class="pre">parse_gtf()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.parse_json"><code class="docutils literal notranslate"><span class="pre">parse_json()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.plot_cmap_legend"><code class="docutils literal notranslate"><span class="pre">plot_cmap_legend()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.plot_color_dict_legend"><code class="docutils literal notranslate"><span class="pre">plot_color_dict_legend()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.plot_marker_legend"><code class="docutils literal notranslate"><span class="pre">plot_marker_legend()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.plot_text_legend"><code class="docutils literal notranslate"><span class="pre">plot_text_legend()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.prepare_color_palette"><code class="docutils literal notranslate"><span class="pre">prepare_color_palette()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.read_google_sheet"><code class="docutils literal notranslate"><span class="pre">read_google_sheet()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.serialize"><code class="docutils literal notranslate"><span class="pre">serialize()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.tight_hue_range"><code class="docutils literal notranslate"><span class="pre">tight_hue_range()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.zoom_ax"><code class="docutils literal notranslate"><span class="pre">zoom_ax()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.utils.zoom_min_max"><code class="docutils literal notranslate"><span class="pre">zoom_min_max()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/jquery.js?v=5d32c60e"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="_static/documentation_options.js?v=8a448e45"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="_static/js/rtd_search_config.js"></script>
+    <script src="_static/js/rtd_sphinx_search.min.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/custom.js?v=6945d1e9"></script>
+    </body>
+</html>
