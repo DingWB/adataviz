@@ -10,7 +10,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/rtd_sphinx_search.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=602d273f" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=c9a64f21" />
     
     
 
@@ -632,7 +632,7 @@
         <span class="n">color_discrete_map</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">category_orders</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>  <span class="c1"># categorical variable</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">palette</span><span class="p">,</span><span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">palette</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.xlsx&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">palette</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">palette</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.xlsx&quot;</span><span class="p">):</span>
             <span class="c1"># color_discrete_map=get_colors(use_adata,use_col,palette=palette)</span>
             <span class="n">color_discrete_map</span> <span class="o">=</span> <span class="n">load_color_palette</span><span class="p">(</span>
                 <span class="n">palette</span><span class="o">=</span><span class="n">palette</span><span class="p">,</span> <span class="n">adata</span><span class="o">=</span><span class="n">use_adata</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="n">use_col</span>

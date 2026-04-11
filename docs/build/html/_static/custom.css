@@ -8,7 +8,7 @@
 /* --- Wider content area on large screens --- */
 @media (min-width: 76em) {
   .page {
-    --content-width: 54rem;
+    --content-width: 70rem;
   }
 }
 
@@ -59,7 +59,11 @@
   color: var(--color-brand-content);
 }
 
-.content dl.py dt {
+/* Accent border only on top-level class/function signatures */
+.content dl.py.class > dt,
+.content dl.py.function > dt,
+.content dl.py.method > dt,
+.content dl.py.attribute > dt {
   border-left: 3px solid var(--color-brand-primary);
   padding-left: 0.8em;
   padding-top: 0.2em;
