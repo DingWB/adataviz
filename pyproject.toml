@@ -36,3 +36,6 @@ adataviz="adataviz:main"
 repository = "https://github.com/DingWB/adataviz"
 "Bug Tracker" = "https://github.com/DingWB/adataviz/issues"
 documentation = "https://dingwb.github.io/adataviz"
+
+[tool.ruff.lint.per-file-ignores]
+"notebooks/*.ipynb" = ["E402"]

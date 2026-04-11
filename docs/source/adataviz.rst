@@ -8,6 +8,7 @@ Submodules
    :maxdepth: 4
 
    adataviz.adata
+   adataviz.palettes
    adataviz.plotting
    adataviz.tools
    adataviz.utils

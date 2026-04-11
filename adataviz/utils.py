@@ -17,6 +17,15 @@ mm2inch = 1 / 25.4
 
 
 def df2stdout(df):
+    """
+    Write a DataFrame to stdout in tab-separated format.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame to write. Each row is printed as a tab-separated line.
+        NaN values are replaced with empty strings.
+    """
     sys.stdout.write("\t".join([str(i) for i in df.columns.tolist()]) + "\n")
     for i, row in df.iterrows():
         try:
@@ -28,6 +37,18 @@ def df2stdout(df):
 
 
 def serialize(x):
+    """
+    Serialize an object to stdout.
+
+    If ``x`` is a DataFrame, writes it as tab-separated text via
+    :func:`df2stdout`. Otherwise prints ``x`` directly. Does nothing
+    if ``x`` is None.
+
+    Parameters
+    ----------
+    x : pd.DataFrame, any, or None
+        Object to serialize.
+    """
     if isinstance(x, pd.DataFrame):
         df2stdout(x)
     elif x is not None:
@@ -38,16 +59,22 @@ def serialize(x):
 
 def prepare_color_palette(color_dict=None, outpath="palette.xlsx"):
     """
-    Generating a .xlsx file including all color palette.
+    Generate an Excel file with colored color palette sheets.
+
+    Each key in ``color_dict`` becomes a sheet, with category names as
+    the index and hex color codes in the "Hex" column. Cells are
+    formatted with their corresponding background color for visual
+    reference.
 
     Parameters
     ----------
-    colors : dict
-            A dict of dict, keys are categorical terms, values are HEX color code
-
-    Returns
-    -------
-
+    color_dict : dict of dict
+        Nested dictionary where outer keys are sheet names (e.g.
+        "Class", "Subclass") and inner dicts map category names to
+        hex color codes, e.g.
+        ``{"Class": {"Excitatory": "#FF0000", "Inhibitory": "#0000FF"}}``.
+    outpath : str, default "palette.xlsx"
+        Output path for the Excel file. Supports ``~`` expansion.
     """
     outpath = os.path.expanduser(outpath)
     writer = pd.ExcelWriter(outpath)
@@ -82,6 +109,15 @@ def prepare_color_palette(color_dict=None, outpath="palette.xlsx"):
 
 
 def mpl_style():
+    """
+    Set publication-quality matplotlib defaults.
+
+    Configures matplotlib to use:
+
+    - Font type 42 for PDF/PS (editable text in Illustrator)
+    - Arial sans-serif font
+    - 80 DPI for display, 300 DPI for saved figures
+    """
     import matplotlib as mpl
 
     mpl.style.use("default")
@@ -94,6 +130,21 @@ def mpl_style():
 
 
 def parse_json(url):
+    """
+    Parse Allen Brain Atlas JSON ontology into a DataFrame.
+
+    Parameters
+    ----------
+    url : str
+        URL to the Allen Brain Atlas ontology JSON endpoint,
+        e.g. ``"https://atlas.brain-map.org/atlasviewer/ontologies/11.json"``.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with columns: acronym, Hex, id, name,
+        parent_structure_id, safe_name, structure_id_path.
+    """
     import json
     import requests
 
@@ -223,6 +274,24 @@ def get_brain_region_structure():
 
 
 def read_google_sheet(url=None, **kwargs):
+    """
+    Read a Google Sheets tab as a pandas DataFrame.
+
+    Exports the sheet as TSV and reads it via ``pd.read_csv``.
+
+    Parameters
+    ----------
+    url : str
+        Full Google Sheets URL including the ``gid`` parameter,
+        e.g. ``"https://docs.google.com/spreadsheets/d/<ID>/edit?gid=<GID>#gid=<GID>"``.
+    **kwargs
+        Additional keyword arguments passed to ``pd.read_csv``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Contents of the specified sheet tab.
+    """
     assert url is not None
     # url="https://docs.google.com/spreadsheets/d/12H3p2F_qrcQ3ymF614VRzU_6vcVTsRca0uOIBQJXVaU/edit?gid=1969763406#gid=1969763406"
     Id = url.split("/d/")[1].split("/")[0]
@@ -284,7 +353,27 @@ def despine(fig=None, ax=None, top=True, right=True, left=False, bottom=False):
 
 
 def _make_tiny_axis_label(ax, x, y, arrow_kws=None, fontsize=5):
-    # This function assume coord is [0, 1].
+    """
+    Add small arrow axis labels to the bottom-left corner of a scatter plot.
+
+    Removes default axis ticks/spines and draws two small arrows with labels
+    indicating the x and y coordinate names (e.g. "UMAP 1", "UMAP 2").
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axes to annotate.
+    x : str
+        Label for the horizontal arrow (typically the basis name like "umap_0").
+        Underscores are replaced with spaces and text is uppercased.
+    y : str
+        Label for the vertical arrow.
+    arrow_kws : dict, optional
+        Keyword arguments passed to ``ax.arrow()``, overriding defaults
+        (width=0.003, linewidth=0, color="black").
+    fontsize : float, default 5
+        Font size for the axis labels.
+    """
     # clean ax axises
     ax.set(xticks=[], yticks=[], xlabel=None, ylabel=None)
     despine(ax=ax, left=True, bottom=True)
@@ -323,7 +412,23 @@ def _make_tiny_axis_label(ax, x, y, arrow_kws=None, fontsize=5):
 
 
 def zoom_min_max(vmin, vmax, scale):
-    """Zoom min and max value."""
+    """
+    Symmetrically expand a value range by a scale factor.
+
+    Parameters
+    ----------
+    vmin : float
+        Minimum value of the range.
+    vmax : float
+        Maximum value of the range.
+    scale : float
+        Scale factor. 1.0 = no change, 1.2 = 20% wider, etc.
+
+    Returns
+    -------
+    tuple of (float, float)
+        The expanded (vmin, vmax) range.
+    """
     width = vmax - vmin
     width_zoomed = width * scale
     delta_value = (width_zoomed - width) / 2
@@ -331,7 +436,19 @@ def zoom_min_max(vmin, vmax, scale):
 
 
 def zoom_ax(ax, zoom_scale, on="both"):
-    """Zoom ax on both x and y-axis."""
+    """
+    Zoom (expand) the axis limits of a matplotlib Axes.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axes to zoom.
+    zoom_scale : float
+        Scale factor for the axis limits. Values > 1 zoom out
+        (show more space), values < 1 zoom in.
+    on : str, default "both"
+        Which axes to zoom. Options: "both", "x", "y".
+    """
     on = on.lower()
     xlim = ax.get_xlim()
     xlim_zoomed = zoom_min_max(vmin=xlim[0], vmax=xlim[1], scale=zoom_scale)
@@ -346,6 +463,33 @@ def zoom_ax(ax, zoom_scale, on="both"):
 
 
 def _extract_coords(data, coord_base, x, y):
+    """
+    Extract 2D coordinates from various data formats.
+
+    Supports AnnData (via ``obsm["X_{coord_base}"]``), xarray Dataset,
+    and plain DataFrames.
+
+    Parameters
+    ----------
+    data : anndata.AnnData, xr.Dataset, or pd.DataFrame
+        Input data containing coordinates.
+    coord_base : str
+        Name of the coordinate embedding, e.g. "umap", "tsne".
+        For AnnData, looks up ``obsm["X_{coord_base}"]``.
+    x : str or None
+        Column name for x coordinate. If None, defaults to
+        ``"{coord_base}_0"``.
+    y : str or None
+        Column name for y coordinate. If None, defaults to
+        ``"{coord_base}_1"``.
+
+    Returns
+    -------
+    tuple of (pd.DataFrame, str, str)
+        - DataFrame with columns "x" and "y"
+        - x column name used
+        - y column name used
+    """
     import xarray as xr
     import anndata
 
@@ -385,7 +529,38 @@ def _extract_coords(data, coord_base, x, y):
 def _density_based_sample(
     data: pd.DataFrame, coords: list, portion=None, size=None, seed=None
 ):
-    """Down sample data based on density, to prevent overplot in dense region and decrease plotting time."""
+    """
+    Downsample data based on local density to reduce overplotting.
+
+    Points in dense regions have lower probability of being selected,
+    while isolated points are more likely to be kept. Uses Local
+    Outlier Factor (LOF) to estimate density.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        DataFrame containing at least the coordinate columns.
+    coords : list of str
+        Column names to use as coordinates for density estimation.
+    portion : float, optional
+        Fraction of data to keep (0 to 1). Mutually exclusive with
+        ``size``.
+    size : int, optional
+        Exact number of points to keep. Mutually exclusive with
+        ``portion``.
+    seed : int, optional
+        Random seed for reproducibility.
+
+    Returns
+    -------
+    pd.DataFrame
+        Downsampled DataFrame with density-weighted selection.
+
+    Raises
+    ------
+    ValueError
+        If neither ``portion`` nor ``size`` is provided.
+    """
     from sklearn.neighbors import LocalOutlierFactor
 
     clf = LocalOutlierFactor(
@@ -426,7 +601,25 @@ def _density_based_sample(
 
 
 def _auto_size(ax, n_dots):
-    """Auto determine dot size based on ax size and n dots"""
+    """
+    Automatically determine scatter dot size based on axes dimensions and point count.
+
+    Scales dot size inversely with the number of points, adjusted for
+    the physical size of the axes. Larger figures or fewer points
+    result in bigger dots.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axes to measure physical size from.
+    n_dots : int
+        Number of dots to be plotted.
+
+    Returns
+    -------
+    float
+        Recommended dot size (``s`` parameter for scatter plots).
+    """
     bbox = ax.get_window_extent().transformed(
         ax.get_figure().dpi_scale_trans.inverted()
     )
@@ -472,6 +665,21 @@ def _auto_size(ax, n_dots):
 
 
 def _take_data_series(data, k):
+    """
+    Extract a named series from various data formats.
+
+    Parameters
+    ----------
+    data : anndata.AnnData, xr.Dataset, xr.DataArray, or pd.DataFrame
+        Input data object.
+    k : str
+        Key/column name to extract. For AnnData, looks up ``obs[k]``.
+
+    Returns
+    -------
+    pd.Series
+        Copy of the requested data series.
+    """
     import xarray as xr
     import anndata
 
@@ -485,6 +693,27 @@ def _take_data_series(data, k):
 
 
 def level_one_palette(name_list, order=None, palette="auto"):
+    """
+    Generate a color palette for a list of category names.
+
+    .. deprecated::
+        Use :func:`adataviz.palettes.level_one_palette` instead.
+
+    Parameters
+    ----------
+    name_list : array-like
+        List or array of category names.
+    order : list, optional
+        Desired order of categories. If None, sorted alphabetically.
+    palette : str or list, default "auto"
+        Palette name or list of colors. "auto" selects from
+        scanpy-style palettes based on the number of categories.
+
+    Returns
+    -------
+    dict
+        Mapping of category names to hex color strings.
+    """
     from . import palettes as _palettes
 
     warnings.warn(
@@ -632,9 +861,59 @@ def density_contour(
     c="lightgray",
     single_contour_pad=1,
     linewidth=1,
+    linestyles="densely dashed",
     palette=None,
+    smooth_sigma=None,
+    grid_size=200,
+    threshold=None,
 ):
-    from sklearn.neighbors import LocalOutlierFactor
+    """
+    Draw density-based contour outlines around groups of points.
+
+    Uses a Gaussian-smoothed 2D histogram to produce clean, smooth outlines.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axes to draw on.
+    data : pd.DataFrame or anndata.AnnData
+        Data containing coordinates.
+    x, y : str
+        Column names for x and y coordinates.
+    groupby : str or array-like, optional
+        Column name or series defining groups. Each group gets its own contour.
+    c : str, default "lightgray"
+        Default contour color when palette is not provided.
+    single_contour_pad : float, default 1
+        Multiplier for auto-computed smooth_sigma. Larger values produce
+        contours with more padding around points. Only used when
+        smooth_sigma is None.
+    linewidth : float, default 1
+        Width of the contour lines.
+    linestyles : str or tuple, default "densely dashed"
+        Linestyle for contour lines. Accepts standard matplotlib names
+        ("solid", "dashed", etc.), compound names ("densely dashed",
+        "loosely dotted", etc.), or dash tuples like (0, (5, 1)).
+    palette : dict, optional
+        Mapping of group names to colors. If None, uses ``c`` for all groups.
+    smooth_sigma : float, optional
+        Gaussian smoothing sigma applied to the 2D histogram (in grid units).
+        Controls how smooth the contour is. Larger values produce rounder,
+        more generalized outlines; smaller values follow the point
+        distribution more closely. If None, auto-computed from the median
+        nearest-neighbor distance of the group's points, scaled to produce
+        a smooth contour that closely follows the cluster shape.
+    grid_size : int, default 200
+        Number of bins along each axis for the 2D histogram. Higher values
+        give finer resolution but slower computation.
+    threshold : float, optional
+        Contour level on the normalized [0, 1] density field. Lower values
+        draw contours further from the points (looser fit); higher values
+        draw contours closer to the dense core (tighter fit). Typical
+        range: 0.01 (very loose) to 0.2 (very tight). If None,
+        auto-computed to enclose ~95% of points.
+    """
+    from scipy.ndimage import gaussian_filter
 
     _data = data.copy()
 
@@ -646,30 +925,105 @@ def density_contour(
     else:
         _data["groupby"] = "one group"
 
-    _contour_kws = {
-        "linewidths": linewidth,
-        "levels": (-single_contour_pad,),
-        "linestyles": "dashed",
+    # Convert named compound linestyles to dash tuples for contour compatibility
+    _named_linestyles = {  # https://matplotlib.org/stable/gallery/lines_bars_and_markers/linestyles.html
+        "loosely dotted": (0, (1, 10)),
+        "dotted": (0, (1, 1)),
+        "densely dotted": (0, (1, 1)),
+        "long dash with offset": (5, (10, 3)),
+        "loosely dashed": (0, (5, 10)),
+        "dashed": (0, (5, 5)),
+        "densely dashed": (0, (5, 1)),
+        "loosely dashdotted": (0, (3, 10, 1, 10)),
+        "dashdotted": (0, (3, 5, 1, 5)),
+        "densely dashdotted": (0, (3, 1, 1, 1)),
+        "dashdotdotted": (0, (3, 5, 1, 5, 1, 5)),
+        "loosely dashdotdotted": (0, (3, 10, 1, 10, 1, 10)),
+        "densely dashdotdotted": (0, (3, 1, 1, 1, 1, 1)),
     }
-    _lof_kws = {"n_neighbors": 25, "novelty": True, "contamination": "auto"}
-
-    xmin, ymin = _data[[x, y]].min()
-    xmax, ymax = _data[[x, y]].max()
-    xmin, xmax = zoom_min_max(xmin, xmax, 1.2)
-    ymin, ymax = zoom_min_max(ymin, ymax, 1.2)
+    _standard_linestyles = {"solid", "dashed", "dashdot", "dotted"}
+    if isinstance(linestyles, str) and linestyles not in _standard_linestyles:
+        linestyles = _named_linestyles.get(linestyles, linestyles)
+    if isinstance(linestyles, tuple):
+        linestyles = [linestyles]
 
     for group, sub_data in _data[[x, y, "groupby"]].groupby("groupby"):
-        xx, yy = np.meshgrid(np.linspace(xmin, xmax, 500), np.linspace(ymin, ymax, 500))
-        clf = LocalOutlierFactor(**_lof_kws)
-        clf.fit(sub_data.iloc[:, :2].values)
-        z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
-        z = z.reshape(xx.shape)
+        coords = sub_data.iloc[:, :2].values
+        if len(coords) < 5:
+            continue
         if palette is None:
             _color = c
         else:
             _color = palette[group] if group in palette else c
-        # plot contour line(s)
-        ax.contour(xx, yy, z, colors=_color, **_contour_kws)
+
+        xmin, xmax = zoom_min_max(coords[:, 0].min(), coords[:, 0].max(), 1.15)
+        ymin, ymax = zoom_min_max(coords[:, 1].min(), coords[:, 1].max(), 1.15)
+        x_range = xmax - xmin
+        y_range = ymax - ymin
+
+        # Auto-compute smooth_sigma from median nearest-neighbor distance
+        if smooth_sigma is None:
+            from sklearn.neighbors import NearestNeighbors
+
+            k = min(5, len(coords) - 1)
+            nn = NearestNeighbors(n_neighbors=k + 1)
+            nn.fit(coords)
+            dists, _ = nn.kneighbors(coords)
+            med_nn = np.median(dists[:, 1:])
+            # Convert physical distance to grid units and scale
+            grid_cell_x = x_range / grid_size
+            grid_cell_y = y_range / grid_size
+            grid_cell = (grid_cell_x + grid_cell_y) / 2
+            _sigma = (med_nn / grid_cell) * 1.5 * single_contour_pad
+            _sigma = max(_sigma, 2.0)  # minimum smoothing
+        else:
+            _sigma = smooth_sigma
+
+        # Build a 2D histogram as occupancy grid, then smooth it
+        hist, xedges, yedges = np.histogram2d(
+            coords[:, 0],
+            coords[:, 1],
+            bins=grid_size,
+            range=[[xmin, xmax], [ymin, ymax]],
+        )
+        # Gaussian smooth to get a clean density field
+        z = gaussian_filter(hist.T, sigma=_sigma)
+        # Normalize to [0, 1]
+        z = z / z.max() if z.max() > 0 else z
+
+        # Auto-compute threshold to enclose ~95% of points
+        if threshold is None:
+            # Sample density values at each point location
+            xi = np.clip(
+                ((coords[:, 0] - xmin) / x_range * (grid_size - 1)).astype(int),
+                0,
+                grid_size - 1,
+            )
+            yi = np.clip(
+                ((coords[:, 1] - ymin) / y_range * (grid_size - 1)).astype(int),
+                0,
+                grid_size - 1,
+            )
+            point_densities = z[yi, xi]
+            # Use the 5th percentile so 95% of points are inside the contour
+            _threshold = max(np.percentile(point_densities, 5) * 0.8, 1e-4)
+        else:
+            _threshold = threshold
+
+        # Create mesh grid centers
+        xc = (xedges[:-1] + xedges[1:]) / 2
+        yc = (yedges[:-1] + yedges[1:]) / 2
+        xx, yy = np.meshgrid(xc, yc)
+
+        ax.contour(
+            xx,
+            yy,
+            z,
+            levels=[_threshold],
+            colors=_color,
+            linewidths=linewidth,
+            linestyles=linestyles,
+        )
     return
 
 
@@ -832,7 +1186,27 @@ def plot_marker_legend(
 
 # Custom handler for legend: circle text as marker + label
 class TextWithCircleHandler(HandlerBase):
+    """
+    Custom legend handler that renders a numbered circle as the legend marker.
+
+    Used by :func:`plot_text_legend` to create coded legends where each
+    category is represented by a colored circle containing a number.
+
+    Parameters
+    ----------
+    marker_text : str, default ""
+        Text to display inside the circle marker (typically a number code).
+    label_text : str, default ""
+        Label text for the legend entry (category name).
+    text_kws : dict, default {}
+        Keyword arguments for the marker text, including ``bbox`` for
+        the circle style (boxstyle, facecolor, edgecolor, etc.).
+    **kwargs
+        Additional keyword arguments passed to ``HandlerBase``.
+    """
+
     def __init__(self, marker_text="", label_text="", text_kws={}, **kwargs):
+        """Initialize with marker text, label, and text styling kwargs."""
         HandlerBase.__init__(self, **kwargs)
         self.marker_text = marker_text
         self.text_kws = text_kws
@@ -840,7 +1214,7 @@ class TextWithCircleHandler(HandlerBase):
     def create_artists(
         self, legend, orig_handle, xdescent, ydescent, width, height, fontsize, trans
     ):
-        # Marker (number with circle)
+        """Create a Text artist with circle bbox as the legend marker."""
         self.text_kws.setdefault("fontsize", fontsize)
         # print(self.text_kws)
         shift = 2 * self.text_kws["fontsize"] * 0.65 / 72 / mm2inch
@@ -867,7 +1241,46 @@ def plot_text_legend(
     alpha=0.7,
     luminance=0.5,
 ):
-    # print(color_dict)
+    """
+    Plot a coded legend where each category has a numbered circle marker.
+
+    Each legend entry shows a colored circle with a number code followed
+    by the category label text. Useful when categories have integer codes
+    displayed on the scatter plot.
+
+    Parameters
+    ----------
+    color_dict : dict
+        Mapping of category names to colors (hex strings or RGB tuples).
+    code2label : dict
+        Mapping of integer codes to category label strings,
+        e.g. ``{1: "Excitatory", 2: "Inhibitory"}``.
+    ax : matplotlib.axes.Axes, optional
+        Axes to attach the legend to. Uses current axes if None.
+    title : str, optional
+        Legend title.
+    color_text : bool, default True
+        If True, color the label text to match the category color
+        (for labels with luminance below ``luminance``).
+    boxstyle : str, default "Circle"
+        Shape of the marker box. Options: "Circle", "Round", "Square".
+    marker_pad : float, default 0.1
+        Padding inside the marker box (passed to matplotlib FancyBboxPatch).
+    legend_kws : dict, optional
+        Additional keyword arguments passed to ``ax.legend()``, such as
+        ``ncol``, ``fontsize``, ``bbox_to_anchor``, etc.
+    marker_fontsize : float, default 4
+        Font size of the number text inside the circle marker.
+    text_kws : dict, optional
+        Keyword arguments for the marker text rendering, including ``bbox``
+        sub-dict for circle styling (edgecolor, linewidth, facecolor, etc.).
+    alpha : float, default 0.7
+        Opacity of the circle marker background.
+    luminance : float, default 0.5
+        Luminance threshold for deciding text color. Labels with color
+        luminance above this value are shown in black; darker colors
+        are shown in their own color.
+    """
     lgd_kws = (
         legend_kws.copy() if legend_kws is not None else {}
     )  # bbox_to_anchor=(x,-0.05)
@@ -976,6 +1389,7 @@ def plot_cmap_legend(
     labelsize=6,
     linewidth=0.5,
     ticklabel_size=4,
+    ticklabel_pad=1,
 ):
     """
     Plot legend for cmap.
@@ -1010,9 +1424,6 @@ def plot_cmap_legend(
     # print(type(cax))
     vmax = cbar_kws.pop("vmax", 1)
     vmin = cbar_kws.pop("vmin", 0)
-    # print(vmin,vmax,'vmax,vmin')
-    cax.set_ylim([vmin, vmax])
-    # print(cax.get_ylim())
     vcenter = (vmax + vmin) / 2
     center = cbar_kws.pop("center", None)
     if center is None:
@@ -1029,8 +1440,11 @@ def plot_cmap_legend(
     cax.yaxis.set_ticks_position("right")
     cbar = ax.figure.colorbar(m, cax=cax, **cbar_kws)  # use_gridspec=True
     cbar.ax.tick_params(
-        labelsize=ticklabel_size, size=ticklabel_size, width=linewidth
-    )  # size is for ticks, labelsize is for the number on ticks (ticklabels)
+        labelsize=ticklabel_size,
+        size=ticklabel_size,
+        width=linewidth,
+        pad=ticklabel_pad,
+    )  # size is for ticks, labelsize is for the number on ticks (ticklabels), pad is gap between tick and label
     cbar.ax.yaxis.label.set_fontsize(labelsize)  # colorbar title fontsize
     cbar.ax.grid(False)
     return cbar
@@ -1039,6 +1453,37 @@ def plot_cmap_legend(
 def normalize_mc_by_cell(
     use_adata, normalize_per_cell=True, clip_norm_value=10, verbose=1, hypo_score=False
 ):
+    """
+    Normalize methylation fraction per cell by prior mean.
+
+    Divides each cell's methylation values by its prior mean (stored in
+    ``obs['prior_mean']``), which is typically determined by alpha and
+    beta parameters of a Beta distribution.
+
+    Parameters
+    ----------
+    use_adata : anndata.AnnData
+        AnnData object with methylation fractions in ``.X`` and
+        ``prior_mean`` column in ``.obs``.
+    normalize_per_cell : bool, default True
+        Whether to perform normalization. If False, returns the input
+        unchanged.
+    clip_norm_value : float or None, default 10
+        Maximum value to clip normalized values to. Set to None to
+        disable clipping.
+    verbose : int, default 1
+        Verbosity level. 0 = silent, 1 = print status messages.
+    hypo_score : bool, default False
+        If True, compute hypomethylation score (prior_mean / value)
+        instead of the standard normalized fraction (value / prior_mean).
+        Higher hypo_score means more hypomethylated.
+
+    Returns
+    -------
+    anndata.AnnData
+        The input AnnData with ``.X`` modified in-place.
+        Sets ``uns['normalize_per_cell'] = True`` after normalization.
+    """
     from scipy.sparse import issparse
 
     normalized_flag = use_adata.uns.get("normalize_per_cell", False)
@@ -1095,6 +1540,26 @@ def normalize_mc_by_cell(
 
 
 def parse_gtf(gtf="gencode.v43.annotation.gtf", outfile=None):
+    """
+    Parse a GENCODE/Ensembl GTF annotation file into a DataFrame.
+
+    Extracts gene-level information including gene_id, gene_name,
+    gene_type, genomic coordinates, and strand.
+
+    Parameters
+    ----------
+    gtf : str, default "gencode.v43.annotation.gtf"
+        Path to the GTF file. Supports ``~`` expansion.
+    outfile : str or None, default None
+        If provided, saves the parsed result as a tab-separated file
+        at this path. If None, returns the DataFrame directly.
+
+    Returns
+    -------
+    pd.DataFrame or None
+        DataFrame with columns: chrom, beg, end, gene_name, gene_id,
+        strand, gene_type. Returned only when ``outfile`` is None.
+    """
     df = pd.read_csv(
         os.path.expanduser(gtf),
         sep="\t",
@@ -1106,6 +1571,7 @@ def parse_gtf(gtf="gencode.v43.annotation.gtf", outfile=None):
     cols = ["gene_id", "gene_type", "gene_name"]
 
     def parse_info(x):
+        """Parse a GTF info field string into a key-value dict."""
         x = x.replace('"', "")
         D = {}
         for item in x.strip().rstrip(";").split(";"):
@@ -1531,6 +1997,24 @@ def categorical_scatter(
 
 
 def get_cmap(cmap):
+    """
+    Get a matplotlib colormap by name, including custom ones.
+
+    .. deprecated::
+        Use :func:`adataviz.palettes.get_cmap` instead.
+
+    Parameters
+    ----------
+    cmap : str
+        Name of the colormap. Supports standard matplotlib names
+        ("viridis", "turbo", etc.) and custom adataviz colormaps
+        ("parula", "exp1", "exp2", "meth1", "meth2").
+
+    Returns
+    -------
+    matplotlib.colors.Colormap
+        The requested colormap object.
+    """
     from . import palettes as _palettes
 
     warnings.warn(
@@ -1867,6 +2351,7 @@ def continuous_scatter(
         # cbar_kws.setdefault('vmax',hue_norm[1])
         cbar_kws["vmin"] = hue_norm[0]
         cbar_kws["vmax"] = hue_norm[1]
+        _ticklabel_pad = cbar_kws.pop("ticklabel_pad", 1)
         cbar = plot_cmap_legend(
             ax=ax,
             cax=ax_legend,
@@ -1876,6 +2361,7 @@ def continuous_scatter(
             labelsize=labelsize,
             linewidth=linewidth,
             ticklabel_size=ticklabel_size,
+            ticklabel_pad=_ticklabel_pad,
         )
         return_axes.append([ax_legend, cbar])
 

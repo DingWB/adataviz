@@ -284,6 +284,21 @@ def create_spatial_colormap_hot():
 
 
 def get_cmap(cmap):
+    """
+    Get a matplotlib colormap by name, compatible with different versions.
+
+    Parameters
+    ----------
+    cmap : str
+        Name of the colormap. Supports all standard matplotlib names
+        ("viridis", "turbo", etc.) and custom registered colormaps
+        ("parula", "exp1", "exp2", "meth1", "meth2").
+
+    Returns
+    -------
+    matplotlib.colors.Colormap
+        The requested colormap object.
+    """
     try:
         return plt.colormaps.get(cmap)  # matplotlib >= 3.5.1?
     except AttributeError:
@@ -291,6 +306,34 @@ def get_cmap(cmap):
 
 
 def level_one_palette(name_list, order=None, palette="auto"):
+    """
+    Generate a color palette mapping for categorical names.
+
+    Assigns a unique color to each unique value in ``name_list``
+    using the specified palette.
+
+    Parameters
+    ----------
+    name_list : array-like
+        Series or list of category names (may contain duplicates/NaN).
+    order : list, optional
+        Desired order of categories. If None, categories are sorted
+        alphabetically.
+    palette : str or list, default "auto"
+        Color palette to use. "auto" selects tab10/tab20/rainbow
+        based on the number of unique categories. Can also be any
+        seaborn/matplotlib palette name or a list of colors.
+
+    Returns
+    -------
+    dict
+        Mapping of category names to RGB color tuples.
+
+    Raises
+    ------
+    ValueError
+        If ``order`` doesn't match the unique values in ``name_list``.
+    """
     name_set = set(name_list.dropna())
     if palette == "auto":
         if len(name_set) < 10:
@@ -429,6 +472,23 @@ def add_color_scheme(
 
 
 def add_colors(adata, cat_col, palette):
+    """
+    Assign colors to AnnData categorical column in ``uns``.
+
+    Maps each category in ``adata.obs[cat_col]`` to a color from
+    ``palette`` and stores the list in ``adata.uns[f"{cat_col}_colors"]``.
+
+    Parameters
+    ----------
+    adata : anndata.AnnData
+        AnnData object with a categorical column in ``.obs``.
+    cat_col : str
+        Name of the categorical column in ``adata.obs``.
+    palette : dict or pd.DataFrame
+        Color mapping. If dict, maps category names to hex colors.
+        If DataFrame, must have a "Hex" column with category names
+        as index.
+    """
     _colors = []
     for _cat in adata.obs[cat_col].cat.categories:
         try:
