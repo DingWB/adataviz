@@ -3,7 +3,7 @@ import os
 import sys
 import seaborn as sns
 import numpy as np
-import matplotlib.pylab as plt
+import matplotlib.pyplot as plt
 import matplotlib
 from matplotlib.legend_handler import HandlerBase
 from matplotlib.lines import Line2D
@@ -11,7 +11,9 @@ from matplotlib.text import Text
 import copy
 import warnings
 
-warnings.filterwarnings("ignore")
+# Note: do NOT call ``warnings.filterwarnings("ignore")`` at module import.
+# Library code must not silence warnings globally for downstream users.
+# Use ``with warnings.catch_warnings():`` locally where needed.
 
 mm2inch = 1 / 25.4
 

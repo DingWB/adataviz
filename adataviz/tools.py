@@ -934,55 +934,14 @@ def downsample_adata(
         )
         .sum()
     )
-    adata[keep_cells, :].write_h5ad(
-        outfile, compression="gzip", convert_strings_to_categoricals=False
-    )
+    adata[keep_cells, :].write_h5ad(outfile, compression="gzip")
     adata.file.close()
 
 
-def prepare_color_palette(color_dict=None, outpath="palette.xlsx"):
-    """
-    Generating a .xlsx file including all color palette.
-
-    Parameters
-    ----------
-    colors : dict
-            A dict of dict, keys are categorical terms, values are HEX color code
-
-    Returns
-    -------
-
-    """
-    outpath = os.path.expanduser(outpath)
-    writer = pd.ExcelWriter(outpath)
-    for key in color_dict:
-        data = pd.DataFrame.from_dict(color_dict[key], orient="index", columns=["Hex"])
-        # data.style.background_gradient(cmap='gray_r')
-        # data.style.applymap(lambda x:'color:'+x if x.startswith('#') else 'color: white')
-        data.to_excel(writer, sheet_name=key, index=True)
-        workbook = writer.book
-        worksheet = writer.sheets[key]
-        colors = data.Hex.tolist()
-        for i in range(data.shape[0]):
-            color = colors[i]
-            f = workbook.add_format(
-                {"bold": True, "font_color": "black", "bg_color": color}
-            )
-            worksheet.write(i + 1, 1, color, f)
-        width = 20
-        cell_fmt = workbook.add_format(
-            {
-                "bold": False,
-                "font_color": "black",
-                # 'bg_color':'green',
-                "align": "center",
-                "valign": "vcenter",
-            }
-        )
-        # styled = data.style.applymap(lambda val: 'color: %s' % 'red' if val < 0 else 'black').highlight_max()
-        worksheet.set_column(0, 1, width, cell_fmt)
-    # worksheet.conditional_format(f'A:{last_col}', {'type': 'no_blanks', 'format': cell_fmt})
-    writer.close()
+# ``prepare_color_palette`` is defined in ``adataviz.utils``.
+# Re-export here for backward compatibility (existing imports such as
+# ``from adataviz.tools import prepare_color_palette`` keep working).
+from .utils import prepare_color_palette  # noqa: E402,F401
 
 
 def get_color_palette(adata, groupby="Group"):
@@ -1123,7 +1082,9 @@ def composition(
             parent_values = df.index.get_level_values(0).tolist()
             if color_palette is not None:
                 parent_colors = [color_palette[parent_col][ct] for ct in parent_values]
-        group_values = df.index.get_level_values(1).tolist()
+            group_values = df.index.get_level_values(1).tolist()
+        else:
+            group_values = df.index.tolist()
         regions = df.columns.tolist()
         if color_palette is not None:
             group_colors = [color_palette[groupby][ct] for ct in group_values]

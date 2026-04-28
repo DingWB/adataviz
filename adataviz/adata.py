@@ -7,7 +7,6 @@ import pandas as pd
 import scipy.sparse as sp
 import glob
 import json
-import time
 from loguru import logger as logger
 # logger.remove()
 # logger.add(sys.stderr, level="DEBUG")
@@ -434,7 +433,7 @@ class AnnDataCollection:
         raise IndexError("Unsupported var indexer")
 
 
-def is_annadatacollection(path: str) -> bool:
+def is_anndatacollection(path: str) -> bool:
     """Return True if `path` points to an AnnData file produced by
     `AnnDataCollection.from_files`.
     Heuristic: the AnnData must have `uns` entries `src_paths` or
@@ -654,63 +653,8 @@ class AnnDataView:
         return out
 
 
-def test_subset():
-    """
-    Integration test for AnnDataCollection subsetting.
-
-    Compares results of subsetting cells and genes via AnnDataCollection
-    against direct AnnData backed reading to verify correctness and
-    measure performance.
-    """
-    os.chdir(
-        os.path.expanduser("/home/x-wding2/Projects/mouse_dev/testAnnDataCollection")
-    )
-    adata_path = "/anvil/projects/x-mcb130189/Wubin/mouse_dev/adata/100kb/*-CGN.h5ad"
-    reference_path = (
-        "/anvil/projects/x-mcb130189/Wubin/mouse_dev/adata/mouse_dev.100kb-CGN.h5ad"
-    )
-    metadata_path = os.path.expanduser(
-        "~/Projects/mouse_dev/metadata/metadata.filtered.tsv.gz"
-    )
-    ds = AnnDataCollection.from_files(
-        adata_path, out_path="mouse_dev.100kb-CGN.h5ad", metadata_path=metadata_path
-    )
-
-    ref = anndata.read_h5ad(reference_path, backed="r")
-    use_cells = ref.obs.sample(5000).index.tolist()
-    start = time.perf_counter()
-    ref_data = ref[use_cells, :].to_df()
-    end = time.perf_counter()
-    ref.file.close()
-    logger.info(f"Reference read time for 5000 cells: {end - start:.2f} seconds")
-
-    start = time.perf_counter()
-    data = ds[use_cells, :].to_memory(thread=10).to_df()
-    end = time.perf_counter()
-    logger.info(
-        f"AnnDataCollection read time for 5000 cells: {end - start:.2f} seconds"
-    )
-    ref_data.index.name = "cell"
-    assert ref_data.equals(data)
-    pd.testing.assert_frame_equal(ref_data, data, check_dtype=True, rtol=1e-6, atol=0)
-
-    # subset vars
-    ref = anndata.read_h5ad(reference_path, backed="r")
-    use_vars = ref.var.sample(50).index.tolist()
-    start = time.perf_counter()
-    ref_data = ref[:, use_vars].to_df()
-    end = time.perf_counter()
-    logger.info(f"Reference read time for 50 vars: {end - start:.2f} seconds")
-    ref.file.close()
-
-    start = time.perf_counter()
-    data = ds[:, use_vars].to_memory(thread=10).to_df()
-    end = time.perf_counter()
-    logger.info(f"AnnDataCollection read time for 50 vars: {end - start:.2f} seconds")
-    ref_data.index.name = "cell"
-    data = data.loc[ref_data.index.tolist()]
-    assert ref_data.equals(data)
-    pd.testing.assert_frame_equal(ref_data, data, check_dtype=True, rtol=1e-6, atol=0)
+# Backward-compatible alias for the previous (mis-spelled) public name.
+is_annadatacollection = is_anndatacollection
 
 
 def main():

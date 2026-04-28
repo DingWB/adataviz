@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 import importlib as _importlib
 import os
-import fire
 from ._version import version as __version__  # noqa: F401
+
+__all__ = ["tl", "pl", "main", "adataviz", "__version__"]
 
 
 def __getattr__(name):
@@ -33,7 +34,7 @@ def __getattr__(name):
     if name == "tl":
         return _importlib.import_module(".tools", __name__)
     if name == "pl":
-        return _importlib.import_module(".plotting", __name__)
+        return _importlib.import_module(".pl", __name__)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -65,12 +66,13 @@ Available subcommands:
     if command is None:
         return doc_string
     command = command.lower()
-    _pl = _importlib.import_module(".plotting", __name__)
+    _pl = _importlib.import_module(".pl", __name__)
     _tl = _importlib.import_module(".tools", __name__)
     if command == "plot":
         return {
             "plot_categorical": _pl.plot_categorical,
-            "plot_genes": _pl.plot_genes,
+            "plot_gene": _pl.plot_gene,
+            "gene_dotplot": _pl.gene_dotplot,
         }
     elif command == "tool":
         return {
@@ -92,6 +94,8 @@ Available subcommands:
 
 def main():
     """CLI entry point. Dispatches commands via Python Fire."""
+    import fire
+
     from .utils import serialize
 
     fire.core.Display = lambda lines, out: print(*lines, file=out)

@@ -156,12 +156,12 @@ class TestContinuousScatter:
 
 class TestPlotCategorical:
     def test_runs(self, adata_with_colors):
-        from adataviz.plotting import plot_categorical
+        from adataviz.pl import plot_categorical
 
         plot_categorical(adata_with_colors, groupby="cell_type", show=False)
 
     def test_runs_with_explicit_palette(self, adata):
-        from adataviz.plotting import plot_categorical
+        from adataviz.pl import plot_categorical
 
         palette = {
             "TypeA": "#e41a1c",
@@ -175,14 +175,14 @@ class TestPlotCategorical:
         plot_categorical(adata, groupby="cell_type", show=False)
 
     def test_coding_false(self, adata_with_colors):
-        from adataviz.plotting import plot_categorical
+        from adataviz.pl import plot_categorical
 
         plot_categorical(
             adata_with_colors, groupby="cell_type", coding=False, show=False
         )
 
     def test_returns_axes(self, adata_with_colors):
-        from adataviz.plotting import plot_categorical
+        from adataviz.pl import plot_categorical
         import matplotlib.pyplot as plt
 
         fig, ax = plt.subplots()

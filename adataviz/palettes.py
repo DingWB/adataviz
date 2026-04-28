@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import matplotlib.pylab as plt
+import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib import cm, colors as mcolors
 from matplotlib.colors import LinearSegmentedColormap, rgb2hex
