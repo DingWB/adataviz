@@ -53,6 +53,11 @@ from .interactive_stats import (
     interactive_boxplot,
     interactive_violin,
     interactive_stacked_bar,
+    interactive_dot_plot,
+    interactive_chord,
+    interactive_upset,
+    interactive_complex_heatmap,
+    interactive_complex_dotplot,
 )
 
 __all__ = [
@@ -92,4 +97,9 @@ __all__ = [
     "interactive_boxplot",
     "interactive_violin",
     "interactive_stacked_bar",
+    "interactive_dot_plot",
+    "interactive_chord",
+    "interactive_upset",
+    "interactive_complex_heatmap",
+    "interactive_complex_dotplot",
 ]

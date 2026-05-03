@@ -590,7 +590,6 @@ def gene_dotplot(
                 legend=True, height=3, label=parent_col,
             )
         col_ha = HeatmapAnnotation(**anno_dict, axis=axis, verbose=0)
-        colnames = False
     else:
         gcolors = {k: color_palette[groupby][k] for k in df_cols[groupby].unique()}
         kw = dict(
@@ -602,33 +601,28 @@ def gene_dotplot(
         )
         if parent_col is not None:
             pcolors = {k: color_palette[parent_col][k] for k in df_cols[parent_col].unique()}
-            kw["label"] = anno_label(
-                df_cols[groupby], colors=gcolors, merge=True,
-                rotation=45, fontsize=10, arrowprops=dict(visible=False),
-            )
             kw["parent"] = anno_simple(
                 df_cols[parent_col], colors=pcolors, add_text=False,
                 legend=True, height=3, label=parent_col,
             )
-            colnames = False
-        else:
-            colnames = True
         col_ha = HeatmapAnnotation(**kw)
 
+    # Always show tick labels; pick a side that does not collide with col_ha.
+    # When col_ha is on top (axis=1, default) we keep group names at the
+    # bottom of the heatmap and gene names on the right - both sides of the
+    # heatmap stay clean and labels are clearly readable.
     if not transpose:
         top_anno, left_anno = col_ha, None
         x, y = groupby, "Gene"
         x_order = df_cols.index.tolist()
         y_order = gene_order
-        show_colnames = colnames
-        show_rownames = True
+        col_side, row_side = "bottom", "left"
     else:
         top_anno, left_anno = None, col_ha
         x, y = "Gene", groupby
         x_order = gene_order
         y_order = df_cols.index.tolist()
-        show_rownames = colnames
-        show_colnames = True
+        col_side, row_side = "bottom", "right"
 
     defaults = dict(
         marker=marker, grid=None, dot_legend_marker=marker,
@@ -636,11 +630,14 @@ def gene_dotplot(
         row_cluster=row_cluster, col_cluster=col_cluster,
         row_cluster_method="ward", row_cluster_metric="euclidean",
         col_cluster_method="ward", col_cluster_metric="euclidean",
-        col_names_side="top", row_names_side="left",
-        show_rownames=show_rownames, show_colnames=show_colnames,
+        col_names_side=col_side, row_names_side=row_side,
+        show_rownames=True, show_colnames=True,
         row_dendrogram=False,
-        xticklabels_kws=dict(labelrotation=45, labelsize=10, top=True),
-        yticklabels_kws=dict(labelsize=10, left=True),
+        xticklabels_kws=dict(labelrotation=-45, labelsize=8, bottom=True),
+        yticklabels_kws=dict(labelsize=8, right=True),
+        legend_hpad=4,
+        legend_side="right",
+        legend_anchor="ax_heatmap",
         spines=False,
     )
     for k, v in defaults.items():

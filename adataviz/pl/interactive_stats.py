@@ -59,6 +59,7 @@ def interactive_rose(
     title: Optional[str] = None,
     save: Optional[str] = None,
     height: int = 500,
+    width: Optional[int] = None,
 ):
     """Plotly polar bar chart (Nightingale rose) of category counts."""
     import plotly.graph_objects as go
@@ -85,6 +86,7 @@ def interactive_rose(
             angularaxis=dict(direction="clockwise"),
         ),
         height=height,
+        width=width,
         margin=dict(l=20, r=20, t=40, b=20),
     )
     _maybe_save(fig, save)
@@ -105,6 +107,7 @@ def interactive_ring(
     title: Optional[str] = None,
     save: Optional[str] = None,
     height: int = 500,
+    width: Optional[int] = None,
 ):
     """Plotly donut chart of ``groupby`` proportions."""
     import plotly.graph_objects as go
@@ -123,7 +126,7 @@ def interactive_ring(
             hovertemplate="%{label}: %{value} (%{percent})<extra></extra>",
         )
     )
-    fig.update_layout(title=title, height=height, margin=dict(l=20, r=20, t=40, b=20))
+    fig.update_layout(title=title, height=height, width=width, margin=dict(l=20, r=20, t=40, b=20))
     _maybe_save(fig, save)
     return fig
 
@@ -141,6 +144,7 @@ def interactive_pie(
     title: Optional[str] = None,
     save: Optional[str] = None,
     height: int = 500,
+    width: Optional[int] = None,
 ):
     """Plotly pie chart of ``groupby`` proportions (no hole)."""
     return interactive_ring(
@@ -152,6 +156,7 @@ def interactive_pie(
         title=title,
         save=save,
         height=height,
+        width=width,
     )
 
 
@@ -171,6 +176,7 @@ def interactive_area(
     title: Optional[str] = None,
     save: Optional[str] = None,
     height: int = 500,
+    width: Optional[int] = None,
 ):
     """Plotly stacked area chart, mirroring :func:`area_plot`."""
     import plotly.graph_objects as go
@@ -202,6 +208,7 @@ def interactive_area(
     fig.update_layout(
         title=title,
         height=height,
+        width=width,
         xaxis_title=split_by,
         yaxis_title="Fraction" if normalize else "Count",
         margin=dict(l=40, r=20, t=40, b=40),
@@ -226,6 +233,7 @@ def interactive_trend(
     title: Optional[str] = None,
     save: Optional[str] = None,
     height: int = 500,
+    width: Optional[int] = None,
 ):
     """Plotly line trend mirror of :func:`trend_plot`."""
     import plotly.graph_objects as go
@@ -255,6 +263,7 @@ def interactive_trend(
     fig.update_layout(
         title=title,
         height=height,
+        width=width,
         xaxis_title=split_by,
         yaxis_title="Fraction" if normalize else "Count",
         margin=dict(l=40, r=20, t=40, b=40),
@@ -278,6 +287,7 @@ def interactive_sankey(
     title: Optional[str] = None,
     save: Optional[str] = None,
     height: int = 500,
+    width: Optional[int] = None,
 ):
     """Plotly Sankey diagram mirroring :func:`sankey_plot`.
 
@@ -343,7 +353,7 @@ def interactive_sankey(
         )
     )
     fig.update_layout(
-        title=title, height=height, margin=dict(l=20, r=20, t=40, b=20)
+        title=title, height=height, width=width, margin=dict(l=20, r=20, t=40, b=20)
     )
     _maybe_save(fig, save)
     return fig
@@ -876,3 +886,444 @@ def interactive_stacked_bar(
         show_fig(fig, filename=f"stacked_bar.{split_by}.{groupby}")
         return None
     return fig
+
+
+# ---------------------------------------------------------------------------
+# Dot plot (count × column-fraction)
+# ---------------------------------------------------------------------------
+
+
+def interactive_dot_plot(
+    adata,
+    groupby: str,
+    split_by: str,
+    order: Optional[Sequence] = None,
+    split_order: Optional[Sequence] = None,
+    cmap: str = "Viridis",
+    size_max: int = 30,
+    title: Optional[str] = None,
+    save: Optional[str] = None,
+    height: int = 500,
+    width: int = 700,
+):
+    """Plotly scatter where size = count and colour = column-fraction.
+
+    Mirrors :func:`adataviz.pl.dot_plot`.
+    """
+    import plotly.graph_objects as go
+
+    obs, _ = resolve_adata_obs(adata)
+    cats = categorical_order(obs[groupby], order)
+    splits = categorical_order(obs[split_by], split_order)
+    ct = pd.crosstab(obs[groupby].astype(str), obs[split_by].astype(str))
+    ct = ct.reindex(index=cats, columns=splits, fill_value=0).astype(float)
+    col_sums = ct.sum(axis=0).replace(0, np.nan)
+    frac = ct.div(col_sums, axis=1).fillna(0)
+    long = ct.stack().rename("count").reset_index()
+    long.columns = [groupby, split_by, "count"]
+    long["fraction"] = frac.stack().values
+
+    fig = go.Figure(
+        go.Scatter(
+            x=long[split_by],
+            y=long[groupby],
+            mode="markers",
+            marker=dict(
+                size=long["count"],
+                sizemode="area",
+                sizeref=2.0 * max(long["count"].max(), 1) / (size_max ** 2),
+                sizemin=2,
+                color=long["fraction"],
+                colorscale=cmap,
+                cmin=0, cmax=1,
+                line=dict(width=0.5, color="black"),
+                colorbar=dict(title=f"Fraction within {split_by}"),
+            ),
+            customdata=np.stack([long["count"], long["fraction"]], axis=-1),
+            hovertemplate=(
+                f"{groupby}: %{{y}}<br>{split_by}: %{{x}}<br>"
+                "count: %{customdata[0]}<br>fraction: %{customdata[1]:.3f}<extra></extra>"
+            ),
+        )
+    )
+    fig.update_layout(
+        title=title,
+        xaxis_title=split_by,
+        yaxis_title=groupby,
+        yaxis=dict(autorange="reversed"),
+        height=height,
+        width=width,
+        template="plotly_white",
+        margin=dict(l=80, r=40, t=50, b=80),
+    )
+    fig.update_xaxes(tickangle=-30)
+    _maybe_save(fig, save)
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Chord (interactive proxy via Sankey)
+# ---------------------------------------------------------------------------
+
+
+def interactive_chord(
+    adata,
+    left: str,
+    right: str,
+    left_order: Optional[Sequence] = None,
+    right_order: Optional[Sequence] = None,
+    palette: Union[None, Mapping[str, str], str] = None,
+    title: Optional[str] = None,
+    save: Optional[str] = None,
+    height: int = 600,
+    width: int = 800,
+):
+    """Interactive co-occurrence visualisation between two categorical columns.
+
+    Plotly does not provide a native chord renderer, so this function
+    draws a Sankey with both columns as separate node sets - the same
+    information chord_plot encodes circularly.
+    """
+    return interactive_sankey(
+        adata,
+        left=left,
+        right=right,
+        left_order=left_order,
+        right_order=right_order,
+        palette=palette,
+        title=title,
+        save=save,
+        height=height,
+        width=width,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Venn / UpSet (interactive bar-style overlap viewer)
+# ---------------------------------------------------------------------------
+
+
+def interactive_upset(
+    adata,
+    groupby: str,
+    set_by: str,
+    order: Optional[Sequence] = None,
+    palette: Union[None, Mapping[str, str], str] = None,
+    title: Optional[str] = None,
+    save: Optional[str] = None,
+    height: int = 600,
+    width: int = 900,
+    top_n: int = 25,
+    min_intersection_size: int = 1,
+):
+    """Interactive UpSet plot.
+
+    Renders three coordinated panels via :mod:`plotly.subplots`:
+
+    - **Top**: vertical bars with the size of each intersection.
+    - **Bottom-right**: a dot/line matrix indicating which sets each
+      intersection belongs to (filled dots = "in", grey dots = "out",
+      vertical line connects all "in" dots in a column).
+    - **Bottom-left**: horizontal bars with the total size of every set,
+      coloured by ``palette``.
+
+    Parameters
+    ----------
+    top_n : int, default 25
+        Keep the ``top_n`` largest intersections.
+    min_intersection_size : int, default 1
+        Drop combinations seen fewer times than this threshold.
+    """
+    import plotly.graph_objects as go
+    from plotly.subplots import make_subplots
+
+    obs, ad = resolve_adata_obs(adata)
+    groups = list(categorical_order(obs[groupby], order))
+    sets = {
+        g: set(
+            obs.loc[obs[groupby].astype(str) == g, set_by].dropna().astype(str)
+        )
+        for g in groups
+    }
+    set_sizes = {g: len(sets[g]) for g in groups}
+    universe = set().union(*sets.values())
+    if not universe:
+        raise ValueError("interactive_upset: empty universe of items.")
+
+    # Compute intersection counts.
+    combo_counts: dict = {}
+    for item in universe:
+        combo = tuple(g for g in groups if item in sets[g])
+        if not combo:
+            continue
+        combo_counts[combo] = combo_counts.get(combo, 0) + 1
+    rows = [
+        (combo, n) for combo, n in combo_counts.items() if n >= min_intersection_size
+    ]
+    rows.sort(key=lambda r: r[1], reverse=True)
+    rows = rows[:top_n]
+    if not rows:
+        raise ValueError(
+            "interactive_upset: no combinations passed `min_intersection_size`."
+        )
+
+    n_int = len(rows)
+    n_set = len(groups)
+    int_sizes = [n for _, n in rows]
+    int_labels = [" & ".join(combo) for combo, _ in rows]
+    colors = resolve_palette(
+        palette, groups, sheet_name=groupby, adata=ad, groupby=groupby
+    )
+    set_colors = [colors[g] for g in groups]
+
+    # Layout: 2 rows x 2 cols.
+    # row1: empty | top bars
+    # row2: side bars | dot matrix
+    fig = make_subplots(
+        rows=2, cols=2,
+        column_widths=[0.22, 0.78],
+        row_heights=[0.55, 0.45],
+        horizontal_spacing=0.04, vertical_spacing=0.06,
+        specs=[
+            [None, {"type": "bar"}],
+            [{"type": "bar"}, {"type": "scatter"}],
+        ],
+        shared_xaxes=False,
+        shared_yaxes=False,
+    )
+
+    # --- Top: intersection-size bars --------------------------------------
+    fig.add_trace(
+        go.Bar(
+            x=list(range(n_int)),
+            y=int_sizes,
+            marker=dict(color="#444"),
+            text=int_sizes,
+            textposition="outside",
+            hovertemplate="<b>%{customdata}</b><br>size: %{y}<extra></extra>",
+            customdata=int_labels,
+            showlegend=False,
+        ),
+        row=1, col=2,
+    )
+
+    # --- Bottom-left: per-set total size bars ------------------------------
+    fig.add_trace(
+        go.Bar(
+            y=list(range(n_set)),
+            x=[set_sizes[g] for g in groups],
+            orientation="h",
+            marker=dict(color=set_colors),
+            text=[set_sizes[g] for g in groups],
+            textposition="outside",
+            hovertemplate="<b>%{customdata}</b><br>set size: %{x}<extra></extra>",
+            customdata=groups,
+            showlegend=False,
+        ),
+        row=2, col=1,
+    )
+
+    # --- Bottom-right: dot matrix ------------------------------------------
+    on_x, on_y = [], []
+    off_x, off_y = [], []
+    seg_x, seg_y = [], []
+    for ci, (combo, _) in enumerate(rows):
+        in_idx = [groups.index(g) for g in combo]
+        for gi in range(n_set):
+            if gi in in_idx:
+                on_x.append(ci); on_y.append(gi)
+            else:
+                off_x.append(ci); off_y.append(gi)
+        if len(in_idx) >= 2:
+            seg_x += [ci, ci, None]
+            seg_y += [min(in_idx), max(in_idx), None]
+    fig.add_trace(
+        go.Scatter(
+            x=off_x, y=off_y, mode="markers",
+            marker=dict(size=10, color="#dddddd", line=dict(color="white", width=1)),
+            hoverinfo="skip", showlegend=False,
+        ),
+        row=2, col=2,
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=seg_x, y=seg_y, mode="lines",
+            line=dict(color="#222", width=2),
+            hoverinfo="skip", showlegend=False,
+        ),
+        row=2, col=2,
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=on_x, y=on_y, mode="markers",
+            marker=dict(
+                size=12,
+                color=[set_colors[g] for g in on_y],
+                line=dict(color="black", width=0.5),
+            ),
+            hovertemplate="set: %{text}<extra></extra>",
+            text=[groups[g] for g in on_y],
+            showlegend=False,
+        ),
+        row=2, col=2,
+    )
+
+    fig.update_xaxes(showticklabels=False, range=[-0.5, n_int - 0.5], row=1, col=2)
+    fig.update_yaxes(title_text="Intersection size", row=1, col=2)
+    fig.update_xaxes(title_text="Set size", autorange="reversed", row=2, col=1)
+    fig.update_yaxes(
+        tickmode="array",
+        tickvals=list(range(n_set)),
+        ticktext=groups,
+        row=2, col=1,
+    )
+    fig.update_xaxes(
+        showticklabels=False, range=[-0.5, n_int - 0.5], row=2, col=2,
+    )
+    fig.update_yaxes(
+        tickmode="array",
+        tickvals=list(range(n_set)),
+        ticktext=["" for _ in groups],
+        range=[-0.5, n_set - 0.5],
+        row=2, col=2,
+    )
+    fig.update_layout(
+        title=title or f"{set_by} overlap across {groupby}",
+        template="plotly_white",
+        height=height,
+        width=width,
+        margin=dict(l=60, r=40, t=60, b=60),
+        bargap=0.25,
+    )
+    _maybe_save(fig, save)
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Complex heatmap (Plotly heatmap of mean expression)
+# ---------------------------------------------------------------------------
+
+
+def interactive_complex_heatmap(
+    adata,
+    genes: Sequence[str],
+    groupby: str,
+    layer: Optional[str] = None,
+    use_raw: bool = False,
+    z_score: Optional[str] = "row",
+    cmap: str = "RdBu_r",
+    title: Optional[str] = None,
+    save: Optional[str] = None,
+    height: int = 500,
+    width: int = 800,
+):
+    """Plotly heatmap of mean gene expression per group (mirror of :func:`complex_heatmap`)."""
+    import plotly.graph_objects as go
+    from .complex_heatmap import _aggregate
+
+    mean_df, _ = _aggregate(adata, groupby, list(genes), layer=layer, use_raw=use_raw)
+    if z_score == "row":
+        mean_df = (mean_df.sub(mean_df.mean(axis=1), axis=0)
+                   .div(mean_df.std(axis=1).replace(0, np.nan), axis=0).fillna(0))
+    elif z_score == "col":
+        mean_df = (mean_df.sub(mean_df.mean(axis=0), axis=1)
+                   .div(mean_df.std(axis=0).replace(0, np.nan), axis=1).fillna(0))
+    fig = go.Figure(
+        go.Heatmap(
+            z=mean_df.values,
+            x=list(mean_df.columns),
+            y=list(mean_df.index),
+            colorscale=cmap,
+            zmid=0 if z_score in ("row", "col") else None,
+            colorbar=dict(title="z-score" if z_score else "mean"),
+            hovertemplate=f"{groupby}: %{{y}}<br>gene: %{{x}}<br>value: %{{z:.2f}}<extra></extra>",
+        )
+    )
+    fig.update_layout(
+        title=title,
+        height=height,
+        width=width,
+        xaxis_title="gene",
+        yaxis_title=groupby,
+        template="plotly_white",
+        margin=dict(l=80, r=40, t=50, b=80),
+    )
+    fig.update_xaxes(tickangle=-45)
+    _maybe_save(fig, save)
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Complex dotplot (Plotly dot heatmap, size = % expressing, colour = mean)
+# ---------------------------------------------------------------------------
+
+
+def interactive_complex_dotplot(
+    adata,
+    genes: Sequence[str],
+    groupby: str,
+    layer: Optional[str] = None,
+    use_raw: bool = False,
+    expression_cutoff: float = 0,
+    cmap: str = "Reds",
+    title: Optional[str] = None,
+    save: Optional[str] = None,
+    height: int = 500,
+    width: int = 800,
+    size_max: int = 22,
+):
+    """Plotly dot heatmap mirror of :func:`complex_dotplot`."""
+    import plotly.graph_objects as go
+    from .complex_heatmap import _aggregate
+
+    mean_df, frac_df = _aggregate(
+        adata, groupby, list(genes), layer=layer, use_raw=use_raw,
+        expression_cutoff=expression_cutoff,
+    )
+    cats = list(mean_df.index)
+    genes = list(mean_df.columns)
+    yy, xx = np.meshgrid(np.arange(len(cats)), np.arange(len(genes)), indexing="ij")
+    sizes = frac_df.values
+    fig = go.Figure(
+        go.Scatter(
+            x=xx.ravel(),
+            y=yy.ravel(),
+            mode="markers",
+            marker=dict(
+                size=sizes.ravel() * size_max,
+                sizemode="diameter",
+                sizemin=1,
+                color=mean_df.values.ravel(),
+                colorscale=cmap,
+                line=dict(width=0.5, color="black"),
+                colorbar=dict(title="mean"),
+            ),
+            customdata=np.stack([mean_df.values.ravel(), sizes.ravel()], axis=-1),
+            hovertemplate=(
+                f"{groupby}: %{{text}}<br>gene: %{{meta}}<br>"
+                "mean: %{customdata[0]:.2f}<br>fraction: %{customdata[1]:.2f}<extra></extra>"
+            ),
+            text=[cats[i] for i in yy.ravel()],
+            meta=[genes[j] for j in xx.ravel()],
+        )
+    )
+    fig.update_layout(
+        title=title,
+        height=height,
+        width=width,
+        template="plotly_white",
+        xaxis=dict(tickmode="array", tickvals=np.arange(len(genes)), ticktext=genes, tickangle=-45),
+        yaxis=dict(tickmode="array", tickvals=np.arange(len(cats)), ticktext=cats, autorange="reversed"),
+        margin=dict(l=120, r=40, t=50, b=100),
+    )
+    _maybe_save(fig, save)
+    return fig
+
+
+__all__ += [
+    "interactive_dot_plot",
+    "interactive_chord",
+    "interactive_upset",
+    "interactive_complex_heatmap",
+    "interactive_complex_dotplot",
+]

@@ -60,16 +60,18 @@ def sankey_plot(
     left_order: Optional[Sequence] = None,
     right_order: Optional[Sequence] = None,
     palette: Union[None, Mapping[str, str], str] = None,
-    figsize=(7, 5),
+    figsize=(8, 5),
     ax=None,
     save: Optional[str] = None,
     show: bool = False,
     title: Optional[str] = None,
-    gap: float = 0.02,
-    flow_alpha: float = 0.5,
-    label_fontsize: float = 8,
+    gap: float = 0.015,
+    flow_alpha: float = 0.55,
+    label_fontsize: float = 9,
     show_legend: bool = False,
     legend_kws: Optional[Mapping[str, Any]] = None,
+    min_flow_frac: float = 0.0,
+    min_node_frac: float = 0.0,
 ):
     """Two-column Sankey/alluvial flow between ``left`` and ``right`` columns.
 
@@ -78,14 +80,17 @@ def sankey_plot(
 
     Parameters
     ----------
-    adata : AnnData, DataFrame, or path
-        Input data; rows are cells.
-    left, right : str
-        Column names of two categorical variables in ``adata.obs``.
+    min_flow_frac : float, default 0.0
+        Drop ribbons whose share of the grand total is below this
+        fraction (e.g. ``0.005`` removes flows under 0.5%). Useful when
+        the right column dwarfs a few large categories on the left.
+    min_node_frac : float, default 0.0
+        Drop nodes whose total share on either side is below this
+        fraction. Smaller categories are pruned before layout so the
+        remaining ones use the full canvas height.
     legend_kws : dict, optional
         Forwarded to :meth:`matplotlib.figure.Figure.legend` when
-        ``show_legend=True``. Defaults to a frameless legend on the
-        right of the figure.
+        ``show_legend=True``.
     """
     obs, ad = resolve_adata_obs(adata)
     left_cats = categorical_order(obs[left], left_order)
@@ -95,8 +100,20 @@ def sankey_plot(
     if ct.values.sum() == 0:
         raise ValueError("No data to plot in sankey_plot.")
 
+    grand = float(ct.values.sum())
+    # Optional filtering: drop tiny ribbons and tiny nodes for clarity.
+    if min_flow_frac > 0:
+        ct = ct.where(ct >= min_flow_frac * grand, 0.0)
     left_totals = ct.sum(axis=1).values
     right_totals = ct.sum(axis=0).values
+    if min_node_frac > 0:
+        keep_l = left_totals >= min_node_frac * grand
+        keep_r = right_totals >= min_node_frac * grand
+        left_cats = [c for c, k in zip(left_cats, keep_l) if k]
+        right_cats = [c for c, k in zip(right_cats, keep_r) if k]
+        ct = ct.loc[left_cats, right_cats]
+        left_totals = ct.sum(axis=1).values
+        right_totals = ct.sum(axis=0).values
 
     # Drop completely empty nodes — they would otherwise show as zero-height
     # rectangles with labels stacked on top of each other.
@@ -121,6 +138,12 @@ def sankey_plot(
         fig, ax = plt.subplots(figsize=figsize)
     else:
         fig = ax.figure
+
+    # Auto-shrink label fontsize when there are many nodes so labels don't overlap.
+    fig_h_in = fig.get_size_inches()[1]
+    max_n = max(len(left_cats), len(right_cats))
+    auto_fs = max(4.0, min(label_fontsize, fig_h_in * 72 / max(max_n, 1) * 0.55))
+    label_fontsize = float(auto_fs)
 
     # Draw nodes
     bar_w = 0.04
@@ -246,11 +269,15 @@ def chord_plot(
     show: bool = False,
     title: Optional[str] = None,
     space: int = 2,
+    adjust_text: bool = True,
+    min_flow_frac: float = 0.0,
 ):
     """Circular chord diagram of ``left`` × ``right`` co-occurrence.
 
     Uses :mod:`pycirclize` when available (better labels and ribbons),
-    otherwise falls back to a self-contained matplotlib renderer.
+    otherwise falls back to a self-contained matplotlib renderer. Pass
+    ``adjust_text=True`` (default) to nudge overlapping labels apart in
+    the fallback renderer.
     """
     obs, ad = resolve_adata_obs(adata)
     left_cats = categorical_order(obs[left], left_order)
@@ -259,6 +286,19 @@ def chord_plot(
     ct = ct.reindex(index=left_cats, columns=right_cats, fill_value=0)
     if ct.values.sum() == 0:
         raise ValueError("No data to plot in chord_plot.")
+    if min_flow_frac > 0:
+        grand = float(ct.values.sum())
+        ct = ct.where(ct >= min_flow_frac * grand, 0)
+        if ct.values.sum() == 0:
+            raise ValueError(
+                f"min_flow_frac={min_flow_frac} removes all flows; lower the threshold."
+            )
+        # Drop fully-zero rows / columns so pycirclize does not divide by 0.
+        keep_left = ct.sum(axis=1) > 0
+        keep_right = ct.sum(axis=0) > 0
+        ct = ct.loc[keep_left, keep_right]
+        left_cats = [c for c in left_cats if c in ct.index]
+        right_cats = [c for c in right_cats if c in ct.columns]
 
     all_labels = list(dict.fromkeys(list(left_cats) + list(right_cats)))
     matrix = pd.DataFrame(0.0, index=all_labels, columns=all_labels, dtype=float)
@@ -270,6 +310,11 @@ def chord_plot(
             matrix.at[lc, rc] = matrix.at[lc, rc] + v
             if lc != rc:
                 matrix.at[rc, lc] = matrix.at[rc, lc] + v
+    # Drop labels that ended up with zero total (avoids ZeroDivisionError
+    # inside pycirclize.Circos when a sector has size 0).
+    nz = matrix.sum(axis=1) > 0
+    matrix = matrix.loc[nz, nz]
+    all_labels = [l for l in all_labels if l in matrix.index]
 
     colors = resolve_palette(palette, all_labels, adata=ad, groupby=left)
 
@@ -277,25 +322,38 @@ def chord_plot(
         from pycirclize import Circos  # type: ignore
     except ImportError:
         return _chord_fallback(
-            matrix, colors, figsize=figsize, save=save, show=show, title=title
+            matrix, colors, figsize=figsize, save=save, show=show,
+            title=title, adjust_text=adjust_text,
         )
 
     circos = Circos.initialize_from_matrix(
         matrix,
         space=space,
         cmap={k: colors[k] for k in all_labels},
-        ticks_interval=max(1, int(matrix.values.sum() / 20)),
-        label_kws=dict(size=9),
+        ticks_interval=None,
+        label_kws=dict(size=8, r=105),
     )
     fig = circos.plotfig(figsize=figsize)
+    if adjust_text:
+        # Collect the sector-name Text artists pycirclize placed around the
+        # ring and nudge them apart with adjustText.
+        from ._utils import maybe_adjust_texts
+        wanted = set(all_labels)
+        texts = [
+            t for ax in fig.axes for t in ax.texts if t.get_text() in wanted
+        ]
+        if texts:
+            maybe_adjust_texts(texts, ax=fig.axes[0])
     if title:
-        fig.suptitle(title)
+        fig.suptitle(title, y=0.98)
+    fig.tight_layout()
     save_or_show(fig, save)
     return fig
 
 
-def _chord_fallback(matrix, colors, figsize, save, show, title):
+def _chord_fallback(matrix, colors, figsize, save, show, title, adjust_text=True):
     """Minimal matplotlib chord fallback when pycirclize is unavailable."""
+    from ._utils import maybe_adjust_texts
     fig, ax = plt.subplots(figsize=figsize, subplot_kw=dict(aspect="equal"))
     labels = list(matrix.index)
     n = len(labels)
@@ -315,13 +373,14 @@ def _chord_fallback(matrix, colors, figsize, save, show, title):
 
     R = 1.0
     R_outer = 1.05
+    label_artists = []
     for i, lab in enumerate(labels):
         theta = np.linspace(starts[i], ends[i], 50)
         xs = np.concatenate([R * np.cos(theta), R_outer * np.cos(theta[::-1])])
         ys = np.concatenate([R * np.sin(theta), R_outer * np.sin(theta[::-1])])
         ax.fill(xs, ys, color=colors[lab], edgecolor="white", linewidth=0.5)
         mid = (starts[i] + ends[i]) / 2
-        ax.text(
+        t = ax.text(
             1.12 * np.cos(mid),
             1.12 * np.sin(mid),
             lab,
@@ -330,6 +389,7 @@ def _chord_fallback(matrix, colors, figsize, save, show, title):
             fontsize=8,
             rotation=np.rad2deg(mid) - 90 if np.cos(mid) > 0 else np.rad2deg(mid) + 90,
         )
+        label_artists.append(t)
 
     cursor_out = starts.copy()
     cursor_in = ends.copy()
@@ -357,6 +417,8 @@ def _chord_fallback(matrix, colors, figsize, save, show, title):
     ax.set_xlim(-1.3, 1.3)
     ax.set_ylim(-1.3, 1.3)
     ax.axis("off")
+    if adjust_text:
+        maybe_adjust_texts(label_artists, ax=ax)
     if title:
         ax.set_title(title)
     save_or_show(fig, save)

@@ -1441,6 +1441,21 @@ def plot_cmap_legend(
     cax.yaxis.set_label_position("right")
     cax.yaxis.set_ticks_position("right")
     cbar = ax.figure.colorbar(m, cax=cax, **cbar_kws)  # use_gridspec=True
+    # Fix while-line bug
+    cbar.solids.set_visible(False)
+    gradient = np.linspace(vmin, vmax, 1024).reshape(-1, 1)
+    cax.imshow(
+        gradient,
+        aspect="auto",
+        cmap=m.cmap,
+        norm=m.norm,
+        origin="lower",
+        extent=(0, 1, vmin, vmax),
+        interpolation="bilinear",
+        zorder=cbar.solids.get_zorder(),
+    )
+    cax.set_xlim(0, 1)
+    cax.set_ylim(vmin, vmax)
     cbar.ax.tick_params(
         labelsize=ticklabel_size,
         size=ticklabel_size,

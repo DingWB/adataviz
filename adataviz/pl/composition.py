@@ -59,7 +59,8 @@ def rose_plot(
     linewidth: float = 0.5,
     show_legend: bool = True,
     legend_kws: Optional[Mapping[str, Any]] = None,
-    label_rotation: bool = True,
+    label_orientation: str = "radial",
+    label_pad: float = 1.12,
 ):
     """Draw a Nightingale rose (polar) chart of category counts.
 
@@ -72,11 +73,14 @@ def rose_plot(
     split_by : str, optional
         Column whose categories stack within each wedge.
     legend_kws : dict, optional
-        Forwarded to :meth:`matplotlib.axes.Axes.legend`. Defaults follow
-        ``plot_genes`` (right of axes, frameless, fontsize 8).
-    label_rotation : bool, default True
-        Rotate wedge labels to follow the radial direction (avoids
-        overlap when there are many categories).
+        Forwarded to :meth:`matplotlib.axes.Axes.legend`.
+    label_orientation : {"radial", "vertical", "none"}, default ``"radial"``
+        ``"radial"`` rotates each label tangent to its wedge (flipped on the
+        lower half so it stays right-side-up); ``"vertical"`` keeps labels
+        upright; ``"none"`` hides labels.
+    label_pad : float, default 1.12
+        Multiplier on ``rmax`` controlling label distance from the outer
+        ring (raise to avoid title overlap).
     """
     obs, ad = resolve_adata_obs(adata)
     cats = categorical_order(obs[groupby], order)
@@ -127,25 +131,31 @@ def rose_plot(
             ax.legend(**merge_legend_kws(legend_kws, title=split_by))
 
     ax.set_xticks(angles)
-    if label_rotation and n > 6:
+    if label_orientation == "none":
         ax.set_xticklabels([])
+    elif label_orientation == "radial":
+        ax.set_xticklabels([])
+        rmax = ax.get_rmax()
         for ang, lab in zip(angles, cats):
-            rot = np.rad2deg(ang) - 90 if np.cos(ang) >= 0 else np.rad2deg(ang) + 90
+            deg = (np.rad2deg(ang) + 360) % 360
+            if deg <= 90 or deg >= 270:
+                rot, ha = deg, "left"
+            else:
+                rot, ha = deg - 180, "right"
             ax.text(
-                ang,
-                ax.get_rmax() * 1.05,
-                lab,
-                rotation=rot,
-                ha="center",
-                va="center",
-                fontsize=8,
+                ang, rmax * label_pad, lab,
+                rotation=rot, rotation_mode="anchor",
+                ha=ha, va="center", fontsize=8,
             )
-    else:
+    else:  # vertical / upright
         ax.set_xticklabels(cats, fontsize=8)
     ax.set_yticklabels([])
     ax.spines["polar"].set_visible(False)
+    ax.grid(color="lightgrey", linewidth=0.4, alpha=0.7)
+    # Reserve enough margin so labels don't collide with the title.
     if title:
-        ax.set_title(title)
+        ax.set_title(title, pad=24)
+    fig.subplots_adjust(top=0.86, left=0.05, right=0.95, bottom=0.05)
     save_or_show(fig, save)
     return ax
 
@@ -170,15 +180,25 @@ def ring_plot(
     edgecolor: str = "white",
     show_legend: bool = False,
     legend_kws: Optional[Mapping[str, Any]] = None,
+    legend_loc: str = "right",
     show_labels: Optional[bool] = None,
     adjust_text: bool = False,
+    label_orientation: str = "horizontal",
 ):
     """Donut chart for ``groupby`` value counts.
 
-    With many categories (>= 12) labels around the ring overlap; pass
-    ``show_labels=False`` (auto when there are many slices) to drop them
-    and rely on ``show_legend=True`` instead, or pass ``adjust_text=True``
-    to nudge them apart with :mod:`adjustText`.
+    Parameters
+    ----------
+    legend_loc : {"right", "center"}, default ``"right"``
+        ``"right"`` places the legend to the right of the donut
+        (useful when there are many categories); ``"center"`` draws it
+        inside the donut hole - clean look when categories are few.
+    label_orientation : {"horizontal", "radial"}, default ``"horizontal"``
+        ``"radial"`` rotates each external label tangent to its wedge
+        (flipped on the lower half so it stays readable).
+    show_labels : bool, optional
+        Auto-disabled when there are >12 categories. Pass
+        ``adjust_text=True`` to nudge labels apart with :mod:`adjustText`.
     """
     obs, ad = resolve_adata_obs(adata)
     cats = categorical_order(obs[groupby], order)
@@ -186,33 +206,69 @@ def ring_plot(
     colors = resolve_palette(palette, cats, sheet_name=groupby, adata=ad, groupby=groupby)
 
     if show_labels is None:
-        show_labels = len(cats) <= 12
+        show_labels = len(cats) <= 12 and legend_loc != "center"
 
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
     else:
         fig = ax.figure
 
+    total = float(counts.sum()) or 1.0
+    fracs = counts.values / total
+    # Hide percent labels on tiny slices to avoid overlap.
+    def _autopct(p):
+        return (autopct % p) if autopct and p >= 3 else ""
     wedges, texts, autotexts = ax.pie(
         counts.values,
         labels=cats if show_labels else None,
         colors=[colors[c] for c in cats],
-        wedgeprops=dict(width=width, edgecolor=edgecolor),
-        autopct=autopct,
+        wedgeprops=dict(width=width, edgecolor=edgecolor, linewidth=0.6),
+        autopct=_autopct if autopct else None,
         pctdistance=1 - width / 2,
-        textprops=dict(fontsize=8),
+        textprops=dict(fontsize=7),
     )
-    if adjust_text and show_labels:
-        maybe_adjust_texts(texts, ax=ax)
+    # Drop labels for tiny slices to declutter.
+    if show_labels:
+        for t, f in zip(texts, fracs):
+            if f < 0.02:
+                t.set_text("")
+        if label_orientation == "radial":
+            import numpy as _np
+
+            for t, w in zip(texts, wedges):
+                if not t.get_text():
+                    continue
+                ang = (w.theta1 + w.theta2) / 2.0
+                deg = (ang + 360) % 360
+                if deg <= 90 or deg >= 270:
+                    rot, ha = deg, "left"
+                else:
+                    rot, ha = deg - 180, "right"
+                # Position just outside the donut.
+                r = 1.05
+                t.set_position((r * _np.cos(_np.deg2rad(ang)), r * _np.sin(_np.deg2rad(ang))))
+                t.set_rotation(rot)
+                t.set_rotation_mode("anchor")
+                t.set_ha(ha)
+                t.set_va("center")
+        if adjust_text:
+            maybe_adjust_texts([t for t in texts if t.get_text()], ax=ax)
     ax.set(aspect="equal")
     if show_legend:
-        ax.legend(
-            wedges,
-            cats,
-            **merge_legend_kws(legend_kws, title=groupby),
-        )
+        if legend_loc == "center":
+            lkws = dict(
+                loc="center", bbox_to_anchor=(0.5, 0.5), frameon=False,
+                fontsize=8, title=groupby, title_fontsize=9,
+                handlelength=1.0, handletextpad=0.4, labelspacing=0.3,
+            )
+            if legend_kws:
+                lkws.update(legend_kws)
+            ax.legend(wedges, cats, **lkws)
+        else:
+            ax.legend(wedges, cats, **merge_legend_kws(legend_kws, title=groupby))
     if title:
-        ax.set_title(title)
+        ax.set_title(title, pad=10)
+    fig.tight_layout()
     save_or_show(fig, save)
     return ax
 
@@ -260,15 +316,24 @@ def pie_plot(
             figsize = (4.5, 4.5)
         fig, ax = plt.subplots(figsize=figsize)
         counts = obs[groupby].astype(str).value_counts().reindex(cats, fill_value=0)
+        total = float(counts.sum()) or 1.0
+        fracs = counts.values / total
+        def _autopct(p):
+            return (autopct % p) if autopct and p >= 3 else ""
         wedges, texts, _autotexts = ax.pie(
             counts.values,
             labels=cats if show_labels else None,
             colors=[colors[c] for c in cats],
-            autopct=autopct,
+            autopct=_autopct if autopct else None,
             textprops=dict(fontsize=8),
+            wedgeprops=dict(edgecolor="white", linewidth=0.6),
         )
-        if adjust_text and show_labels:
-            maybe_adjust_texts(texts, ax=ax)
+        if show_labels:
+            for t, f in zip(texts, fracs):
+                if f < 0.02:
+                    t.set_text("")
+            if adjust_text:
+                maybe_adjust_texts([t for t in texts if t.get_text()], ax=ax)
         if show_legend:
             ax.legend(wedges, cats, **merge_legend_kws(legend_kws, title=groupby))
         ax.set(aspect="equal")
@@ -290,15 +355,24 @@ def pie_plot(
         sub = obs[obs[split_by].astype(str) == sp]
         counts = sub[groupby].astype(str).value_counts().reindex(cats, fill_value=0)
         ax = axes[i]
+        total = float(counts.sum()) or 1.0
+        fracs = counts.values / total
+        def _autopct_facet(p):
+            return (autopct % p) if autopct and p >= 3 else ""
         wedges, texts, _ap = ax.pie(
             counts.values,
             labels=cats if show_labels else None,
             colors=[colors[c] for c in cats],
-            autopct=autopct,
+            autopct=_autopct_facet if autopct else None,
             textprops=dict(fontsize=7),
+            wedgeprops=dict(edgecolor="white", linewidth=0.5),
         )
-        if adjust_text and show_labels:
-            maybe_adjust_texts(texts, ax=ax)
+        if show_labels:
+            for t, f in zip(texts, fracs):
+                if f < 0.02:
+                    t.set_text("")
+            if adjust_text:
+                maybe_adjust_texts([t for t in texts if t.get_text()], ax=ax)
         ax.set_title(str(sp), fontsize=9)
         ax.set(aspect="equal")
     for j in range(n, len(axes)):
@@ -372,15 +446,17 @@ def area_plot(
         linewidth=0.3,
     )
     ax.set_xticks(x)
-    ax.set_xticklabels(splits, rotation=30, ha="right")
+    ax.set_xticklabels(splits, rotation=-45, rotation_mode="anchor", ha="left", va="center")
     ax.set_xlim(0, max(len(splits) - 1, 1))
     ax.set_ylim(0, 1 if normalize else None)
     ax.set_ylabel("Fraction" if normalize else "Count")
     ax.set_xlabel(split_by)
+    ax.spines[["top", "right"]].set_visible(False)
     if show_legend:
         ax.legend(**merge_legend_kws(legend_kws, title=groupby))
     if title:
         ax.set_title(title)
+    fig.tight_layout()
     save_or_show(fig, save)
     return ax
 
@@ -443,7 +519,7 @@ def dot_plot(
         vmax=1,
     )
     ax.set_xticks(np.arange(len(splits)))
-    ax.set_xticklabels(splits, rotation=30, ha="right")
+    ax.set_xticklabels(splits, rotation=-45, rotation_mode="anchor", ha="left", va="center")
     ax.set_yticks(np.arange(len(cats)))
     ax.set_yticklabels(cats)
     ax.set_xlim(-0.5, len(splits) - 0.5)
@@ -452,10 +528,14 @@ def dot_plot(
     ax.set_xlabel(split_by)
     ax.set_ylabel(groupby)
     ax.grid(True, linestyle=":", linewidth=0.4, alpha=0.6)
+    ax.spines[["top", "right"]].set_visible(False)
     cbar = fig.colorbar(sc, ax=ax, fraction=0.04, pad=0.04)
-    cbar.set_label(cbar_label or f"Fraction within {split_by}")
+    cbar.set_label(cbar_label or f"Fraction within {split_by}", fontsize=8)
+    cbar.outline.set_visible(False)
+    cbar.ax.tick_params(length=2, width=0.5, labelsize=7)
     if title:
         ax.set_title(title)
+    fig.tight_layout()
     save_or_show(fig, save)
     return ax
 
@@ -510,13 +590,17 @@ def trend_plot(
             markersize=4,
         )
     ax.set_xticks(x)
-    ax.set_xticklabels(splits, rotation=30, ha="right")
+    ax.set_xticklabels(splits, rotation=-45, rotation_mode="anchor", ha="left", va="center")
+    ax.set_xlim(-0.3, len(splits) - 0.7)
     ax.set_xlabel(split_by)
     ax.set_ylabel("Fraction" if normalize else "Count")
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.grid(axis="y", linewidth=0.4, alpha=0.5)
     if show_legend:
         ax.legend(**merge_legend_kws(legend_kws, title=groupby))
     if title:
         ax.set_title(title)
+    fig.tight_layout()
     save_or_show(fig, save)
     return ax
 
@@ -540,16 +624,20 @@ def bar_plot(
     show: bool = False,
     title: Optional[str] = None,
     rotation: float = -45,
-    width: float = 0.95,
+    gap: float = 0.05,
     edgecolor: str = "black",
     linewidth: float = 0.1,
     show_legend: bool = True,
     legend_kws: Optional[Mapping[str, Any]] = None,
+    sort_by: Optional[str] = None,
 ):
     """Stacked bar chart of ``groupby`` composition across ``split_by``.
 
     Each bar represents one ``split_by`` category and is stacked into
     ``groupby`` proportions (or absolute counts when ``normalize=False``).
+    The y-axis is intentionally hidden (no ticks / labels / spine) for a
+    cleaner publication-style composition plot, mirroring the legacy
+    ``stacked_barplot`` API.
     """
     obs, ad = resolve_adata_obs(adata)
     splits = categorical_order(obs[split_by], split_order)
@@ -559,32 +647,63 @@ def bar_plot(
     if normalize:
         row_sums = ct.sum(axis=1).replace(0, np.nan)
         ct = ct.div(row_sums, axis=0).fillna(0)
+    if sort_by is not None and sort_by in ct.columns:
+        ct = ct.sort_values(sort_by, ascending=True)
+        splits = list(ct.index)
     colors = resolve_palette(palette, cats, sheet_name=groupby, adata=ad, groupby=groupby)
     if figsize is None:
-        figsize = (max(3, len(splits) * 0.45), 4.5)
+        figsize = (max(2.5, len(splits) * 0.45), max(3.5, min(len(cats) * 0.5, 8)))
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
     else:
         fig = ax.figure
-    bottom = np.zeros(len(splits), dtype=float)
-    x = np.arange(len(splits))
+    n = len(splits)
+    bottom = np.zeros(n, dtype=float)
+    x = np.arange(n, dtype=float)  # left edges
+    bar_width = 1.0 - gap
     for c in cats:
         vals = ct[c].values
         ax.bar(
-            x, vals, width=width, bottom=bottom,
+            x, vals, width=bar_width, bottom=bottom,
+            align="edge",
             color=colors[c], edgecolor=edgecolor, linewidth=linewidth,
             label=c,
         )
         bottom += vals
-    ax.set_xticks(x)
-    ax.set_xticklabels(splits, rotation=rotation, ha="left" if rotation < 0 else "right")
-    ax.set_xlabel(split_by)
-    ax.set_ylabel("Fraction" if normalize else "Count")
+    # Tight x-limits remove the empty matplotlib auto-margin on either side.
+    ax.set_xlim(0, n)
     if normalize:
         ax.set_ylim(0, 1)
+    ax.set_xticks(x + 0.5)
+    ax.set_xticklabels(
+        splits,
+        rotation=rotation,
+        rotation_mode="anchor",
+        ha="left" if rotation < 0 else "right",
+        va="center",
+    )
+    ax.tick_params(
+        axis="y", which="both",
+        left=False, right=False,
+        labelleft=False, labelright=False,
+    )
+    ax.tick_params(axis="x", length=3, pad=2, top=False, labeltop=False)
+    ax.xaxis.label.set_visible(False)
+    ax.spines[["top", "right", "left"]].set_visible(False)
+    ax.grid(False)
     if show_legend:
-        ax.legend(**merge_legend_kws(legend_kws, title=groupby))
+        lkws = dict(
+            loc="upper left", bbox_to_anchor=(1.0, 1.0), frameon=False,
+            fontsize=8, ncol=1,
+            borderpad=0.3, handlelength=1.0, handleheight=1.0,
+            handletextpad=0.4, labelspacing=0.25, columnspacing=0.8,
+            title=groupby, title_fontsize=9,
+        )
+        if legend_kws:
+            lkws.update(legend_kws)
+        ax.legend(**lkws)
     if title:
         ax.set_title(title)
+    fig.tight_layout()
     save_or_show(fig, save, show=show)
     return ax

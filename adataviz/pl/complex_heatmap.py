@@ -186,6 +186,13 @@ def complex_heatmap(
         show_rownames=show_rownames,
         show_colnames=show_colnames,
         left_annotation=row_anno,
+        col_names_side="bottom",
+        row_names_side="right",
+        xticklabels_kws=dict(labelrotation=-45, labelsize=8, bottom=True),
+        yticklabels_kws=dict(labelsize=8, right=True),
+        legend_hpad=4,
+        legend_side="right",
+        legend_anchor="ax_heatmap",
         verbose=0,
     )
     for k, v in plot_kws.items():
@@ -217,6 +224,8 @@ def complex_dotplot(
     title: Optional[str] = None,
     save: Optional[str] = None,
     show: bool = False,
+    show_rownames: bool = True,
+    show_colnames: bool = True,
     legend_kws: Optional[Mapping[str, Any]] = None,
     plot_kws: Optional[Mapping[str, Any]] = None,
     annot_kws: Optional[Mapping[str, Any]] = None,
@@ -254,6 +263,14 @@ def complex_dotplot(
         cmap=cmap, marker=marker,
         row_cluster=row_cluster, col_cluster=col_cluster,
         left_annotation=row_anno, verbose=0,
+        show_rownames=show_rownames, show_colnames=show_colnames,
+        col_names_side="bottom", row_names_side="right",
+        xticklabels_kws=dict(labelrotation=-45, labelsize=8, bottom=True),
+        yticklabels_kws=dict(labelsize=8, right=True),
+        legend_hpad=4,
+        legend_side="right",
+        legend_anchor="ax_heatmap",
+        spines=False,
     )
     for k, v in plot_kws.items():
         base[k] = v
