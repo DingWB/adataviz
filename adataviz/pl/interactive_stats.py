@@ -11,7 +11,7 @@ not require it.
 
 from __future__ import annotations
 
-from typing import Any, Mapping, Optional, Sequence, Union
+from typing import Mapping, Optional, Sequence, Union
 
 import numpy as np
 import pandas as pd
@@ -67,7 +67,9 @@ def interactive_rose(
     obs, ad = resolve_adata_obs(adata)
     cats = categorical_order(obs[groupby], order)
     counts = obs[groupby].astype(str).value_counts().reindex(cats, fill_value=0)
-    colors = resolve_palette(palette, cats, sheet_name=groupby, adata=ad, groupby=groupby)
+    colors = resolve_palette(
+        palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
+    )
     fig = go.Figure(
         go.Barpolar(
             r=counts.values,
@@ -115,7 +117,9 @@ def interactive_ring(
     obs, ad = resolve_adata_obs(adata)
     cats = categorical_order(obs[groupby], order)
     counts = obs[groupby].astype(str).value_counts().reindex(cats, fill_value=0)
-    colors = resolve_palette(palette, cats, sheet_name=groupby, adata=ad, groupby=groupby)
+    colors = resolve_palette(
+        palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
+    )
     fig = go.Figure(
         go.Pie(
             labels=cats,
@@ -126,7 +130,9 @@ def interactive_ring(
             hovertemplate="%{label}: %{value} (%{percent})<extra></extra>",
         )
     )
-    fig.update_layout(title=title, height=height, width=width, margin=dict(l=20, r=20, t=40, b=20))
+    fig.update_layout(
+        title=title, height=height, width=width, margin=dict(l=20, r=20, t=40, b=20)
+    )
     _maybe_save(fig, save)
     return fig
 
@@ -190,7 +196,9 @@ def interactive_area(
         col_sums = ct.sum(axis=0).replace(0, np.nan)
         ct = ct.div(col_sums, axis=1).fillna(0)
 
-    colors = resolve_palette(palette, cats, sheet_name=groupby, adata=ad, groupby=groupby)
+    colors = resolve_palette(
+        palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
+    )
     fig = go.Figure()
     for c in cats:
         fig.add_trace(
@@ -246,7 +254,9 @@ def interactive_trend(
     if normalize:
         col_sums = ct.sum(axis=0).replace(0, np.nan)
         ct = ct.div(col_sums, axis=1).fillna(0)
-    colors = resolve_palette(palette, cats, sheet_name=groupby, adata=ad, groupby=groupby)
+    colors = resolve_palette(
+        palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
+    )
 
     fig = go.Figure()
     for c in cats:
@@ -321,8 +331,12 @@ def interactive_sankey(
             targets.append(node_index[(right, rc)])
             values.append(int(v))
 
-    left_colors = resolve_palette(palette, left_cats, sheet_name=left, adata=ad, groupby=left)
-    right_colors = resolve_palette(None, right_cats, sheet_name=right, adata=ad, groupby=right)
+    left_colors = resolve_palette(
+        palette, left_cats, sheet_name=left, adata=ad, groupby=left
+    )
+    right_colors = resolve_palette(
+        None, right_cats, sheet_name=right, adata=ad, groupby=right
+    )
     node_colors = [left_colors[c] for c in left_cats] + [
         right_colors[c] for c in right_cats
     ]
@@ -413,8 +427,10 @@ def interactive_embedding(
             use_adata = adata[:, gene].copy()
         if normalize_per_cell:
             use_adata = normalize_mc_by_cell(
-                use_adata=use_adata, normalize_per_cell=normalize_per_cell,
-                clip_norm_value=clip_norm_value, hypo_score=False,
+                use_adata=use_adata,
+                normalize_per_cell=normalize_per_cell,
+                clip_norm_value=clip_norm_value,
+                hypo_score=False,
             )
     elif adata is not None:
         use_adata = adata
@@ -481,13 +497,18 @@ def interactive_embedding(
     if gene is not None:
         hover_data[gene] = ":.3f"
     fig = px.scatter(
-        obs, x=f"{basis}_0", y=f"{basis}_1", color=use_col,
-        category_orders=category_orders, hover_data=hover_data,
+        obs,
+        x=f"{basis}_0",
+        y=f"{basis}_1",
+        color=use_col,
+        category_orders=category_orders,
+        hover_data=hover_data,
         range_color=range_color,
         color_discrete_sequence=px.colors.qualitative.D3,
         color_discrete_map=color_discrete_map,
         color_continuous_scale=cmap,
-        template="plotly_white", render_mode="webgl",
+        template="plotly_white",
+        render_mode="webgl",
     )
     fig.update_xaxes(
         range=[obs[f"{basis}_0"].min() - 0.5, obs[f"{basis}_0"].max() + 0.5],
@@ -498,7 +519,9 @@ def interactive_embedding(
         tickfont_size=12,
     )
     if size is None:
-        marker_diam_area = 2 * np.sqrt((width * height * target_fill) / (np.pi * n_points))
+        marker_diam_area = 2 * np.sqrt(
+            (width * height * target_fill) / (np.pi * n_points)
+        )
         marker_diam_log = 16 - 2 * np.log10(n_points)
         marker_diam = 0.7 * marker_diam_area + 0.5 * marker_diam_log
         size = int(np.clip(marker_diam, 4, 20))
@@ -513,7 +536,10 @@ def interactive_embedding(
         title=dict(text=title, font_size=16, x=0.5, pad=dict(t=10)),
         xaxis_title=f"{basis}_0".upper(),
         yaxis_title=f"{basis}_1".upper(),
-        autosize=True, width=width, height=height, legend_title=use_col,
+        autosize=True,
+        width=width,
+        height=height,
+        legend_title=use_col,
         legend=dict(font_size=12, itemsizing="constant", itemwidth=30, borderwidth=0.1),
     )
     if show:
@@ -570,9 +596,15 @@ def interactive_dotHeatmap(
     if renderer is not None:
         pio.renderers.default = renderer
     plot_data = get_genes_mean_frac(
-        adata, obs=obs, groupby=groupby, modality=modality, use_raw=use_raw,
-        expression_cutoff=expression_cutoff, genes=genes,
-        normalize_per_cell=normalize_per_cell, clip_norm_value=clip_norm_value,
+        adata,
+        obs=obs,
+        groupby=groupby,
+        modality=modality,
+        use_raw=use_raw,
+        expression_cutoff=expression_cutoff,
+        genes=genes,
+        normalize_per_cell=normalize_per_cell,
+        clip_norm_value=clip_norm_value,
         hypo_score=False,
     )
     x_labels = plot_data[groupby].unique().tolist()
@@ -588,34 +620,51 @@ def interactive_dotHeatmap(
     hover_text = [
         f"Group: {g}<br>Gene: {ge}<br>Mean: {m:.4g}<br>Frac: {f:.3g}"
         for g, ge, m, f in zip(
-            plot_data[groupby].tolist(), plot_data["Gene"].tolist(),
-            mean_vals, frac_vals,
+            plot_data[groupby].tolist(),
+            plot_data["Gene"].tolist(),
+            mean_vals,
+            frac_vals,
         )
     ]
     vmin_q = float(int(vmin.replace("p", "")) / 100)
     vmax_q = float(int(vmax.replace("p", "")) / 100)
     fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=plot_data[groupby].tolist(), y=plot_data["Gene"].tolist(),
-        mode="markers",
-        marker=dict(
-            size=sizes, color=mean_vals, colorscale=colorscale,
-            showscale=True, colorbar=dict(title="Mean"),
-            reversescale=reversescale, sizemode="area", opacity=0.9,
-            cmin=plot_data["Mean"].quantile(vmin_q),
-            cmax=plot_data["Mean"].quantile(vmax_q),
-        ),
-        text=hover_text, hoverinfo="text",
-    ))
-    fig.update_xaxes(type="category", categoryorder="array",
-                     categoryarray=x_labels, tickangle=-45)
-    fig.update_yaxes(type="category", categoryorder="array",
-                     categoryarray=list(reversed(y_labels)))
+    fig.add_trace(
+        go.Scatter(
+            x=plot_data[groupby].tolist(),
+            y=plot_data["Gene"].tolist(),
+            mode="markers",
+            marker=dict(
+                size=sizes,
+                color=mean_vals,
+                colorscale=colorscale,
+                showscale=True,
+                colorbar=dict(title="Mean"),
+                reversescale=reversescale,
+                sizemode="area",
+                opacity=0.9,
+                cmin=plot_data["Mean"].quantile(vmin_q),
+                cmax=plot_data["Mean"].quantile(vmax_q),
+            ),
+            text=hover_text,
+            hoverinfo="text",
+        )
+    )
+    fig.update_xaxes(
+        type="category", categoryorder="array", categoryarray=x_labels, tickangle=-45
+    )
+    fig.update_yaxes(
+        type="category", categoryorder="array", categoryarray=list(reversed(y_labels))
+    )
     if title is None:
         title = groupby
     fig.update_layout(
-        title=title or "", xaxis_title=groupby, yaxis_title="Gene",
-        width=width, height=height, plot_bgcolor="white",
+        title=title or "",
+        xaxis_title=groupby,
+        yaxis_title="Gene",
+        width=width,
+        height=height,
+        plot_bgcolor="white",
     )
     if show:
         show_fig(fig, filename=f"dotHeatmap.{groupby}")
@@ -630,9 +679,12 @@ def interactive_dotHeatmap(
 
 def _has_stats(adata):
     import anndata
+
     if isinstance(adata, str):
         adata = anndata.read_h5ad(adata, backed="r")
-    return all(k in adata.layers for k in ["min", "q25", "q50", "q75", "max", "mean", "std"])
+    return all(
+        k in adata.layers for k in ["min", "q25", "q50", "q75", "max", "mean", "std"]
+    )
 
 
 def _get_boxplot_data(adata, variable, gene, obs=None):
@@ -700,16 +752,25 @@ def interactive_boxplot(
         if title is None:
             title = f"Boxplot: {gene} by {variable}"
         fig = px.box(
-            plot_df, x=variable, y=gene, color=variable,
+            plot_df,
+            x=variable,
+            y=gene,
+            color=variable,
             color_discrete_sequence=px.colors.qualitative.D3,
-            color_discrete_map=cmap, range_y=range_y, points=False,
-            title=title, template="plotly_white",
+            color_discrete_map=cmap,
+            range_y=range_y,
+            points=False,
+            title=title,
+            template="plotly_white",
         )
         fig.update_xaxes(tickangle=-90, automargin=True)
         fig.update_traces(line_width=1.2, notched=False)
         fig.update_layout(
-            xaxis_title=variable, yaxis_title=gene, legend_title=variable,
-            width=width, height=height,
+            xaxis_title=variable,
+            yaxis_title=gene,
+            legend_title=variable,
+            width=width,
+            height=height,
         )
     else:
         if adata.isbacked:
@@ -729,19 +790,31 @@ def interactive_boxplot(
         for i, group in enumerate(groups):
             row = plot_data.loc[group]
             color = (cmap or {}).get(group, d3[i % len(d3)])
-            fig.add_trace(go.Box(
-                x=[group], q1=[row["q25"]], median=[row["q50"]], q3=[row["q75"]],
-                lowerfence=[row["min"]], upperfence=[row["max"]],
-                boxpoints=False, marker=dict(color=color),
-                name=str(group), showlegend=True,
-            ))
+            fig.add_trace(
+                go.Box(
+                    x=[group],
+                    q1=[row["q25"]],
+                    median=[row["q50"]],
+                    q3=[row["q75"]],
+                    lowerfence=[row["min"]],
+                    upperfence=[row["max"]],
+                    boxpoints=False,
+                    marker=dict(color=color),
+                    name=str(group),
+                    showlegend=True,
+                )
+            )
         if title is None:
             title = f"Boxplot: {gene} by {variable}"
         fig.update_xaxes(tickangle=-90, automargin=True)
         fig.update_layout(
-            title=title, xaxis_title=variable, yaxis_title=gene,
-            legend_title=variable, template="plotly_white",
-            width=width, height=height,
+            title=title,
+            xaxis_title=variable,
+            yaxis_title=gene,
+            legend_title=variable,
+            template="plotly_white",
+            width=width,
+            height=height,
         )
     if show:
         show_fig(fig, filename=f"boxplot.{variable}.{gene}")
@@ -802,14 +875,22 @@ def interactive_violin(
     df = pd.DataFrame(np.asarray(X), index=adata.obs_names, columns=list(genes))
     df[groupby] = adata.obs[groupby].astype(str).values
     long = df.melt(id_vars=[groupby], var_name="gene", value_name="value")
-    cmap = load_color_palette(palette=palette, adata=adata, groups=groupby) if isinstance(
-        palette, str
-    ) else (palette if isinstance(palette, dict) else None)
+    cmap = (
+        load_color_palette(palette=palette, adata=adata, groups=groupby)
+        if isinstance(palette, str)
+        else (palette if isinstance(palette, dict) else None)
+    )
     fig = px.violin(
-        long, x=groupby, y="value", color=groupby, facet_col="gene",
-        facet_col_wrap=min(3, len(genes)), color_discrete_map=cmap,
+        long,
+        x=groupby,
+        y="value",
+        color=groupby,
+        facet_col="gene",
+        facet_col_wrap=min(3, len(genes)),
+        color_discrete_map=cmap,
         color_discrete_sequence=px.colors.qualitative.D3,
-        box=box, points="all" if points else False,
+        box=box,
+        points="all" if points else False,
         template="plotly_white",
     )
     fig.update_xaxes(tickangle=-45, automargin=True)
@@ -818,7 +899,10 @@ def interactive_violin(
     if title is None:
         title = f"Expression by {groupby}"
     fig.update_layout(
-        title=title, width=width, height=height, legend_title=groupby,
+        title=title,
+        width=width,
+        height=height,
+        legend_title=groupby,
     )
     if show:
         show_fig(fig, filename=f"violin.{groupby}")
@@ -869,7 +953,10 @@ def interactive_stacked_bar(
     else:
         cmap = None
     fig = px.bar(
-        long, x=split_by, y="value", color=groupby,
+        long,
+        x=split_by,
+        y="value",
+        color=groupby,
         category_orders={split_by: splits, groupby: cats},
         color_discrete_map=cmap,
         color_discrete_sequence=px.colors.qualitative.D3,
@@ -880,7 +967,10 @@ def interactive_stacked_bar(
         title=title or f"{groupby} composition by {split_by}",
         xaxis_title=split_by,
         yaxis_title="Fraction" if normalize else "Count",
-        width=width, height=height, barmode="stack", legend_title=groupby,
+        width=width,
+        height=height,
+        barmode="stack",
+        legend_title=groupby,
     )
     if show:
         show_fig(fig, filename=f"stacked_bar.{split_by}.{groupby}")
@@ -931,11 +1021,12 @@ def interactive_dot_plot(
             marker=dict(
                 size=long["count"],
                 sizemode="area",
-                sizeref=2.0 * max(long["count"].max(), 1) / (size_max ** 2),
+                sizeref=2.0 * max(long["count"].max(), 1) / (size_max**2),
                 sizemin=2,
                 color=long["fraction"],
                 colorscale=cmap,
-                cmin=0, cmax=1,
+                cmin=0,
+                cmax=1,
                 line=dict(width=0.5, color="black"),
                 colorbar=dict(title=f"Fraction within {split_by}"),
             ),
@@ -1040,9 +1131,7 @@ def interactive_upset(
     obs, ad = resolve_adata_obs(adata)
     groups = list(categorical_order(obs[groupby], order))
     sets = {
-        g: set(
-            obs.loc[obs[groupby].astype(str) == g, set_by].dropna().astype(str)
-        )
+        g: set(obs.loc[obs[groupby].astype(str) == g, set_by].dropna().astype(str))
         for g in groups
     }
     set_sizes = {g: len(sets[g]) for g in groups}
@@ -1080,10 +1169,12 @@ def interactive_upset(
     # row1: empty | top bars
     # row2: side bars | dot matrix
     fig = make_subplots(
-        rows=2, cols=2,
+        rows=2,
+        cols=2,
         column_widths=[0.22, 0.78],
         row_heights=[0.55, 0.45],
-        horizontal_spacing=0.04, vertical_spacing=0.06,
+        horizontal_spacing=0.04,
+        vertical_spacing=0.06,
         specs=[
             [None, {"type": "bar"}],
             [{"type": "bar"}, {"type": "scatter"}],
@@ -1104,7 +1195,8 @@ def interactive_upset(
             customdata=int_labels,
             showlegend=False,
         ),
-        row=1, col=2,
+        row=1,
+        col=2,
     )
 
     # --- Bottom-left: per-set total size bars ------------------------------
@@ -1120,7 +1212,8 @@ def interactive_upset(
             customdata=groups,
             showlegend=False,
         ),
-        row=2, col=1,
+        row=2,
+        col=1,
     )
 
     # --- Bottom-right: dot matrix ------------------------------------------
@@ -1131,31 +1224,43 @@ def interactive_upset(
         in_idx = [groups.index(g) for g in combo]
         for gi in range(n_set):
             if gi in in_idx:
-                on_x.append(ci); on_y.append(gi)
+                on_x.append(ci)
+                on_y.append(gi)
             else:
-                off_x.append(ci); off_y.append(gi)
+                off_x.append(ci)
+                off_y.append(gi)
         if len(in_idx) >= 2:
             seg_x += [ci, ci, None]
             seg_y += [min(in_idx), max(in_idx), None]
     fig.add_trace(
         go.Scatter(
-            x=off_x, y=off_y, mode="markers",
+            x=off_x,
+            y=off_y,
+            mode="markers",
             marker=dict(size=10, color="#dddddd", line=dict(color="white", width=1)),
-            hoverinfo="skip", showlegend=False,
+            hoverinfo="skip",
+            showlegend=False,
         ),
-        row=2, col=2,
+        row=2,
+        col=2,
     )
     fig.add_trace(
         go.Scatter(
-            x=seg_x, y=seg_y, mode="lines",
+            x=seg_x,
+            y=seg_y,
+            mode="lines",
             line=dict(color="#222", width=2),
-            hoverinfo="skip", showlegend=False,
+            hoverinfo="skip",
+            showlegend=False,
         ),
-        row=2, col=2,
+        row=2,
+        col=2,
     )
     fig.add_trace(
         go.Scatter(
-            x=on_x, y=on_y, mode="markers",
+            x=on_x,
+            y=on_y,
+            mode="markers",
             marker=dict(
                 size=12,
                 color=[set_colors[g] for g in on_y],
@@ -1165,7 +1270,8 @@ def interactive_upset(
             text=[groups[g] for g in on_y],
             showlegend=False,
         ),
-        row=2, col=2,
+        row=2,
+        col=2,
     )
 
     fig.update_xaxes(showticklabels=False, range=[-0.5, n_int - 0.5], row=1, col=2)
@@ -1175,17 +1281,22 @@ def interactive_upset(
         tickmode="array",
         tickvals=list(range(n_set)),
         ticktext=groups,
-        row=2, col=1,
+        row=2,
+        col=1,
     )
     fig.update_xaxes(
-        showticklabels=False, range=[-0.5, n_int - 0.5], row=2, col=2,
+        showticklabels=False,
+        range=[-0.5, n_int - 0.5],
+        row=2,
+        col=2,
     )
     fig.update_yaxes(
         tickmode="array",
         tickvals=list(range(n_set)),
         ticktext=["" for _ in groups],
         range=[-0.5, n_set - 0.5],
-        row=2, col=2,
+        row=2,
+        col=2,
     )
     fig.update_layout(
         title=title or f"{set_by} overlap across {groupby}",
@@ -1223,11 +1334,17 @@ def interactive_complex_heatmap(
 
     mean_df, _ = _aggregate(adata, groupby, list(genes), layer=layer, use_raw=use_raw)
     if z_score == "row":
-        mean_df = (mean_df.sub(mean_df.mean(axis=1), axis=0)
-                   .div(mean_df.std(axis=1).replace(0, np.nan), axis=0).fillna(0))
+        mean_df = (
+            mean_df.sub(mean_df.mean(axis=1), axis=0)
+            .div(mean_df.std(axis=1).replace(0, np.nan), axis=0)
+            .fillna(0)
+        )
     elif z_score == "col":
-        mean_df = (mean_df.sub(mean_df.mean(axis=0), axis=1)
-                   .div(mean_df.std(axis=0).replace(0, np.nan), axis=1).fillna(0))
+        mean_df = (
+            mean_df.sub(mean_df.mean(axis=0), axis=1)
+            .div(mean_df.std(axis=0).replace(0, np.nan), axis=1)
+            .fillna(0)
+        )
     fig = go.Figure(
         go.Heatmap(
             z=mean_df.values,
@@ -1277,7 +1394,11 @@ def interactive_complex_dotplot(
     from .complex_heatmap import _aggregate
 
     mean_df, frac_df = _aggregate(
-        adata, groupby, list(genes), layer=layer, use_raw=use_raw,
+        adata,
+        groupby,
+        list(genes),
+        layer=layer,
+        use_raw=use_raw,
         expression_cutoff=expression_cutoff,
     )
     cats = list(mean_df.index)
@@ -1312,8 +1433,18 @@ def interactive_complex_dotplot(
         height=height,
         width=width,
         template="plotly_white",
-        xaxis=dict(tickmode="array", tickvals=np.arange(len(genes)), ticktext=genes, tickangle=-45),
-        yaxis=dict(tickmode="array", tickvals=np.arange(len(cats)), ticktext=cats, autorange="reversed"),
+        xaxis=dict(
+            tickmode="array",
+            tickvals=np.arange(len(genes)),
+            ticktext=genes,
+            tickangle=-45,
+        ),
+        yaxis=dict(
+            tickmode="array",
+            tickvals=np.arange(len(cats)),
+            ticktext=cats,
+            autorange="reversed",
+        ),
         margin=dict(l=120, r=40, t=50, b=100),
     )
     _maybe_save(fig, save)

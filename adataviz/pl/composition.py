@@ -96,7 +96,9 @@ def rose_plot(
         fig = ax.figure
 
     if split_by is None:
-        colors = resolve_palette(palette, cats, sheet_name=groupby, adata=ad, groupby=groupby)
+        colors = resolve_palette(
+            palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
+        )
         ax.bar(
             angles,
             counts.values,
@@ -143,9 +145,14 @@ def rose_plot(
             else:
                 rot, ha = deg - 180, "right"
             ax.text(
-                ang, rmax * label_pad, lab,
-                rotation=rot, rotation_mode="anchor",
-                ha=ha, va="center", fontsize=8,
+                ang,
+                rmax * label_pad,
+                lab,
+                rotation=rot,
+                rotation_mode="anchor",
+                ha=ha,
+                va="center",
+                fontsize=8,
             )
     else:  # vertical / upright
         ax.set_xticklabels(cats, fontsize=8)
@@ -203,7 +210,9 @@ def ring_plot(
     obs, ad = resolve_adata_obs(adata)
     cats = categorical_order(obs[groupby], order)
     counts = obs[groupby].astype(str).value_counts().reindex(cats, fill_value=0)
-    colors = resolve_palette(palette, cats, sheet_name=groupby, adata=ad, groupby=groupby)
+    colors = resolve_palette(
+        palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
+    )
 
     if show_labels is None:
         show_labels = len(cats) <= 12 and legend_loc != "center"
@@ -215,9 +224,11 @@ def ring_plot(
 
     total = float(counts.sum()) or 1.0
     fracs = counts.values / total
+
     # Hide percent labels on tiny slices to avoid overlap.
     def _autopct(p):
         return (autopct % p) if autopct and p >= 3 else ""
+
     wedges, texts, autotexts = ax.pie(
         counts.values,
         labels=cats if show_labels else None,
@@ -246,7 +257,9 @@ def ring_plot(
                     rot, ha = deg - 180, "right"
                 # Position just outside the donut.
                 r = 1.05
-                t.set_position((r * _np.cos(_np.deg2rad(ang)), r * _np.sin(_np.deg2rad(ang))))
+                t.set_position(
+                    (r * _np.cos(_np.deg2rad(ang)), r * _np.sin(_np.deg2rad(ang)))
+                )
                 t.set_rotation(rot)
                 t.set_rotation_mode("anchor")
                 t.set_ha(ha)
@@ -257,9 +270,15 @@ def ring_plot(
     if show_legend:
         if legend_loc == "center":
             lkws = dict(
-                loc="center", bbox_to_anchor=(0.5, 0.5), frameon=False,
-                fontsize=8, title=groupby, title_fontsize=9,
-                handlelength=1.0, handletextpad=0.4, labelspacing=0.3,
+                loc="center",
+                bbox_to_anchor=(0.5, 0.5),
+                frameon=False,
+                fontsize=8,
+                title=groupby,
+                title_fontsize=9,
+                handlelength=1.0,
+                handletextpad=0.4,
+                labelspacing=0.3,
             )
             if legend_kws:
                 lkws.update(legend_kws)
@@ -305,7 +324,9 @@ def pie_plot(
     """
     obs, ad = resolve_adata_obs(adata)
     cats = categorical_order(obs[groupby], order)
-    colors = resolve_palette(palette, cats, sheet_name=groupby, adata=ad, groupby=groupby)
+    colors = resolve_palette(
+        palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
+    )
     if show_labels is None:
         show_labels = len(cats) <= 10
     if show_legend is None:
@@ -318,8 +339,10 @@ def pie_plot(
         counts = obs[groupby].astype(str).value_counts().reindex(cats, fill_value=0)
         total = float(counts.sum()) or 1.0
         fracs = counts.values / total
+
         def _autopct(p):
             return (autopct % p) if autopct and p >= 3 else ""
+
         wedges, texts, _autotexts = ax.pie(
             counts.values,
             labels=cats if show_labels else None,
@@ -357,8 +380,10 @@ def pie_plot(
         ax = axes[i]
         total = float(counts.sum()) or 1.0
         fracs = counts.values / total
+
         def _autopct_facet(p):
             return (autopct % p) if autopct and p >= 3 else ""
+
         wedges, texts, _ap = ax.pie(
             counts.values,
             labels=cats if show_labels else None,
@@ -429,7 +454,9 @@ def area_plot(
         col_sums = ct.sum(axis=0).replace(0, np.nan)
         ct = ct.div(col_sums, axis=1).fillna(0)
 
-    colors = resolve_palette(palette, cats, sheet_name=groupby, adata=ad, groupby=groupby)
+    colors = resolve_palette(
+        palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
+    )
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
     else:
@@ -446,7 +473,9 @@ def area_plot(
         linewidth=0.3,
     )
     ax.set_xticks(x)
-    ax.set_xticklabels(splits, rotation=-45, rotation_mode="anchor", ha="left", va="center")
+    ax.set_xticklabels(
+        splits, rotation=-45, rotation_mode="anchor", ha="left", va="center"
+    )
     ax.set_xlim(0, max(len(splits) - 1, 1))
     ax.set_ylim(0, 1 if normalize else None)
     ax.set_ylabel("Fraction" if normalize else "Count")
@@ -519,7 +548,9 @@ def dot_plot(
         vmax=1,
     )
     ax.set_xticks(np.arange(len(splits)))
-    ax.set_xticklabels(splits, rotation=-45, rotation_mode="anchor", ha="left", va="center")
+    ax.set_xticklabels(
+        splits, rotation=-45, rotation_mode="anchor", ha="left", va="center"
+    )
     ax.set_yticks(np.arange(len(cats)))
     ax.set_yticklabels(cats)
     ax.set_xlim(-0.5, len(splits) - 0.5)
@@ -572,7 +603,9 @@ def trend_plot(
         col_sums = ct.sum(axis=0).replace(0, np.nan)
         ct = ct.div(col_sums, axis=1).fillna(0)
 
-    colors = resolve_palette(palette, cats, sheet_name=groupby, adata=ad, groupby=groupby)
+    colors = resolve_palette(
+        palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
+    )
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
     else:
@@ -590,7 +623,9 @@ def trend_plot(
             markersize=4,
         )
     ax.set_xticks(x)
-    ax.set_xticklabels(splits, rotation=-45, rotation_mode="anchor", ha="left", va="center")
+    ax.set_xticklabels(
+        splits, rotation=-45, rotation_mode="anchor", ha="left", va="center"
+    )
     ax.set_xlim(-0.3, len(splits) - 0.7)
     ax.set_xlabel(split_by)
     ax.set_ylabel("Fraction" if normalize else "Count")
@@ -650,7 +685,9 @@ def bar_plot(
     if sort_by is not None and sort_by in ct.columns:
         ct = ct.sort_values(sort_by, ascending=True)
         splits = list(ct.index)
-    colors = resolve_palette(palette, cats, sheet_name=groupby, adata=ad, groupby=groupby)
+    colors = resolve_palette(
+        palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
+    )
     if figsize is None:
         figsize = (max(2.5, len(splits) * 0.45), max(3.5, min(len(cats) * 0.5, 8)))
     if ax is None:
@@ -664,9 +701,14 @@ def bar_plot(
     for c in cats:
         vals = ct[c].values
         ax.bar(
-            x, vals, width=bar_width, bottom=bottom,
+            x,
+            vals,
+            width=bar_width,
+            bottom=bottom,
             align="edge",
-            color=colors[c], edgecolor=edgecolor, linewidth=linewidth,
+            color=colors[c],
+            edgecolor=edgecolor,
+            linewidth=linewidth,
             label=c,
         )
         bottom += vals
@@ -683,9 +725,12 @@ def bar_plot(
         va="center",
     )
     ax.tick_params(
-        axis="y", which="both",
-        left=False, right=False,
-        labelleft=False, labelright=False,
+        axis="y",
+        which="both",
+        left=False,
+        right=False,
+        labelleft=False,
+        labelright=False,
     )
     ax.tick_params(axis="x", length=3, pad=2, top=False, labeltop=False)
     ax.xaxis.label.set_visible(False)
@@ -693,11 +738,19 @@ def bar_plot(
     ax.grid(False)
     if show_legend:
         lkws = dict(
-            loc="upper left", bbox_to_anchor=(1.0, 1.0), frameon=False,
-            fontsize=8, ncol=1,
-            borderpad=0.3, handlelength=1.0, handleheight=1.0,
-            handletextpad=0.4, labelspacing=0.25, columnspacing=0.8,
-            title=groupby, title_fontsize=9,
+            loc="upper left",
+            bbox_to_anchor=(1.0, 1.0),
+            frameon=False,
+            fontsize=8,
+            ncol=1,
+            borderpad=0.3,
+            handlelength=1.0,
+            handleheight=1.0,
+            handletextpad=0.4,
+            labelspacing=0.25,
+            columnspacing=0.8,
+            title=groupby,
+            title_fontsize=9,
         )
         if legend_kws:
             lkws.update(legend_kws)

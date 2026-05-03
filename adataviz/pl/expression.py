@@ -115,7 +115,9 @@ def boxplot(
     long[groupby] = pd.Categorical(long[groupby], categories=cats, ordered=True)
 
     _obs, ad = resolve_adata_obs(adata)
-    colors = resolve_palette(palette, cats, sheet_name=groupby, adata=ad, groupby=groupby)
+    colors = resolve_palette(
+        palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
+    )
     pal = [colors[c] for c in cats]
 
     if gene_order is None:
@@ -129,7 +131,9 @@ def boxplot(
             fig, axes = plt.subplots(1, 1, figsize=figsize)
             axes = [axes]
         else:
-            fig, axes = plt.subplots(n_genes, 1, figsize=figsize, sharex=True, sharey=sharey)
+            fig, axes = plt.subplots(
+                n_genes, 1, figsize=figsize, sharex=True, sharey=sharey
+            )
             axes = list(np.atleast_1d(axes).ravel())
     else:
         if n_genes != 1:
@@ -142,25 +146,54 @@ def boxplot(
         a = axes[i]
         if kind == "violin":
             sns.violinplot(
-                data=sub, x=groupby, y="value", order=cats, palette=pal,
-                ax=a, cut=0, density_norm="width", linewidth=0.6, inner="quart",
+                data=sub,
+                x=groupby,
+                y="value",
+                order=cats,
+                palette=pal,
+                ax=a,
+                cut=0,
+                density_norm="width",
+                linewidth=0.6,
+                inner="quart",
             )
         elif kind == "box":
             sns.boxplot(
-                data=sub, x=groupby, y="value", order=cats, palette=pal,
-                ax=a, showfliers=False, linewidth=0.6, saturation=0.85,
+                data=sub,
+                x=groupby,
+                y="value",
+                order=cats,
+                palette=pal,
+                ax=a,
+                showfliers=False,
+                linewidth=0.6,
+                saturation=0.85,
             )
         elif kind == "strip":
             sns.stripplot(
-                data=sub, x=groupby, y="value", order=cats, palette=pal,
-                ax=a, size=strip_size, edgecolor="white", linewidth=0,
+                data=sub,
+                x=groupby,
+                y="value",
+                order=cats,
+                palette=pal,
+                ax=a,
+                size=strip_size,
+                edgecolor="white",
+                linewidth=0,
             )
         else:
             raise ValueError(f"kind must be 'violin', 'box', or 'strip'; got {kind!r}")
         if show_strip and kind != "strip":
             sns.stripplot(
-                data=sub, x=groupby, y="value", order=cats,
-                color="black", ax=a, size=strip_size, alpha=0.4, jitter=0.3,
+                data=sub,
+                x=groupby,
+                y="value",
+                order=cats,
+                color="black",
+                ax=a,
+                size=strip_size,
+                alpha=0.4,
+                jitter=0.3,
             )
         a.set_ylabel(g)
         if i < n_genes - 1:
@@ -168,7 +201,11 @@ def boxplot(
             a.tick_params(labelbottom=False)
         else:
             a.set_xlabel(groupby)
-            plt.setp(a.get_xticklabels(), rotation=rotation, ha="left" if rotation < 0 else "right")
+            plt.setp(
+                a.get_xticklabels(),
+                rotation=rotation,
+                ha="left" if rotation < 0 else "right",
+            )
         if show_legend and i == 0 and legend_kws is not None:
             from matplotlib.patches import Patch
 
@@ -219,18 +256,26 @@ def stacked_violinplot(
     long[groupby] = pd.Categorical(long[groupby], categories=cats, ordered=True)
 
     if standardize == "gene":
+
         def _norm(v):
             mn, mx = v.min(), v.max()
             return (v - mn) / (mx - mn) if mx > mn else v * 0
+
         long["value"] = long.groupby("gene", observed=True)["value"].transform(_norm)
     elif standardize == "group":
+
         def _norm(v):
             mn, mx = v.min(), v.max()
             return (v - mn) / (mx - mn) if mx > mn else v * 0
-        long["value"] = long.groupby([groupby, "gene"], observed=True)["value"].transform(_norm)
+
+        long["value"] = long.groupby([groupby, "gene"], observed=True)[
+            "value"
+        ].transform(_norm)
 
     _obs, ad = resolve_adata_obs(adata)
-    colors = resolve_palette(palette, cats, sheet_name=groupby, adata=ad, groupby=groupby)
+    colors = resolve_palette(
+        palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
+    )
     pal = [colors[c] for c in cats]
 
     n_genes = len(genes)
@@ -242,8 +287,16 @@ def stacked_violinplot(
         for i, g in enumerate(genes):
             sub = long[long["gene"] == g]
             sns.violinplot(
-                data=sub, y=groupby, x="value", order=cats, palette=pal,
-                ax=axes[i], cut=0, density_norm="width", linewidth=0.5, inner=inner,
+                data=sub,
+                y=groupby,
+                x="value",
+                order=cats,
+                palette=pal,
+                ax=axes[i],
+                cut=0,
+                density_norm="width",
+                linewidth=0.5,
+                inner=inner,
                 orient="h",
             )
             axes[i].set_xlabel(g, rotation=rotation, ha="right")
@@ -258,8 +311,16 @@ def stacked_violinplot(
         for i, g in enumerate(genes):
             sub = long[long["gene"] == g]
             sns.violinplot(
-                data=sub, x=groupby, y="value", order=cats, palette=pal,
-                ax=axes[i], cut=0, density_norm="width", linewidth=0.5, inner=inner,
+                data=sub,
+                x=groupby,
+                y="value",
+                order=cats,
+                palette=pal,
+                ax=axes[i],
+                cut=0,
+                density_norm="width",
+                linewidth=0.5,
+                inner=inner,
             )
             axes[i].set_ylabel(g, rotation=0, ha="right", va="center", labelpad=15)
             axes[i].set_yticks([])
@@ -356,7 +417,9 @@ def get_genes_mean_frac(
         elif expression_cutoff == "mean":
             cutoff = df.stack().mean()
         else:
-            cutoff = df.stack().quantile(float(expression_cutoff.replace("p", "")) / 100)
+            cutoff = df.stack().quantile(
+                float(expression_cutoff.replace("p", "")) / 100
+            )
         expression_cutoff = cutoff
     df[groupby] = obs.loc[df.index, groupby].tolist()
     plot_data = df.groupby(groupby, observed=True).mean().stack().reset_index()
@@ -369,9 +432,7 @@ def get_genes_mean_frac(
         )
         D = frac.stack().to_dict()
     else:
-        hypo = df.groupby(groupby, observed=True).agg(
-            lambda x: (x < 1).sum() / len(x)
-        )
+        hypo = df.groupby(groupby, observed=True).agg(lambda x: (x < 1).sum() / len(x))
         D = hypo.stack().to_dict()
     plot_data["frac"] = (
         plot_data.loc[:, [groupby, "Gene"]]
@@ -449,7 +510,6 @@ def gene_dotplot(
     """
     from PyComplexHeatmap import (
         HeatmapAnnotation,
-        anno_label,
         anno_simple,
         DotClustermapPlotter,
     )
@@ -458,9 +518,11 @@ def gene_dotplot(
     if legend_kws is None:
         legend_kws = dict(extendfrac=0.1, extend="both", label="Mean")
 
-    raw = anndata.read_h5ad(os.path.expanduser(adata), backed="r") if isinstance(
-        adata, str
-    ) else adata
+    raw = (
+        anndata.read_h5ad(os.path.expanduser(adata), backed="r")
+        if isinstance(adata, str)
+        else adata
+    )
     keep = [g for g in genes if g in raw.var_names]
     missing = [g for g in genes if g not in keep]
     if missing:
@@ -481,7 +543,9 @@ def gene_dotplot(
 
     if isinstance(groupby, list):
         joined = "+".join(groupby)
-        obs[joined] = obs.loc[:, groupby].apply(lambda x: "+".join(x.astype(str)), axis=1)
+        obs[joined] = obs.loc[:, groupby].apply(
+            lambda x: "+".join(x.astype(str)), axis=1
+        )
         groupby = joined
     use.obs[groupby] = obs.loc[use.obs_names, groupby].tolist()
     if title is None:
@@ -513,13 +577,19 @@ def gene_dotplot(
     elif palette is None:
         cats = sorted(use.obs[groupby].astype(str).unique())
         color_palette[groupby] = resolve_palette(
-            None, cats, sheet_name=groupby,
-            adata=use if isinstance(use, anndata.AnnData) else None, groupby=groupby,
+            None,
+            cats,
+            sheet_name=groupby,
+            adata=use if isinstance(use, anndata.AnnData) else None,
+            groupby=groupby,
         )
         if parent_col is not None:
             pcats = sorted(use.obs[parent_col].astype(str).unique())
             color_palette[parent_col] = resolve_palette(
-                None, pcats, adata=use, groupby=parent_col,
+                None,
+                pcats,
+                adata=use,
+                groupby=parent_col,
             )
 
     df = use.to_df()
@@ -529,7 +599,9 @@ def gene_dotplot(
         elif expression_cutoff == "mean":
             cutoff = df.stack().mean()
         else:
-            cutoff = df.stack().quantile(float(expression_cutoff.replace("p", "")) / 100)
+            cutoff = df.stack().quantile(
+                float(expression_cutoff.replace("p", "")) / 100
+            )
         expression_cutoff = cutoff
     df[groupby] = use.obs.loc[df.index, groupby].tolist()
     if parent_col is not None:
@@ -549,9 +621,7 @@ def gene_dotplot(
         )
         D = frac.stack().to_dict()
     else:
-        hypo = df.groupby(groupby, observed=True).agg(
-            lambda x: (x < 1).sum() / len(x)
-        )
+        hypo = df.groupby(groupby, observed=True).agg(lambda x: (x < 1).sum() / len(x))
         D = hypo.stack().to_dict()
     plot_data["frac"] = (
         plot_data.loc[:, [groupby, "Gene"]]
@@ -559,9 +629,7 @@ def gene_dotplot(
         .map(D)
     )
 
-    df_cols = pd.DataFrame(
-        sorted(use.obs[groupby].unique()), columns=[groupby]
-    )
+    df_cols = pd.DataFrame(sorted(use.obs[groupby].unique()), columns=[groupby])
     if parent_col is not None:
         df_cols[parent_col] = df_cols[groupby].map(group2parent)
         df_cols.sort_values([parent_col, groupby], inplace=True)
@@ -580,14 +648,24 @@ def gene_dotplot(
             )
             sub_colors = {k: color_palette[sub][k] for k in df_cols[sub].unique()}
             anno_dict[sub] = anno_simple(
-                df_cols[sub], colors=sub_colors, add_text=False,
-                legend=False, height=3, label=sub,
+                df_cols[sub],
+                colors=sub_colors,
+                add_text=False,
+                legend=False,
+                height=3,
+                label=sub,
             )
         if parent_col is not None:
-            pcolors = {k: color_palette[parent_col][k] for k in df_cols[parent_col].unique()}
+            pcolors = {
+                k: color_palette[parent_col][k] for k in df_cols[parent_col].unique()
+            }
             anno_dict[parent_col] = anno_simple(
-                df_cols[parent_col], colors=pcolors, add_text=False,
-                legend=True, height=3, label=parent_col,
+                df_cols[parent_col],
+                colors=pcolors,
+                add_text=False,
+                legend=True,
+                height=3,
+                label=parent_col,
             )
         col_ha = HeatmapAnnotation(**anno_dict, axis=axis, verbose=0)
     else:
@@ -595,15 +673,25 @@ def gene_dotplot(
         kw = dict(
             axis=axis,
             group=anno_simple(
-                df_cols[groupby], colors=gcolors, add_text=False,
-                legend=False, height=3, label=groupby,
+                df_cols[groupby],
+                colors=gcolors,
+                add_text=False,
+                legend=False,
+                height=3,
+                label=groupby,
             ),
         )
         if parent_col is not None:
-            pcolors = {k: color_palette[parent_col][k] for k in df_cols[parent_col].unique()}
+            pcolors = {
+                k: color_palette[parent_col][k] for k in df_cols[parent_col].unique()
+            }
             kw["parent"] = anno_simple(
-                df_cols[parent_col], colors=pcolors, add_text=False,
-                legend=True, height=3, label=parent_col,
+                df_cols[parent_col],
+                colors=pcolors,
+                add_text=False,
+                legend=True,
+                height=3,
+                label=parent_col,
             )
         col_ha = HeatmapAnnotation(**kw)
 
@@ -625,13 +713,20 @@ def gene_dotplot(
         col_side, row_side = "bottom", "right"
 
     defaults = dict(
-        marker=marker, grid=None, dot_legend_marker=marker,
+        marker=marker,
+        grid=None,
+        dot_legend_marker=marker,
         cmap_legend_kws=legend_kws,
-        row_cluster=row_cluster, col_cluster=col_cluster,
-        row_cluster_method="ward", row_cluster_metric="euclidean",
-        col_cluster_method="ward", col_cluster_metric="euclidean",
-        col_names_side=col_side, row_names_side=row_side,
-        show_rownames=True, show_colnames=True,
+        row_cluster=row_cluster,
+        col_cluster=col_cluster,
+        row_cluster_method="ward",
+        row_cluster_metric="euclidean",
+        col_cluster_method="ward",
+        col_cluster_metric="euclidean",
+        col_names_side=col_side,
+        row_names_side=row_side,
+        show_rownames=True,
+        show_colnames=True,
         row_dendrogram=False,
         xticklabels_kws=dict(labelrotation=-45, labelsize=8, bottom=True),
         yticklabels_kws=dict(labelsize=8, right=True),
@@ -648,13 +743,26 @@ def gene_dotplot(
         data=plot_data,
         top_annotation=top_anno,
         left_annotation=left_anno,
-        x_order=x_order, y_order=y_order,
-        x=x, y=y, value="Mean", c="Mean", s="frac",
-        cmap=cmap, verbose=0, **plot_kws,
+        x_order=x_order,
+        y_order=y_order,
+        x=x,
+        y=y,
+        value="Mean",
+        c="Mean",
+        s="frac",
+        cmap=cmap,
+        verbose=0,
+        **plot_kws,
     )
     for ax in cm.heatmap_axes.ravel():
-        ax.grid(axis="both", which="minor", color="grey",
-                linestyle="--", alpha=0.6, zorder=0)
+        ax.grid(
+            axis="both",
+            which="minor",
+            color="grey",
+            linestyle="--",
+            alpha=0.6,
+            zorder=0,
+        )
     _strip_cbar_white_lines(cm)
     if title:
         fig.suptitle(title)

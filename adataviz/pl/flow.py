@@ -131,8 +131,12 @@ def sankey_plot(
     left_pos = _sankey_node_geometry(left_totals, gap)
     right_pos = _sankey_node_geometry(right_totals, gap)
 
-    colors = resolve_palette(palette, left_cats, sheet_name=left, adata=ad, groupby=left)
-    right_colors = resolve_palette(None, right_cats, sheet_name=right, adata=ad, groupby=right)
+    colors = resolve_palette(
+        palette, left_cats, sheet_name=left, adata=ad, groupby=left
+    )
+    right_colors = resolve_palette(
+        None, right_cats, sheet_name=right, adata=ad, groupby=right
+    )
 
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
@@ -217,16 +221,24 @@ def sankey_plot(
             ctrl = (x0 + x1) / 2
             verts = [
                 (x0, l_top),
-                (ctrl, l_top), (ctrl, r_top), (x1, r_top),
+                (ctrl, l_top),
+                (ctrl, r_top),
+                (x1, r_top),
                 (x1, r_bot),
-                (ctrl, r_bot), (ctrl, l_bot), (x0, l_bot),
+                (ctrl, r_bot),
+                (ctrl, l_bot),
+                (x0, l_bot),
                 (x0, l_top),
             ]
             codes = [
                 Path.MOVETO,
-                Path.CURVE4, Path.CURVE4, Path.CURVE4,
+                Path.CURVE4,
+                Path.CURVE4,
+                Path.CURVE4,
                 Path.LINETO,
-                Path.CURVE4, Path.CURVE4, Path.CURVE4,
+                Path.CURVE4,
+                Path.CURVE4,
+                Path.CURVE4,
                 Path.CLOSEPOLY,
             ]
             patch = PathPatch(
@@ -322,8 +334,13 @@ def chord_plot(
         from pycirclize import Circos  # type: ignore
     except ImportError:
         return _chord_fallback(
-            matrix, colors, figsize=figsize, save=save, show=show,
-            title=title, adjust_text=adjust_text,
+            matrix,
+            colors,
+            figsize=figsize,
+            save=save,
+            show=show,
+            title=title,
+            adjust_text=adjust_text,
         )
 
     circos = Circos.initialize_from_matrix(
@@ -338,10 +355,9 @@ def chord_plot(
         # Collect the sector-name Text artists pycirclize placed around the
         # ring and nudge them apart with adjustText.
         from ._utils import maybe_adjust_texts
+
         wanted = set(all_labels)
-        texts = [
-            t for ax in fig.axes for t in ax.texts if t.get_text() in wanted
-        ]
+        texts = [t for ax in fig.axes for t in ax.texts if t.get_text() in wanted]
         if texts:
             maybe_adjust_texts(texts, ax=fig.axes[0])
     if title:
@@ -354,6 +370,7 @@ def chord_plot(
 def _chord_fallback(matrix, colors, figsize, save, show, title, adjust_text=True):
     """Minimal matplotlib chord fallback when pycirclize is unavailable."""
     from ._utils import maybe_adjust_texts
+
     fig, ax = plt.subplots(figsize=figsize, subplot_kw=dict(aspect="equal"))
     labels = list(matrix.index)
     n = len(labels)
