@@ -216,9 +216,19 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../modules.html">adataviz</a><input aria-label="Toggle navigation of adataviz" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../adataviz.html">adataviz package</a><input aria-label="Toggle navigation of adataviz package" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../adataviz.pl.html">adataviz.pl package</a><input aria-label="Toggle navigation of adataviz.pl package" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../adataviz.pl.complex_heatmap.html">adataviz.pl.complex_heatmap module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../adataviz.pl.composition.html">adataviz.pl.composition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../adataviz.pl.expression.html">adataviz.pl.expression module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../adataviz.pl.flow.html">adataviz.pl.flow module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../adataviz.pl.interactive_stats.html">adataviz.pl.interactive_stats module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../adataviz.pl.pseudotime.html">adataviz.pl.pseudotime module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../adataviz.pl.scatter.html">adataviz.pl.scatter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../adataviz.pl.sets.html">adataviz.pl.sets module</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../adataviz.adata.html">adataviz.adata module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../adataviz.palettes.html">adataviz.palettes module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../adataviz.plotting.html">adataviz.plotting module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../adataviz.tools.html">adataviz.tools module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../adataviz.utils.html">adataviz.utils module</a></li>
 </ul>
@@ -281,9 +291,15 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># sys.path.append(os.path.expanduser(&quot;~/Projects/Github/adataviz&quot;))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/Projects/Github/adataviz&quot;</span><span class="p">))</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">adataviz</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">av</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">anndata</span>
+
+<span class="c1"># Apply publication-quality matplotlib defaults.</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">use_scientific_style</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -292,12 +308,10 @@
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Path to the example AnnData file</span>
-<span class="n">adata_path</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;/home/x-wding2/Projects/BICAN/adata/HMBA_v2/HMBA.Group.downsample_1500.h5ad&quot;</span>
-<span class="p">)</span>
+<span class="n">adata_path</span> <span class="o">=</span> <span class="s2">&quot;~/Projects/BICAN/adata/HMBA_v2/HMBA.Group.downsample_1500.h5ad&quot;</span>
 
 <span class="c1"># Quick look at the data</span>
-<span class="n">adata</span> <span class="o">=</span> <span class="n">anndata</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="n">adata_path</span><span class="p">,</span> <span class="n">backed</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+<span class="n">adata</span> <span class="o">=</span> <span class="n">anndata</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">adata_path</span><span class="p">),</span> <span class="n">backed</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shape: </span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span>
     <span class="sa">f</span><span class="s2">&quot;Categorical columns: Neighborhood (</span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;Neighborhood&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2">), &quot;</span>
@@ -328,7 +342,7 @@ Embeddings: [&#39;X_scVI&#39;, &#39;X_umap&#39;]
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic usage: color by Class with text annotation</span>
-<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">(</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">(</span>
     <span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span>
     <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;umap&quot;</span><span class="p">,</span>
     <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
@@ -343,11 +357,20 @@ Embeddings: [&#39;X_scVI&#39;, &#39;X_umap&#39;]
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/x-wding2/Projects/Github/adataviz/adataviz/utils.py:785: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  for text, sub_df in data.groupby(anno_col):
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_static_plots_4_0.png" src="../_images/notebooks_static_plots_4_0.png" />
+<img alt="../_images/notebooks_static_plots_4_1.png" src="../_images/notebooks_static_plots_4_1.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
@@ -355,7 +378,7 @@ Embeddings: [&#39;X_scVI&#39;, &#39;X_umap&#39;]
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Color by Subclass with more legend columns and coding annotation</span>
-<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">(</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">(</span>
     <span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span>
     <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;umap&quot;</span><span class="p">,</span>
     <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
@@ -373,7 +396,7 @@ Embeddings: [&#39;X_scVI&#39;, &#39;X_umap&#39;]
         <span class="n">handletextpad</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
     <span class="p">),</span>
     <span class="n">axis_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">),</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
     <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
@@ -387,7 +410,7 @@ Embeddings: [&#39;X_scVI&#39;, &#39;X_umap&#39;]
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic usage: color by Subclass with outline (for selected cell types only)</span>
@@ -396,7 +419,7 @@ Embeddings: [&#39;X_scVI&#39;, &#39;X_umap&#39;]
     <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;Subclass&quot;</span><span class="p">)[</span><span class="s2">&quot;color_hex_subclass&quot;</span><span class="p">]</span>
     <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
 <span class="p">)</span>
-<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">(</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_categorical</span><span class="p">(</span>
     <span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span>
     <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;umap&quot;</span><span class="p">,</span>
     <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
@@ -442,17 +465,14 @@ Embeddings: [&#39;X_scVI&#39;, &#39;X_umap&#39;]
 <h2>2. <code class="docutils literal notranslate"><span class="pre">plot_gene</span></code> – Gene Expression on UMAP + Violin Plot<a class="headerlink" href="#2.-plot_gene-–-Gene-Expression-on-UMAP-+-Violin-Plot" title="Link to this heading">¶</a></h2>
 <p>Plot a single gene’s expression on the UMAP embedding. When <code class="docutils literal notranslate"><span class="pre">groupby</span></code> is provided, a violin plot is also generated.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot GAD2 (GABAergic neuron marker) colored on UMAP, with violin by Class</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot GAD2 (GABAergic neuron marker) on UMAP, plus a per-Class boxplot.</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
 <span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_gene</span><span class="p">(</span>
-    <span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span>
-    <span class="n">gene</span><span class="o">=</span><span class="s2">&quot;GAD2&quot;</span><span class="p">,</span>
-    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
-    <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;umap&quot;</span><span class="p">,</span>
-    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;RdBu_r&quot;</span><span class="p">,</span>
-    <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;GAD2_example&quot;</span><span class="p">,</span>
+    <span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span> <span class="n">gene</span><span class="o">=</span><span class="s2">&quot;GAD2&quot;</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;umap&quot;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;RdBu_r&quot;</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="s2">&quot;test.pdf&quot;</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -460,37 +480,66 @@ Embeddings: [&#39;X_scVI&#39;, &#39;X_umap&#39;]
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area docutils container">
-<img alt="../_images/notebooks_static_plots_8_0.png" src="../_images/notebooks_static_plots_8_0.png" />
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/x-wding2/Projects/Github/adataviz/adataviz/pl/scatter.py:315: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  fig.savefig(os.path.expanduser(save), bbox_inches=&#34;tight&#34;)
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/IPython/core/pylabtools.py:170: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  fig.canvas.print_figure(bytes_io, **kw)
+</pre></div></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <img alt="../_images/notebooks_static_plots_8_1.png" src="../_images/notebooks_static_plots_8_1.png" />
 </div>
 </div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot SLC17A7 (glutamatergic marker) without groupby (UMAP only)</span>
-<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_gene</span><span class="p">(</span>
-    <span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span>
-    <span class="n">gene</span><span class="o">=</span><span class="s2">&quot;DRD2&quot;</span><span class="p">,</span>
-    <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;umap&quot;</span><span class="p">,</span>
-    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;turbo&quot;</span><span class="p">,</span>
-    <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;DRD2_example&quot;</span><span class="p">,</span>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: title={&#39;center&#39;: &#39;GAD2&#39;}&gt;
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span>
+    <span class="n">adata</span><span class="o">=</span><span class="n">anndata</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">adata_path</span><span class="p">))[:,</span> <span class="p">[</span><span class="s2">&quot;GAD1&quot;</span><span class="p">,</span> <span class="s2">&quot;GAD2&quot;</span><span class="p">]],</span>
+    <span class="n">genes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GAD1&quot;</span><span class="p">,</span> <span class="s2">&quot;GAD2&quot;</span><span class="p">],</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;violin&quot;</span><span class="p">,</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/x-wding2/Projects/Github/adataviz/adataviz/pl/expression.py:144: FutureWarning:
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.violinplot(
+/home/x-wding2/Projects/Github/adataviz/adataviz/pl/expression.py:144: FutureWarning:
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.violinplot(
+</pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_static_plots_9_0.png" src="../_images/notebooks_static_plots_9_0.png" />
+<img alt="../_images/notebooks_static_plots_9_1.png" src="../_images/notebooks_static_plots_9_1.png" />
 </div>
 </div>
 </section>
@@ -498,11 +547,11 @@ Embeddings: [&#39;X_scVI&#39;, &#39;X_umap&#39;]
 <h2>3. <code class="docutils literal notranslate"><span class="pre">stacked_barplot</span></code> – Cell Type Composition<a class="headerlink" href="#3.-stacked_barplot-–-Cell-Type-Composition" title="Link to this heading">¶</a></h2>
 <p>Show the proportion of cell types (e.g. <code class="docutils literal notranslate"><span class="pre">Class</span></code>) within each anatomical region or donor.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load obs for barplot/pieplot (these accept a DataFrame directly)</span>
-<span class="n">adata</span> <span class="o">=</span> <span class="n">anndata</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="n">adata_path</span><span class="p">,</span> <span class="n">backed</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+<span class="n">adata</span> <span class="o">=</span> <span class="n">anndata</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">adata_path</span><span class="p">),</span> <span class="n">backed</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
 <span class="n">obs</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 <span class="n">adata</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
@@ -529,81 +578,58 @@ Available color palettes: [&#39;Neighborhood&#39;, &#39;Class&#39;, &#39;Subclas
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stacked barplot: Class composition per donor</span>
-<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">stacked_barplot</span><span class="p">(</span>
-    <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span>
-    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;donor_id&quot;</span><span class="p">,</span>
-    <span class="n">column</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stacked bar plot: Class composition per donor</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">bar_plot</span><span class="p">(</span>
+    <span class="n">adata</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">split_by</span><span class="o">=</span><span class="s2">&quot;donor_id&quot;</span><span class="p">,</span>
     <span class="n">palette</span><span class="o">=</span><span class="n">color_palettes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Class&quot;</span><span class="p">),</span>
-    <span class="n">width</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
-    <span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">),</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">legend_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-&lt;Figure size 640x480 with 0 Axes&gt;
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../_images/notebooks_static_plots_12_1.png" src="../_images/notebooks_static_plots_12_1.png" />
-</div>
-</div>
 <div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_12_0.png" src="../_images/notebooks_static_plots_12_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stacked bar plot: Subclass composition per anatomical region</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">bar_plot</span><span class="p">(</span>
+    <span class="n">adata</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
+    <span class="n">split_by</span><span class="o">=</span><span class="s2">&quot;anatomical_region_merged&quot;</span><span class="p">,</span>
+    <span class="n">palette</span><span class="o">=</span><span class="n">color_palettes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Subclass&quot;</span><span class="p">),</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
 <div class="output_area docutils container">
-<div class="highlight"><pre>
-&lt;Axes: xlabel=&#39;donor_id&#39;&gt;
-</pre></div></div>
+<img alt="../_images/notebooks_static_plots_13_0.png" src="../_images/notebooks_static_plots_13_0.png" />
+</div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stacked barplot: Subclass composition per Neighborhood</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">stacked_barplot</span><span class="p">(</span>
-    <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span>
-    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;anatomical_region_merged&quot;</span><span class="p">,</span>
-    <span class="n">column</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
-    <span class="n">palette</span><span class="o">=</span><span class="n">color_palettes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Subclass&quot;</span><span class="p">),</span>
-    <span class="n">width</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
-    <span class="n">height</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-&lt;Figure size 640x480 with 0 Axes&gt;
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../_images/notebooks_static_plots_13_1.png" src="../_images/notebooks_static_plots_13_1.png" />
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">keep_genes</span> <span class="o">=</span> <span class="p">[</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Marker dot plot using gene_dotplot (rich PyComplexHeatmap wrapper).</span>
+<span class="n">keep_genes</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;GAD2&quot;</span><span class="p">,</span>
     <span class="s2">&quot;LMX1A&quot;</span><span class="p">,</span>
     <span class="s2">&quot;NTNG1&quot;</span><span class="p">,</span>
@@ -626,50 +652,34 @@ Available color palettes: [&#39;Neighborhood&#39;, &#39;Class&#39;, &#39;Subclas
     <span class="s2">&quot;DCC&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CALB1&quot;</span><span class="p">,</span>
     <span class="s2">&quot;VWA5B1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;CDH2&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;NIN&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ALCAM&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ZFHX3&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;TMTC1&quot;</span><span class="p">,</span>
 <span class="p">]</span>
-<span class="n">cell_type_order</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;SN-VTR GAD2 Dopa&quot;</span><span class="p">,</span> <span class="s2">&quot;SN SOX6 Dopa&quot;</span><span class="p">,</span> <span class="s2">&quot;SN-VTR CALB1 Dopa&quot;</span><span class="p">]</span>
-<span class="n">cm1</span> <span class="o">=</span> <span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_genes</span><span class="p">(</span>
+<span class="n">gene_order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">keep_genes</span><span class="p">)</span>
+<span class="n">cell_type_order</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">gene_dotplot</span><span class="p">(</span>
     <span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span>
-    <span class="n">query_str</span><span class="o">=</span><span class="s2">&quot;Subclass==&#39;M Dopa&#39;&quot;</span><span class="p">,</span>
-    <span class="n">obs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Group&quot;</span><span class="p">,</span>
-    <span class="n">parent_col</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
-    <span class="n">modality</span><span class="o">=</span><span class="s2">&quot;RNA&quot;</span><span class="p">,</span>  <span class="c1"># mc or RNA</span>
-    <span class="n">use_raw</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># True for RNA</span>
-    <span class="n">expression_cutoff</span><span class="o">=</span><span class="s2">&quot;p5&quot;</span><span class="p">,</span>  <span class="c1"># for RNA, could be int, median, mean of p5, p95 and so on</span>
     <span class="n">genes</span><span class="o">=</span><span class="n">keep_genes</span><span class="p">,</span>
-    <span class="n">cell_type_order</span><span class="o">=</span><span class="n">cell_type_order</span><span class="p">,</span>
-    <span class="n">gene_order</span><span class="o">=</span><span class="n">keep_genes</span><span class="p">,</span>
-    <span class="n">row_cluster</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
+    <span class="n">parent_col</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">modality</span><span class="o">=</span><span class="s2">&quot;RNA&quot;</span><span class="p">,</span>
+    <span class="n">use_raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">expression_cutoff</span><span class="o">=</span><span class="s2">&quot;p5&quot;</span><span class="p">,</span>
+    <span class="n">gene_order</span><span class="o">=</span><span class="n">gene_order</span><span class="p">,</span>
+    <span class="n">row_cluster</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">col_cluster</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Reds&quot;</span><span class="p">,</span>
-    <span class="n">group_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">parent_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;M_Dopa RNA&quot;</span><span class="p">,</span>
-    <span class="n">palette</span><span class="o">=</span><span class="s2">&quot;/home/x-wding2/Projects/BICAN/adata/HMBA_v2/HMBA_color_palette.xlsx&quot;</span><span class="p">,</span>
+    <span class="n">palette</span><span class="o">=</span><span class="s2">&quot;~/Projects/BICAN/adata/HMBA_v2/HMBA_color_palette.xlsx&quot;</span><span class="p">,</span>
     <span class="n">legend_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">extendfrac</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Mean logCPM&quot;</span><span class="p">),</span>
-    <span class="n">normalize_per_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">clip_norm_value</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-    <span class="n">hypo_score</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
     <span class="n">plot_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
         <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">vmax</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-        <span class="n">xticklabels_kws</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;labelrotation&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">30</span><span class="p">,</span>
-            <span class="s2">&quot;labelcolor&quot;</span><span class="p">:</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;labelsize&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
-            <span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="n">yticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">row_names_side</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">xticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">labelrotation</span><span class="o">=-</span><span class="mi">30</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">yticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">legend_width</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
     <span class="p">),</span>
-    <span class="n">outname</span><span class="o">=</span><span class="s2">&quot;M_Dopa.RNA.pdf&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Subclass markers&quot;</span><span class="p">,</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -677,33 +687,60 @@ Available color palettes: [&#39;Neighborhood&#39;, &#39;Class&#39;, &#39;Subclas
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area docutils container">
+<div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-(1820, 27)
-Using expression cutoff: 0.0
-Starting..
-Calculating row orders..
-Reordering rows..
-Calculating col orders..
-Reordering cols..
-Plotting matrix..
-Inferred max_s (max size of scatter point) is: 122.7945351640952
-Plotting HeatmapAnnotations
-Collecting legends..
-Collecting annotation legends..
-Plotting legends..
-Estimated legend width: 12.172222222222222 mm
+/home/x-wding2/Projects/Github/adataviz/adataviz/pl/expression.py:486: ImplicitModificationWarning: Trying to modify attribute `.obs` of view, initializing view as actual.
+  use.obs[groupby] = obs.loc[use.obs_names, groupby].tolist()
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/PyComplexHeatmap/dotHeatmap.py:365: FutureWarning: The provided callable &lt;function mean at 0x150080ade200&gt; is currently using DataFrameGroupBy.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string &#34;mean&#34; instead.
+  data2d = data.pivot_table(
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/PyComplexHeatmap/dotHeatmap.py:384: FutureWarning: The provided callable &lt;function mean at 0x150080ade200&gt; is currently using DataFrameGroupBy.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string &#34;mean&#34; instead.
+  self.kwargs[&#34;s&#34;] = data.pivot_table(
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/PyComplexHeatmap/dotHeatmap.py:401: FutureWarning: DataFrame.applymap has been deprecated. Use DataFrame.map instead.
+  self.kwargs[&#34;s&#34;]=self.kwargs[&#34;s&#34;].applymap(lambda x:(x-self.smin)/delta)
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/PyComplexHeatmap/dotHeatmap.py:415: FutureWarning: The provided callable &lt;function mean at 0x150080ade200&gt; is currently using DataFrameGroupBy.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string &#34;mean&#34; instead.
+  self.kwargs[&#34;c&#34;] = data.pivot_table(
 </pre></div></div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_static_plots_14_1.png" src="../_images/notebooks_static_plots_14_1.png" />
+<div class="highlight"><pre>
+Plotting HeatmapAnnotations
+Collecting annotation legends..
+</pre></div></div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/PyComplexHeatmap/utils.py:684: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  ax.figure.canvas.draw()
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/PyComplexHeatmap/utils.py:504: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  ax.figure.canvas.draw()
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/IPython/core/pylabtools.py:170: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  fig.canvas.print_figure(bytes_io, **kw)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_14_3.png" src="../_images/notebooks_static_plots_14_3.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;PyComplexHeatmap.dotHeatmap.DotClustermapPlotter at 0x15002bc32b00&gt;
+</pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">keep_genes</span> <span class="o">=</span> <span class="p">[</span>
@@ -765,44 +802,443 @@ Estimated legend width: 12.172222222222222 mm
 </div>
 </div>
 <div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Second gene_dotplot example: same genes, transposed orientation.</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">gene_dotplot</span><span class="p">(</span>
+    <span class="n">adata</span><span class="o">=</span><span class="n">adata_path</span><span class="p">,</span>
+    <span class="n">genes</span><span class="o">=</span><span class="n">keep_genes</span><span class="p">[:</span><span class="mi">10</span><span class="p">],</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
+    <span class="n">parent_col</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">modality</span><span class="o">=</span><span class="s2">&quot;RNA&quot;</span><span class="p">,</span>
+    <span class="n">use_raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">expression_cutoff</span><span class="o">=</span><span class="s2">&quot;p5&quot;</span><span class="p">,</span>
+    <span class="n">transpose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Blues&quot;</span><span class="p">,</span>
+    <span class="n">palette</span><span class="o">=</span><span class="s2">&quot;~/Projects/BICAN/adata/HMBA_v2/HMBA_color_palette.xlsx&quot;</span><span class="p">,</span>
+    <span class="n">legend_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">extendfrac</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Mean logCPM&quot;</span><span class="p">),</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+    <span class="n">plot_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">vmax</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="n">xticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">labelrotation</span><span class="o">=-</span><span class="mi">30</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">yticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Subclass markers (transposed)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/x-wding2/Projects/Github/adataviz/adataviz/pl/expression.py:486: ImplicitModificationWarning: Trying to modify attribute `.obs` of view, initializing view as actual.
+  use.obs[groupby] = obs.loc[use.obs_names, groupby].tolist()
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/PyComplexHeatmap/dotHeatmap.py:365: FutureWarning: The provided callable &lt;function mean at 0x150080ade200&gt; is currently using DataFrameGroupBy.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string &#34;mean&#34; instead.
+  data2d = data.pivot_table(
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/PyComplexHeatmap/dotHeatmap.py:384: FutureWarning: The provided callable &lt;function mean at 0x150080ade200&gt; is currently using DataFrameGroupBy.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string &#34;mean&#34; instead.
+  self.kwargs[&#34;s&#34;] = data.pivot_table(
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/PyComplexHeatmap/dotHeatmap.py:401: FutureWarning: DataFrame.applymap has been deprecated. Use DataFrame.map instead.
+  self.kwargs[&#34;s&#34;]=self.kwargs[&#34;s&#34;].applymap(lambda x:(x-self.smin)/delta)
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/PyComplexHeatmap/dotHeatmap.py:415: FutureWarning: The provided callable &lt;function mean at 0x150080ade200&gt; is currently using DataFrameGroupBy.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string &#34;mean&#34; instead.
+  self.kwargs[&#34;c&#34;] = data.pivot_table(
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Plotting HeatmapAnnotations
+Collecting annotation legends..
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/PyComplexHeatmap/utils.py:684: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  ax.figure.canvas.draw()
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/PyComplexHeatmap/utils.py:504: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  ax.figure.canvas.draw()
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;PyComplexHeatmap.dotHeatmap.DotClustermapPlotter at 0x1500305a9d50&gt;
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/IPython/core/events.py:82: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  func(*args, **kwargs)
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/IPython/core/pylabtools.py:170: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  fig.canvas.print_figure(bytes_io, **kw)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_16_5.png" src="../_images/notebooks_static_plots_16_5.png" />
+</div>
+</div>
+</section>
+<section id="Cell-statistics-plots">
+<h2>Cell statistics plots<a class="headerlink" href="#Cell-statistics-plots" title="Link to this heading">¶</a></h2>
+<p>A family of categorical-composition plots (rose / ring / pie / area / dot / trend / sankey / chord / venn / upset) implemented on top of matplotlib, with a few optional extras (<code class="docutils literal notranslate"><span class="pre">matplotlib-venn</span></code>, <code class="docutils literal notranslate"><span class="pre">upsetplot</span></code>, <code class="docutils literal notranslate"><span class="pre">pycirclize</span></code>, <code class="docutils literal notranslate"><span class="pre">adjustText</span></code>).</p>
+<p>All functions accept either an :class:<code class="docutils literal notranslate"><span class="pre">anndata.AnnData</span></code> (recommended: palettes are auto-loaded from <code class="docutils literal notranslate"><span class="pre">adata.uns</span></code>) or a :class:<code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> / path to a tabular file. Each function with a legend exposes a <code class="docutils literal notranslate"><span class="pre">legend_kws</span></code> argument that is forwarded to matplotlib.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">anndata</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">adataviz</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">av</span>
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">)</span>
+
+<span class="n">adata_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span>
+    <span class="s2">&quot;~/Projects/BICAN/adata/HMBA_v2/HMBA.Group.downsample_1500.h5ad&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Load the full AnnData so colour palettes stored in ``adata.uns``</span>
+<span class="c1"># (e.g. ``Class_colors``, ``Group_colors``) are picked up automatically.</span>
+<span class="n">adata</span> <span class="o">=</span> <span class="n">anndata</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="n">adata_path</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;adata:&quot;</span><span class="p">,</span> <span class="n">adata</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;Class:&quot;</span><span class="p">,</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;Class&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">(),</span>
+    <span class="s2">&quot;| Subclass:&quot;</span><span class="p">,</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;Subclass&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">(),</span>
+    <span class="s2">&quot;| Group:&quot;</span><span class="p">,</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;Group&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">(),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+adata: (70134, 36601)
+Class: 12 | Subclass: 36 | Group: 60
+</pre></div></div>
+</div>
+<section id="1.-rose_plot-–-Nightingale-polar-bar-of-cell-class-counts">
+<h3>1. <code class="docutils literal notranslate"><span class="pre">rose_plot</span></code> – Nightingale polar bar of cell-class counts<a class="headerlink" href="#1.-rose_plot-–-Nightingale-polar-bar-of-cell-class-counts" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">rose_plot</span><span class="p">(</span>
+    <span class="n">adata</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+    <span class="n">label_orientation</span><span class="o">=</span><span class="s2">&quot;radial&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Cell counts per Class&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_20_0.png" src="../_images/notebooks_static_plots_20_0.png" />
+</div>
+</div>
+</section>
+<section id="2.-ring_plot-–-donut-chart-of-class-proportions">
+<h3>2. <code class="docutils literal notranslate"><span class="pre">ring_plot</span></code> – donut chart of class proportions<a class="headerlink" href="#2.-ring_plot-–-donut-chart-of-class-proportions" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cm1</span> <span class="o">=</span> <span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">plot_genes</span><span class="p">(</span>
-    <span class="n">adata</span><span class="o">=</span><span class="s2">&quot;/home/x-wding2/Projects/BG/adata/BG.gene-CHN.h5ad&quot;</span><span class="p">,</span>
-    <span class="n">query_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">obs</span><span class="o">=</span><span class="s2">&quot;~/Projects/BG/clustering/100kb/obs.Dopa-ChI-MSN.tsv&quot;</span><span class="p">,</span>
-    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
-    <span class="n">parent_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">modality</span><span class="o">=</span><span class="s2">&quot;mc&quot;</span><span class="p">,</span>  <span class="c1"># mc or RNA</span>
-    <span class="n">use_raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># True for RNA</span>
-    <span class="n">expression_cutoff</span><span class="o">=</span><span class="s2">&quot;p5&quot;</span><span class="p">,</span>  <span class="c1"># for RNA, could be int, median, mean of p5, p95 and so on</span>
-    <span class="n">genes</span><span class="o">=</span><span class="n">keep_genes</span><span class="p">,</span>
-    <span class="n">cell_type_order</span><span class="o">=</span><span class="n">cell_type_order</span><span class="p">,</span>
-    <span class="n">gene_order</span><span class="o">=</span><span class="n">gene_order</span><span class="p">,</span>
-    <span class="n">row_cluster</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">col_cluster</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Blues_r&quot;</span><span class="p">,</span>
-    <span class="n">group_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">parent_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;mCH&quot;</span><span class="p">,</span>
-    <span class="n">palette</span><span class="o">=</span><span class="s2">&quot;/home/x-wding2/Projects/BG/metadata/BG_color_palette.xlsx&quot;</span><span class="p">,</span>
-    <span class="n">legend_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">extendfrac</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Mean mCH&quot;</span><span class="p">),</span>
-    <span class="n">normalize_per_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">clip_norm_value</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-    <span class="n">hypo_score</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
-    <span class="n">plot_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
-        <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="n">vmax</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
-        <span class="n">yticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-        <span class="n">xticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
-            <span class="n">labelrotation</span><span class="o">=-</span><span class="mi">30</span><span class="p">,</span> <span class="n">labelcolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">True</span>
-        <span class="p">),</span>
-    <span class="p">),</span>
-    <span class="n">outname</span><span class="o">=</span><span class="s2">&quot;Dopa-ChI-MSN.mCH.pdf&quot;</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">ring_plot</span><span class="p">(</span>
+    <span class="n">adata</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Class composition&quot;</span><span class="p">,</span>
+    <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># label_orientation=&#39;radial&#39;,</span>
+    <span class="n">adjust_text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># de-overlap labels using ``adjustText`` if installed</span>
+    <span class="n">legend_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
 <span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_22_0.png" src="../_images/notebooks_static_plots_22_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">ring_plot</span><span class="p">(</span>
+    <span class="n">adata</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">label_orientation</span><span class="o">=</span><span class="s2">&quot;radial&quot;</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Class composition&quot;</span><span class="p">,</span>
+    <span class="n">legend_loc</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+    <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">adjust_text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># de-overlap labels using ``adjustText`` if installed</span>
+    <span class="n">legend_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_23_0.png" src="../_images/notebooks_static_plots_23_0.png" />
+</div>
+</div>
+</section>
+<section id="3.-pie_plot-–-pie-chart,-optionally-faceted-by-anatomical-region">
+<h3>3. <code class="docutils literal notranslate"><span class="pre">pie_plot</span></code> – pie chart, optionally faceted by anatomical region<a class="headerlink" href="#3.-pie_plot-–-pie-chart,-optionally-faceted-by-anatomical-region" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">pie_plot</span><span class="p">(</span>
+    <span class="n">adata</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Overall Class proportions&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_25_0.png" src="../_images/notebooks_static_plots_25_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Subset to the most common regions to keep the facet grid readable.</span>
+<span class="n">top_regions</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;anatomical_region_merged&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="p">)</span>
+<span class="n">sub</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;anatomical_region_merged&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">top_regions</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">pie_plot</span><span class="p">(</span>
+    <span class="n">sub</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">split_by</span><span class="o">=</span><span class="s2">&quot;anatomical_region_merged&quot;</span><span class="p">,</span>
+    <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Class proportions by anatomical region&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_26_0.png" src="../_images/notebooks_static_plots_26_0.png" />
+</div>
+</div>
+</section>
+<section id="4.-area_plot-–-stacked-area-showing-Class-composition-across-donors">
+<h3>4. <code class="docutils literal notranslate"><span class="pre">area_plot</span></code> – stacked area showing Class composition across donors<a class="headerlink" href="#4.-area_plot-–-stacked-area-showing-Class-composition-across-donors" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">area_plot</span><span class="p">(</span>
+    <span class="n">adata</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">split_by</span><span class="o">=</span><span class="s2">&quot;donor_id&quot;</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Class composition across donors&quot;</span><span class="p">,</span>
+    <span class="n">legend_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_28_0.png" src="../_images/notebooks_static_plots_28_0.png" />
+</div>
+</div>
+</section>
+<section id="5.-dot_plot-–-grid-where-size-=-count-and-colour-=-column-fraction">
+<h3>5. <code class="docutils literal notranslate"><span class="pre">dot_plot</span></code> – grid where size = count and colour = column-fraction<a class="headerlink" href="#5.-dot_plot-–-grid-where-size-=-count-and-colour-=-column-fraction" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Pick the top Subclasses for legibility.</span>
+<span class="n">top_subclasses</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;Subclass&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">sub</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;Subclass&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">top_subclasses</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">dot_plot</span><span class="p">(</span>
+    <span class="n">sub</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">3.5</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
+    <span class="n">split_by</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Subclass × Class abundance&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_30_0.png" src="../_images/notebooks_static_plots_30_0.png" />
+</div>
+</div>
+</section>
+<section id="6.-trend_plot-–-line-trend-of-Class-fraction-across-donors">
+<h3>6. <code class="docutils literal notranslate"><span class="pre">trend_plot</span></code> – line trend of Class fraction across donors<a class="headerlink" href="#6.-trend_plot-–-line-trend-of-Class-fraction-across-donors" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">trend_plot</span><span class="p">(</span>
+    <span class="n">adata</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">split_by</span><span class="o">=</span><span class="s2">&quot;donor_id&quot;</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Class fraction trend across donors&quot;</span><span class="p">,</span>
+    <span class="n">legend_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">7</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_32_0.png" src="../_images/notebooks_static_plots_32_0.png" />
+</div>
+</div>
+</section>
+<section id="7.-sankey_plot-–-two-column-flow-from-Class-→-Group">
+<h3>7. <code class="docutils literal notranslate"><span class="pre">sankey_plot</span></code> – two-column flow from Class → Group<a class="headerlink" href="#7.-sankey_plot-–-two-column-flow-from-Class-→-Group" title="Link to this heading">¶</a></h3>
+<p>Each Class node spans the full canvas height proportional to its size, and each ribbon meets the corresponding Group node on the right.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">sankey_plot</span><span class="p">(</span>
+    <span class="n">adata</span><span class="p">,</span>
+    <span class="n">left</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">right</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">3.5</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Class → Subclass flow&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_34_0.png" src="../_images/notebooks_static_plots_34_0.png" />
+</div>
+</div>
+</section>
+<section id="8.-chord_plot-–-circular-co-occurrence-between-Class-and-region">
+<h3>8. <code class="docutils literal notranslate"><span class="pre">chord_plot</span></code> – circular co-occurrence between Class and region<a class="headerlink" href="#8.-chord_plot-–-circular-co-occurrence-between-Class-and-region" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sub</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;anatomical_region_merged&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">top_regions</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">chord_plot</span><span class="p">(</span>
+    <span class="n">sub</span><span class="p">,</span>
+    <span class="n">left</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">right</span><span class="o">=</span><span class="s2">&quot;anatomical_region_merged&quot;</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+    <span class="n">adjust_text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># min_flow_frac=0.1,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Class × Region chord&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_36_0.png" src="../_images/notebooks_static_plots_36_0.png" />
+</div>
+</div>
+</section>
+<section id="9.-venn_plot----shared-expressed-genes-across-three-Subclasses">
+<h3>9. <code class="docutils literal notranslate"><span class="pre">venn_plot</span></code> – shared expressed genes across three Subclasses<a class="headerlink" href="#9.-venn_plot----shared-expressed-genes-across-three-Subclasses" title="Link to this heading">¶</a></h3>
+<p>Pick three GABAergic Subclasses and ask which highly-expressed genes (&gt;50% cells passing a CPM threshold) each Subclass has. Overlap is expected because they share neurotransmitter machinery.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_sp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_np</span>
+
+<span class="n">sub_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;STR D1 MSN&quot;</span><span class="p">,</span> <span class="s2">&quot;STR D2 MSN&quot;</span><span class="p">,</span> <span class="s2">&quot;STR Hybrid MSN&quot;</span><span class="p">]</span>
+<span class="n">gene_sets</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">expressed_long</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">sc</span> <span class="ow">in</span> <span class="n">sub_names</span><span class="p">:</span>
+    <span class="n">sub</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;Subclass&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">sc</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">sub</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">continue</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">sub</span><span class="o">.</span><span class="n">X</span>
+    <span class="k">if</span> <span class="n">_sp</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+        <span class="n">frac</span> <span class="o">=</span> <span class="n">_np</span><span class="o">.</span><span class="n">asarray</span><span class="p">((</span><span class="n">X</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">frac</span> <span class="o">=</span> <span class="p">(</span><span class="n">X</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">genes</span> <span class="o">=</span> <span class="n">sub</span><span class="o">.</span><span class="n">var_names</span><span class="p">[</span><span class="n">frac</span> <span class="o">&gt;=</span> <span class="mf">0.2</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">gene_sets</span><span class="p">[</span><span class="n">sc</span><span class="p">]</span> <span class="o">=</span> <span class="n">genes</span>
+    <span class="n">expressed_long</span><span class="o">.</span><span class="n">extend</span><span class="p">([(</span><span class="n">sc</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">genes</span><span class="p">])</span>
+<span class="n">venn_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">expressed_long</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span> <span class="s2">&quot;gene&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">gene_sets</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">venn_plot</span><span class="p">(</span>
+    <span class="n">venn_df</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
+    <span class="n">set_by</span><span class="o">=</span><span class="s2">&quot;gene&quot;</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Genes detected in &gt;=20</span><span class="si">% o</span><span class="s2">f cells (per Subclass)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -811,29 +1247,203 @@ Estimated legend width: 12.172222222222222 mm
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Normalizing cell level fraction by alpha and beta (prior_mean)
-(145394, 40)
-Starting..
-Calculating row orders..
-Reordering rows..
-Calculating col orders..
-Reordering cols..
-Plotting matrix..
-Inferred max_s (max size of scatter point) is: 87.47432584626135
-Plotting HeatmapAnnotations
-Collecting legends..
-Collecting annotation legends..
-Plotting legends..
-Estimated legend width: 46.56805555555555 mm
+{&#39;STR D1 MSN&#39;: 10094, &#39;STR D2 MSN&#39;: 9584, &#39;STR Hybrid MSN&#39;: 9022}
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_static_plots_16_1.png" src="../_images/notebooks_static_plots_16_1.png" />
+<img alt="../_images/notebooks_static_plots_38_1.png" src="../_images/notebooks_static_plots_38_1.png" />
 </div>
 </div>
+</section>
+<section id="10.-upset_plot----expressed-gene-overlap-across-five-Classes">
+<h3>10. <code class="docutils literal notranslate"><span class="pre">upset_plot</span></code> – expressed-gene overlap across five Classes<a class="headerlink" href="#10.-upset_plot----expressed-gene-overlap-across-five-Classes" title="Link to this heading">¶</a></h3>
+<p>Compute the set of genes detected in &gt;=20% of cells for each Class, then visualise their overlap. Upset is far more legible than Venn for &gt;=4 sets.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_np</span>
+
+<span class="c1"># Per-Class set of genes detected in &gt;=20% of cells (sparse-aware).</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_sp</span>
+
+<span class="n">top_classes</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;Class&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">top_classes</span><span class="p">:</span>
+    <span class="n">sub</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;Class&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">cls</span><span class="p">]</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">sub</span><span class="o">.</span><span class="n">X</span>
+    <span class="k">if</span> <span class="n">_sp</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+        <span class="n">frac</span> <span class="o">=</span> <span class="n">_np</span><span class="o">.</span><span class="n">asarray</span><span class="p">((</span><span class="n">X</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">frac</span> <span class="o">=</span> <span class="p">(</span><span class="n">X</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">genes</span> <span class="o">=</span> <span class="n">sub</span><span class="o">.</span><span class="n">var_names</span><span class="p">[</span><span class="n">frac</span> <span class="o">&gt;=</span> <span class="mf">0.2</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">extend</span><span class="p">([(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">genes</span><span class="p">])</span>
+<span class="n">upset_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span> <span class="s2">&quot;gene&quot;</span><span class="p">])</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">upset_plot</span><span class="p">(</span>
+    <span class="n">upset_df</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Class&quot;</span><span class="p">,</span>
+    <span class="n">set_by</span><span class="o">=</span><span class="s2">&quot;gene&quot;</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Genes detected in &gt;=20</span><span class="si">% o</span><span class="s2">f cells per Class&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/IPython/core/pylabtools.py:170: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  fig.canvas.print_figure(bytes_io, **kw)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_40_1.png" src="../_images/notebooks_static_plots_40_1.png" />
+</div>
+</div>
+</section>
+<section id="11.-complex_heatmap----annotated-marker-heatmap-with-clustering">
+<h3>11. <code class="docutils literal notranslate"><span class="pre">complex_heatmap</span></code> – annotated marker heatmap with clustering<a class="headerlink" href="#11.-complex_heatmap----annotated-marker-heatmap-with-clustering" title="Link to this heading">¶</a></h3>
+<p>A 30+ marker panel covering glutamatergic, GABAergic, dopaminergic and glial Subclasses. Rows are clustered by z-score similarity and an extra row stripe shows the dominant Class per Subclass.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Curated panel covering glutamatergic, GABAergic, dopaminergic and glial markers.</span>
+<span class="n">panel</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;SLC17A7&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SLC17A6&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SATB2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NEUROD2&quot;</span><span class="p">,</span>  <span class="c1"># Glut</span>
+    <span class="s2">&quot;GAD1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GAD2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SLC32A1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PVALB&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SST&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;VIP&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LAMP5&quot;</span><span class="p">,</span>  <span class="c1"># GABA-IN</span>
+    <span class="s2">&quot;DRD1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DRD2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PPP1R1B&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TAC1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PENK&quot;</span><span class="p">,</span>  <span class="c1"># MSN</span>
+    <span class="s2">&quot;TH&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SLC6A3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SLC18A2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NR4A2&quot;</span><span class="p">,</span>  <span class="c1"># Dopa</span>
+    <span class="s2">&quot;CHAT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SLC18A3&quot;</span><span class="p">,</span>  <span class="c1"># Cholinergic</span>
+    <span class="s2">&quot;AQP4&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GFAP&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SLC1A2&quot;</span><span class="p">,</span>  <span class="c1"># Astro</span>
+    <span class="s2">&quot;PDGFRA&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;OLIG1&quot;</span><span class="p">,</span>  <span class="c1"># OPC</span>
+    <span class="s2">&quot;MOG&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MBP&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PLP1&quot;</span><span class="p">,</span>  <span class="c1"># Oligo</span>
+    <span class="s2">&quot;CX3CR1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;P2RY12&quot;</span><span class="p">,</span>  <span class="c1"># Microglia</span>
+    <span class="s2">&quot;CLDN5&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PECAM1&quot;</span><span class="p">,</span>  <span class="c1"># Vascular</span>
+<span class="p">]</span>
+<span class="n">panel</span> <span class="o">=</span> <span class="p">[</span><span class="n">g</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">panel</span> <span class="k">if</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">adata</span><span class="o">.</span><span class="n">var_names</span><span class="p">]</span>
+<span class="n">top_subclasses</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;Subclass&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">sub</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;Subclass&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">top_subclasses</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">complex_heatmap</span><span class="p">(</span>
+    <span class="n">sub</span><span class="p">,</span>
+    <span class="n">genes</span><span class="o">=</span><span class="n">panel</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
+    <span class="n">z_score</span><span class="o">=</span><span class="s2">&quot;row&quot;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;RdBu_r&quot;</span><span class="p">,</span>
+    <span class="n">annotate</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Class&quot;</span><span class="p">],</span>
+    <span class="n">row_cluster</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">col_cluster</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">),</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Marker z-score per Subclass (rows annotated by Class)&quot;</span><span class="p">,</span>
+    <span class="n">plot_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">xticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">labelrotation</span><span class="o">=-</span><span class="mi">45</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">yticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/PyComplexHeatmap/utils.py:504: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  ax.figure.canvas.draw()
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/IPython/core/pylabtools.py:170: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  fig.canvas.print_figure(bytes_io, **kw)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_42_1.png" src="../_images/notebooks_static_plots_42_1.png" />
+</div>
+</div>
+</section>
+<section id="12.-complex_dotplot----annotated-dot-heatmap">
+<h3>12. <code class="docutils literal notranslate"><span class="pre">complex_dotplot</span></code> – annotated dot heatmap<a class="headerlink" href="#12.-complex_dotplot----annotated-dot-heatmap" title="Link to this heading">¶</a></h3>
+<p>Same gene panel but rendered as a dot plot (size = % expressing, colour = mean expression). Subclasses on rows, genes on columns.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">av</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">complex_dotplot</span><span class="p">(</span>
+    <span class="n">sub</span><span class="p">,</span>
+    <span class="n">genes</span><span class="o">=</span><span class="n">panel</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Subclass&quot;</span><span class="p">,</span>
+    <span class="n">expression_cutoff</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Reds&quot;</span><span class="p">,</span>
+    <span class="n">annotate</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Class&quot;</span><span class="p">],</span>
+    <span class="n">row_cluster</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">col_cluster</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Marker dot heatmap per Subclass&quot;</span><span class="p">,</span>
+    <span class="n">plot_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">xticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">labelrotation</span><span class="o">=-</span><span class="mi">45</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">yticklabels_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/PyComplexHeatmap/utils.py:684: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  ax.figure.canvas.draw()
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/PyComplexHeatmap/utils.py:504: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  ax.figure.canvas.draw()
+/home/x-wding2/Software/conda/m3c/lib/python3.10/site-packages/IPython/core/pylabtools.py:170: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  fig.canvas.print_figure(bytes_io, **kw)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_static_plots_44_1.png" src="../_images/notebooks_static_plots_44_1.png" />
+</div>
+</div>
+</section>
 </section>
 </section>
 
@@ -899,6 +1509,21 @@ Estimated legend width: 46.56805555555555 mm
 <li><a class="reference internal" href="#1.-plot_categorical-–-Categorical-UMAP-(or-TSNE)">1. <code class="docutils literal notranslate"><span class="pre">plot_categorical</span></code> – Categorical UMAP (or TSNE)</a></li>
 <li><a class="reference internal" href="#2.-plot_gene-–-Gene-Expression-on-UMAP-+-Violin-Plot">2. <code class="docutils literal notranslate"><span class="pre">plot_gene</span></code> – Gene Expression on UMAP + Violin Plot</a></li>
 <li><a class="reference internal" href="#3.-stacked_barplot-–-Cell-Type-Composition">3. <code class="docutils literal notranslate"><span class="pre">stacked_barplot</span></code> – Cell Type Composition</a></li>
+<li><a class="reference internal" href="#Cell-statistics-plots">Cell statistics plots</a><ul>
+<li><a class="reference internal" href="#1.-rose_plot-–-Nightingale-polar-bar-of-cell-class-counts">1. <code class="docutils literal notranslate"><span class="pre">rose_plot</span></code> – Nightingale polar bar of cell-class counts</a></li>
+<li><a class="reference internal" href="#2.-ring_plot-–-donut-chart-of-class-proportions">2. <code class="docutils literal notranslate"><span class="pre">ring_plot</span></code> – donut chart of class proportions</a></li>
+<li><a class="reference internal" href="#3.-pie_plot-–-pie-chart,-optionally-faceted-by-anatomical-region">3. <code class="docutils literal notranslate"><span class="pre">pie_plot</span></code> – pie chart, optionally faceted by anatomical region</a></li>
+<li><a class="reference internal" href="#4.-area_plot-–-stacked-area-showing-Class-composition-across-donors">4. <code class="docutils literal notranslate"><span class="pre">area_plot</span></code> – stacked area showing Class composition across donors</a></li>
+<li><a class="reference internal" href="#5.-dot_plot-–-grid-where-size-=-count-and-colour-=-column-fraction">5. <code class="docutils literal notranslate"><span class="pre">dot_plot</span></code> – grid where size = count and colour = column-fraction</a></li>
+<li><a class="reference internal" href="#6.-trend_plot-–-line-trend-of-Class-fraction-across-donors">6. <code class="docutils literal notranslate"><span class="pre">trend_plot</span></code> – line trend of Class fraction across donors</a></li>
+<li><a class="reference internal" href="#7.-sankey_plot-–-two-column-flow-from-Class-→-Group">7. <code class="docutils literal notranslate"><span class="pre">sankey_plot</span></code> – two-column flow from Class → Group</a></li>
+<li><a class="reference internal" href="#8.-chord_plot-–-circular-co-occurrence-between-Class-and-region">8. <code class="docutils literal notranslate"><span class="pre">chord_plot</span></code> – circular co-occurrence between Class and region</a></li>
+<li><a class="reference internal" href="#9.-venn_plot----shared-expressed-genes-across-three-Subclasses">9. <code class="docutils literal notranslate"><span class="pre">venn_plot</span></code> – shared expressed genes across three Subclasses</a></li>
+<li><a class="reference internal" href="#10.-upset_plot----expressed-gene-overlap-across-five-Classes">10. <code class="docutils literal notranslate"><span class="pre">upset_plot</span></code> – expressed-gene overlap across five Classes</a></li>
+<li><a class="reference internal" href="#11.-complex_heatmap----annotated-marker-heatmap-with-clustering">11. <code class="docutils literal notranslate"><span class="pre">complex_heatmap</span></code> – annotated marker heatmap with clustering</a></li>
+<li><a class="reference internal" href="#12.-complex_dotplot----annotated-dot-heatmap">12. <code class="docutils literal notranslate"><span class="pre">complex_dotplot</span></code> – annotated dot heatmap</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

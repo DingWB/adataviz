@@ -214,9 +214,19 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../modules.html">adataviz</a><input aria-label="Toggle navigation of adataviz" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../adataviz.html">adataviz package</a><input aria-label="Toggle navigation of adataviz package" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../adataviz.pl.html">adataviz.pl package</a><input aria-label="Toggle navigation of adataviz.pl package" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.complex_heatmap.html">adataviz.pl.complex_heatmap module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.composition.html">adataviz.pl.composition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.expression.html">adataviz.pl.expression module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.flow.html">adataviz.pl.flow module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.interactive_stats.html">adataviz.pl.interactive_stats module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.pseudotime.html">adataviz.pl.pseudotime module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.scatter.html">adataviz.pl.scatter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.sets.html">adataviz.pl.sets module</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../adataviz.adata.html">adataviz.adata module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../adataviz.palettes.html">adataviz.palettes module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../adataviz.plotting.html">adataviz.plotting module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../adataviz.tools.html">adataviz.tools module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../adataviz.utils.html">adataviz.utils module</a></li>
 </ul>
@@ -267,7 +277,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sp</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span> <span class="k">as</span> <span class="n">logger</span>
 <span class="c1"># logger.remove()</span>
 <span class="c1"># logger.add(sys.stderr, level=&quot;DEBUG&quot;)</span>
@@ -706,9 +715,9 @@
 
 
 
-<div class="viewcode-block" id="is_annadatacollection">
-<a class="viewcode-back" href="../../adataviz.adata.html#adataviz.adata.is_annadatacollection">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">is_annadatacollection</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="is_anndatacollection">
+<a class="viewcode-back" href="../../adataviz.adata.html#adataviz.adata.is_anndatacollection">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_anndatacollection</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return True if `path` points to an AnnData file produced by</span>
 <span class="sd">    `AnnDataCollection.from_files`.</span>
 <span class="sd">    Heuristic: the AnnData must have `uns` entries `src_paths` or</span>
@@ -935,66 +944,8 @@
 
 
 
-<div class="viewcode-block" id="test_subset">
-<a class="viewcode-back" href="../../adataviz.adata.html#adataviz.adata.test_subset">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">test_subset</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Integration test for AnnDataCollection subsetting.</span>
-
-<span class="sd">    Compares results of subsetting cells and genes via AnnDataCollection</span>
-<span class="sd">    against direct AnnData backed reading to verify correctness and</span>
-<span class="sd">    measure performance.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;/home/x-wding2/Projects/mouse_dev/testAnnDataCollection&quot;</span><span class="p">)</span>
-    <span class="p">)</span>
-    <span class="n">adata_path</span> <span class="o">=</span> <span class="s2">&quot;/anvil/projects/x-mcb130189/Wubin/mouse_dev/adata/100kb/*-CGN.h5ad&quot;</span>
-    <span class="n">reference_path</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">&quot;/anvil/projects/x-mcb130189/Wubin/mouse_dev/adata/mouse_dev.100kb-CGN.h5ad&quot;</span>
-    <span class="p">)</span>
-    <span class="n">metadata_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span>
-        <span class="s2">&quot;~/Projects/mouse_dev/metadata/metadata.filtered.tsv.gz&quot;</span>
-    <span class="p">)</span>
-    <span class="n">ds</span> <span class="o">=</span> <span class="n">AnnDataCollection</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
-        <span class="n">adata_path</span><span class="p">,</span> <span class="n">out_path</span><span class="o">=</span><span class="s2">&quot;mouse_dev.100kb-CGN.h5ad&quot;</span><span class="p">,</span> <span class="n">metadata_path</span><span class="o">=</span><span class="n">metadata_path</span>
-    <span class="p">)</span>
-
-    <span class="n">ref</span> <span class="o">=</span> <span class="n">anndata</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="n">reference_path</span><span class="p">,</span> <span class="n">backed</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
-    <span class="n">use_cells</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">5000</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-    <span class="n">ref_data</span> <span class="o">=</span> <span class="n">ref</span><span class="p">[</span><span class="n">use_cells</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
-    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-    <span class="n">ref</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reference read time for 5000 cells: </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
-
-    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">use_cells</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">to_memory</span><span class="p">(</span><span class="n">thread</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
-    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;AnnDataCollection read time for 5000 cells: </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span>
-    <span class="p">)</span>
-    <span class="n">ref_data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;cell&quot;</span>
-    <span class="k">assert</span> <span class="n">ref_data</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="n">pd</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">ref_data</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">check_dtype</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-    <span class="c1"># subset vars</span>
-    <span class="n">ref</span> <span class="o">=</span> <span class="n">anndata</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="n">reference_path</span><span class="p">,</span> <span class="n">backed</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
-    <span class="n">use_vars</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-    <span class="n">ref_data</span> <span class="o">=</span> <span class="n">ref</span><span class="p">[:,</span> <span class="n">use_vars</span><span class="p">]</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
-    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reference read time for 50 vars: </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
-    <span class="n">ref</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[:,</span> <span class="n">use_vars</span><span class="p">]</span><span class="o">.</span><span class="n">to_memory</span><span class="p">(</span><span class="n">thread</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
-    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;AnnDataCollection read time for 50 vars: </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
-    <span class="n">ref_data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;cell&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ref_data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span>
-    <span class="k">assert</span> <span class="n">ref_data</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="n">pd</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">ref_data</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">check_dtype</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
-
+<span class="c1"># Backward-compatible alias for the previous (mis-spelled) public name.</span>
+<span class="n">is_annadatacollection</span> <span class="o">=</span> <span class="n">is_anndatacollection</span>
 
 
 <div class="viewcode-block" id="main">

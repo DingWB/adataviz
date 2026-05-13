@@ -214,9 +214,19 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../modules.html">adataviz</a><input aria-label="Toggle navigation of adataviz" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../adataviz.html">adataviz package</a><input aria-label="Toggle navigation of adataviz package" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../adataviz.pl.html">adataviz.pl package</a><input aria-label="Toggle navigation of adataviz.pl package" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.complex_heatmap.html">adataviz.pl.complex_heatmap module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.composition.html">adataviz.pl.composition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.expression.html">adataviz.pl.expression module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.flow.html">adataviz.pl.flow module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.interactive_stats.html">adataviz.pl.interactive_stats module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.pseudotime.html">adataviz.pl.pseudotime module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.scatter.html">adataviz.pl.scatter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.sets.html">adataviz.pl.sets module</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../adataviz.adata.html">adataviz.adata module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../adataviz.palettes.html">adataviz.palettes module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../adataviz.plotting.html">adataviz.plotting module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../adataviz.tools.html">adataviz.tools module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../adataviz.utils.html">adataviz.utils module</a></li>
 </ul>
@@ -1229,59 +1239,15 @@
         <span class="p">)</span>
         <span class="o">.</span><span class="n">sum</span><span class="p">()</span>
     <span class="p">)</span>
-    <span class="n">adata</span><span class="p">[</span><span class="n">keep_cells</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">write_h5ad</span><span class="p">(</span>
-        <span class="n">outfile</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span> <span class="n">convert_strings_to_categoricals</span><span class="o">=</span><span class="kc">False</span>
-    <span class="p">)</span>
+    <span class="n">adata</span><span class="p">[</span><span class="n">keep_cells</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">write_h5ad</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
     <span class="n">adata</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
 
-<div class="viewcode-block" id="prepare_color_palette">
-<a class="viewcode-back" href="../../adataviz.tools.html#adataviz.tools.prepare_color_palette">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">prepare_color_palette</span><span class="p">(</span><span class="n">color_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outpath</span><span class="o">=</span><span class="s2">&quot;palette.xlsx&quot;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generating a .xlsx file including all color palette.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    colors : dict</span>
-<span class="sd">            A dict of dict, keys are categorical terms, values are HEX color code</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">outpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">outpath</span><span class="p">)</span>
-    <span class="n">writer</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">ExcelWriter</span><span class="p">(</span><span class="n">outpath</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">color_dict</span><span class="p">:</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">color_dict</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Hex&quot;</span><span class="p">])</span>
-        <span class="c1"># data.style.background_gradient(cmap=&#39;gray_r&#39;)</span>
-        <span class="c1"># data.style.applymap(lambda x:&#39;color:&#39;+x if x.startswith(&#39;#&#39;) else &#39;color: white&#39;)</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">workbook</span> <span class="o">=</span> <span class="n">writer</span><span class="o">.</span><span class="n">book</span>
-        <span class="n">worksheet</span> <span class="o">=</span> <span class="n">writer</span><span class="o">.</span><span class="n">sheets</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-        <span class="n">colors</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Hex</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-            <span class="n">color</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">f</span> <span class="o">=</span> <span class="n">workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;bold&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;font_color&quot;</span><span class="p">:</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="s2">&quot;bg_color&quot;</span><span class="p">:</span> <span class="n">color</span><span class="p">}</span>
-            <span class="p">)</span>
-            <span class="n">worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
-        <span class="n">width</span> <span class="o">=</span> <span class="mi">20</span>
-        <span class="n">cell_fmt</span> <span class="o">=</span> <span class="n">workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;bold&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="s2">&quot;font_color&quot;</span><span class="p">:</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
-                <span class="c1"># &#39;bg_color&#39;:&#39;green&#39;,</span>
-                <span class="s2">&quot;align&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;valign&quot;</span><span class="p">:</span> <span class="s2">&quot;vcenter&quot;</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
-        <span class="c1"># styled = data.style.applymap(lambda val: &#39;color: %s&#39; % &#39;red&#39; if val &lt; 0 else &#39;black&#39;).highlight_max()</span>
-        <span class="n">worksheet</span><span class="o">.</span><span class="n">set_column</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">cell_fmt</span><span class="p">)</span>
-    <span class="c1"># worksheet.conditional_format(f&#39;A:{last_col}&#39;, {&#39;type&#39;: &#39;no_blanks&#39;, &#39;format&#39;: cell_fmt})</span>
-    <span class="n">writer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
-
+<span class="c1"># ``prepare_color_palette`` is defined in ``adataviz.utils``.</span>
+<span class="c1"># Re-export here for backward compatibility (existing imports such as</span>
+<span class="c1"># ``from adataviz.tools import prepare_color_palette`` keep working).</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">prepare_color_palette</span>  <span class="c1"># noqa: E402,F401</span>
 
 
 <div class="viewcode-block" id="get_color_palette">
@@ -1427,7 +1393,9 @@
             <span class="n">parent_values</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">color_palette</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">parent_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">color_palette</span><span class="p">[</span><span class="n">parent_col</span><span class="p">][</span><span class="n">ct</span><span class="p">]</span> <span class="k">for</span> <span class="n">ct</span> <span class="ow">in</span> <span class="n">parent_values</span><span class="p">]</span>
-        <span class="n">group_values</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">group_values</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">group_values</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="n">regions</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">color_palette</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">group_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">color_palette</span><span class="p">[</span><span class="n">groupby</span><span class="p">][</span><span class="n">ct</span><span class="p">]</span> <span class="k">for</span> <span class="n">ct</span> <span class="ow">in</span> <span class="n">group_values</span><span class="p">]</span>

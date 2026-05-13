@@ -1,6 +1,14 @@
 adataviz package
 ================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   adataviz.pl
+
 Submodules
 ----------
 
@@ -9,7 +17,6 @@ Submodules
 
    adataviz.adata
    adataviz.palettes
-   adataviz.plotting
    adataviz.tools
    adataviz.utils
 

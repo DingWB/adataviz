@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="adataviz.utils module" href="adataviz.utils.html"><link rel="prev" title="adataviz.plotting module" href="adataviz.plotting.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="adataviz.utils module" href="adataviz.utils.html"><link rel="prev" title="adataviz.palettes module" href="adataviz.palettes.html">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
         <title>adataviz.tools module - adataviz documentation</title>
@@ -215,9 +215,19 @@
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">adataviz</a><input aria-label="Toggle navigation of adataviz" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="adataviz.html">adataviz package</a><input aria-label="Toggle navigation of adataviz package" checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="adataviz.pl.html">adataviz.pl package</a><input aria-label="Toggle navigation of adataviz.pl package" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="adataviz.pl.complex_heatmap.html">adataviz.pl.complex_heatmap module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="adataviz.pl.composition.html">adataviz.pl.composition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="adataviz.pl.expression.html">adataviz.pl.expression module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="adataviz.pl.flow.html">adataviz.pl.flow module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="adataviz.pl.interactive_stats.html">adataviz.pl.interactive_stats module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="adataviz.pl.pseudotime.html">adataviz.pl.pseudotime module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="adataviz.pl.scatter.html">adataviz.pl.scatter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="adataviz.pl.sets.html">adataviz.pl.sets module</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="adataviz.adata.html">adataviz.adata module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="adataviz.palettes.html">adataviz.palettes module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="adataviz.plotting.html">adataviz.plotting module</a></li>
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">adataviz.tools module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="adataviz.utils.html">adataviz.utils module</a></li>
 </ul>
@@ -597,17 +607,6 @@ If <code class="docutils literal notranslate"><span class="pre">None</span></cod
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="adataviz.tools.prepare_color_palette">
-<span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">prepare_color_palette</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'palette.xlsx'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#prepare_color_palette"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.prepare_color_palette" title="Link to this definition">¶</a></dt>
-<dd><p>Generating a .xlsx file including all color palette.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>colors</strong> (<em>dict</em>) – A dict of dict, keys are categorical terms, values are HEX color code</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="adataviz.tools.scrna2pseudobulk">
 <span class="sig-prename descclassname"><span class="pre">adataviz.tools.</span></span><span class="sig-name descname"><span class="pre">scrna2pseudobulk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">downsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Group'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_sum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gtf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/tools.html#scrna2pseudobulk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.tools.scrna2pseudobulk" title="Link to this definition">¶</a></dt>
 <dd><p>Aggregate single-cell RNA data into pseudobulk profiles per group.</p>
@@ -704,14 +703,14 @@ _description_</p>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="adataviz.plotting.html">
+          <a class="prev-page" href="adataviz.palettes.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">adataviz.plotting module</div>
+                <div class="title">adataviz.palettes module</div>
                 
               </div>
             </a>
@@ -763,7 +762,6 @@ _description_</p>
 <li><a class="reference internal" href="#adataviz.tools.load_obs"><code class="docutils literal notranslate"><span class="pre">load_obs()</span></code></a></li>
 <li><a class="reference internal" href="#adataviz.tools.merge_adata_regions"><code class="docutils literal notranslate"><span class="pre">merge_adata_regions()</span></code></a></li>
 <li><a class="reference internal" href="#adataviz.tools.normalize_adata"><code class="docutils literal notranslate"><span class="pre">normalize_adata()</span></code></a></li>
-<li><a class="reference internal" href="#adataviz.tools.prepare_color_palette"><code class="docutils literal notranslate"><span class="pre">prepare_color_palette()</span></code></a></li>
 <li><a class="reference internal" href="#adataviz.tools.scrna2pseudobulk"><code class="docutils literal notranslate"><span class="pre">scrna2pseudobulk()</span></code></a></li>
 <li><a class="reference internal" href="#adataviz.tools.stat_pseudobulk"><code class="docutils literal notranslate"><span class="pre">stat_pseudobulk()</span></code></a></li>
 <li><a class="reference internal" href="#adataviz.tools.taxonomy"><code class="docutils literal notranslate"><span class="pre">taxonomy()</span></code></a></li>

@@ -214,9 +214,19 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../modules.html">adataviz</a><input aria-label="Toggle navigation of adataviz" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../adataviz.html">adataviz package</a><input aria-label="Toggle navigation of adataviz package" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../adataviz.pl.html">adataviz.pl package</a><input aria-label="Toggle navigation of adataviz.pl package" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.complex_heatmap.html">adataviz.pl.complex_heatmap module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.composition.html">adataviz.pl.composition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.expression.html">adataviz.pl.expression module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.flow.html">adataviz.pl.flow module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.interactive_stats.html">adataviz.pl.interactive_stats module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.pseudotime.html">adataviz.pl.pseudotime module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.scatter.html">adataviz.pl.scatter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../adataviz.pl.sets.html">adataviz.pl.sets module</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../adataviz.adata.html">adataviz.adata module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../adataviz.palettes.html">adataviz.palettes module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../adataviz.plotting.html">adataviz.plotting module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../adataviz.tools.html">adataviz.tools module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../adataviz.utils.html">adataviz.utils module</a></li>
 </ul>
@@ -263,7 +273,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pylab</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.legend_handler</span><span class="w"> </span><span class="kn">import</span> <span class="n">HandlerBase</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.lines</span><span class="w"> </span><span class="kn">import</span> <span class="n">Line2D</span>
@@ -271,7 +281,9 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
-<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+<span class="c1"># Note: do NOT call ``warnings.filterwarnings(&quot;ignore&quot;)`` at module import.</span>
+<span class="c1"># Library code must not silence warnings globally for downstream users.</span>
+<span class="c1"># Use ``with warnings.catch_warnings():`` locally where needed.</span>
 
 <span class="n">mm2inch</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">25.4</span>
 
@@ -1755,6 +1767,21 @@
     <span class="n">cax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
     <span class="n">cax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
     <span class="n">cbar</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cax</span><span class="p">,</span> <span class="o">**</span><span class="n">cbar_kws</span><span class="p">)</span>  <span class="c1"># use_gridspec=True</span>
+    <span class="c1"># Fix while-line bug</span>
+    <span class="n">cbar</span><span class="o">.</span><span class="n">solids</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">gradient</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="mi">1024</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">cax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+        <span class="n">gradient</span><span class="p">,</span>
+        <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">cmap</span><span class="p">,</span>
+        <span class="n">norm</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">norm</span><span class="p">,</span>
+        <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;lower&quot;</span><span class="p">,</span>
+        <span class="n">extent</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">),</span>
+        <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;bilinear&quot;</span><span class="p">,</span>
+        <span class="n">zorder</span><span class="o">=</span><span class="n">cbar</span><span class="o">.</span><span class="n">solids</span><span class="o">.</span><span class="n">get_zorder</span><span class="p">(),</span>
+    <span class="p">)</span>
+    <span class="n">cax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">cax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">)</span>
     <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span>
         <span class="n">labelsize</span><span class="o">=</span><span class="n">ticklabel_size</span><span class="p">,</span>
         <span class="n">size</span><span class="o">=</span><span class="n">ticklabel_size</span><span class="p">,</span>

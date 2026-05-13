@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="adataviz.palettes module" href="adataviz.palettes.html"><link rel="prev" title="adataviz package" href="adataviz.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="adataviz.palettes module" href="adataviz.palettes.html"><link rel="prev" title="adataviz.pl.sets module" href="adataviz.pl.sets.html">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
         <title>adataviz.adata module - adataviz documentation</title>
@@ -215,9 +215,19 @@
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">adataviz</a><input aria-label="Toggle navigation of adataviz" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="adataviz.html">adataviz package</a><input aria-label="Toggle navigation of adataviz package" checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="adataviz.pl.html">adataviz.pl package</a><input aria-label="Toggle navigation of adataviz.pl package" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="adataviz.pl.complex_heatmap.html">adataviz.pl.complex_heatmap module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="adataviz.pl.composition.html">adataviz.pl.composition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="adataviz.pl.expression.html">adataviz.pl.expression module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="adataviz.pl.flow.html">adataviz.pl.flow module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="adataviz.pl.interactive_stats.html">adataviz.pl.interactive_stats module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="adataviz.pl.pseudotime.html">adataviz.pl.pseudotime module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="adataviz.pl.scatter.html">adataviz.pl.scatter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="adataviz.pl.sets.html">adataviz.pl.sets module</a></li>
+</ul>
+</li>
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">adataviz.adata module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="adataviz.palettes.html">adataviz.palettes module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="adataviz.plotting.html">adataviz.plotting module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="adataviz.tools.html">adataviz.tools module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="adataviz.utils.html">adataviz.utils module</a></li>
 </ul>
@@ -343,7 +353,17 @@ cells and genes.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="adataviz.adata.is_annadatacollection">
-<span class="sig-prename descclassname"><span class="pre">adataviz.adata.</span></span><span class="sig-name descname"><span class="pre">is_annadatacollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/adataviz/adata.html#is_annadatacollection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.adata.is_annadatacollection" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">adataviz.adata.</span></span><span class="sig-name descname"><span class="pre">is_annadatacollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#adataviz.adata.is_annadatacollection" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if <cite>path</cite> points to an AnnData file produced by
+<cite>AnnDataCollection.from_files</cite>.
+Heuristic: the AnnData must have <cite>uns</cite> entries <cite>src_paths</cite> or
+<cite>individual_adata_paths</cite> and its <cite>obs</cite> must contain either
+<cite>_source_idx</cite> or <cite>_orig_obs_name</cite> markers.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adataviz.adata.is_anndatacollection">
+<span class="sig-prename descclassname"><span class="pre">adataviz.adata.</span></span><span class="sig-name descname"><span class="pre">is_anndatacollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/adataviz/adata.html#is_anndatacollection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.adata.is_anndatacollection" title="Link to this definition">¶</a></dt>
 <dd><p>Return True if <cite>path</cite> points to an AnnData file produced by
 <cite>AnnDataCollection.from_files</cite>.
 Heuristic: the AnnData must have <cite>uns</cite> entries <cite>src_paths</cite> or
@@ -355,15 +375,6 @@ Heuristic: the AnnData must have <cite>uns</cite> entries <cite>src_paths</cite>
 <dt class="sig sig-object py" id="adataviz.adata.main">
 <span class="sig-prename descclassname"><span class="pre">adataviz.adata.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/adata.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.adata.main" title="Link to this definition">¶</a></dt>
 <dd><p>CLI entry point using Python Fire.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="adataviz.adata.test_subset">
-<span class="sig-prename descclassname"><span class="pre">adataviz.adata.</span></span><span class="sig-name descname"><span class="pre">test_subset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/adataviz/adata.html#test_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adataviz.adata.test_subset" title="Link to this definition">¶</a></dt>
-<dd><p>Integration test for AnnDataCollection subsetting.</p>
-<p>Compares results of subsetting cells and genes via AnnDataCollection
-against direct AnnData backed reading to verify correctness and
-measure performance.</p>
 </dd></dl>
 
 </section>
@@ -382,14 +393,14 @@ measure performance.</p>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="adataviz.html">
+          <a class="prev-page" href="adataviz.pl.sets.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">adataviz package</div>
+                <div class="title">adataviz.pl.sets module</div>
                 
               </div>
             </a>
@@ -438,8 +449,8 @@ measure performance.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#adataviz.adata.is_annadatacollection"><code class="docutils literal notranslate"><span class="pre">is_annadatacollection()</span></code></a></li>
+<li><a class="reference internal" href="#adataviz.adata.is_anndatacollection"><code class="docutils literal notranslate"><span class="pre">is_anndatacollection()</span></code></a></li>
 <li><a class="reference internal" href="#adataviz.adata.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
-<li><a class="reference internal" href="#adataviz.adata.test_subset"><code class="docutils literal notranslate"><span class="pre">test_subset()</span></code></a></li>
 </ul>
 </li>
 </ul>
