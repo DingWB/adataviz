@@ -10,12 +10,4 @@
 /notebooks/*.pdf
 /dist/
 adataviz/_version.py
-# Sphinx-generated docs (built artifacts should not be tracked).
-docs/build/
-docs/source/_build/
-.coverage
-htmlcov/
-.pytest_cache/
-build/
 *.egg-info/
-/scripts/
