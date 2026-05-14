@@ -1507,6 +1507,12 @@ def normalize_mc_by_cell(
     if (
         normalize_per_cell and not normalized_flag
     ):  # divide frac by prior mean (determined by alpha and beta) for each cell
+        # AnnData views silently drop in-place .X assignments in some versions
+        # (the parent object is not modified, the returned view's .X looks
+        # changed but the next read may give the original). Force a real copy
+        # here so reassigning .X always sticks. This guards every caller.
+        if getattr(use_adata, 'is_view', False):
+            use_adata = use_adata.copy()
         # get normalized X
         cols = use_adata.obs.columns.tolist()
         if "prior_mean" in cols:
