@@ -249,19 +249,23 @@ def cal_tpm(adata, target_sum=1e6, length_fillna=1000):
     return adata
 
 
-def scrna2pseudobulk(
+def pseudobulk(
     adata_path,
     downsample=2000,
     obs_path=None,
     groupby="Group",
     use_raw=True,
+    modality="RNA",
+    expression_cutoff=0,
+    normalize_per_cell=True,
+    clip_norm_value=10,
     n_jobs=1,
     normalization=None,
     target_sum=1e6,
     gtf=None,
     save=None,
 ):
-    """Aggregate single-cell RNA data into pseudobulk profiles per group.
+    """Aggregate single-cell data into pseudobulk profiles per group.
 
     For each unique value in *groupby*, sums raw counts across cells
     (optionally downsampled), then optionally normalises to CPM or TPM.
@@ -279,8 +283,19 @@ def scrna2pseudobulk(
     groupby : str, optional
             Column defining groups. Default is ``'Group'``.
     use_raw : bool, optional
-            Whether to use raw counts. Must be ``True`` for normalisation.
-            Default is ``True``.
+            Whether to use raw counts. Must be ``True`` when *normalization*
+            is ``'CPM'`` or ``'TPM'``. Default is ``True``.
+    modality : str, optional
+            Data modality (``'RNA'``, ``'ATAC'``, or methylation).
+            Default is ``'RNA'``.
+    expression_cutoff : float, optional
+            Threshold above which a gene is considered expressed (for
+            computing ``frac`` layer; RNA/ATAC only). Default is ``0``.
+    normalize_per_cell : bool, optional
+            Whether to normalise methylation per cell. Default is ``True``.
+    clip_norm_value : float, optional
+            Clipping value for per-cell methylation normalisation.
+            Default is ``10``.
     n_jobs : int, optional
             Number of parallel workers. ``-1`` uses all CPUs. Default is ``1``.
     normalization : str or None, optional
@@ -299,8 +314,14 @@ def scrna2pseudobulk(
     AnnData or None
             Pseudobulk AnnData if ``save`` is ``None``.
     """
-    assert use_raw, "For normalization (CPM or TPM), please set use_raw=True"
-    # assert modality=='RNA': # methylation
+    if normalization is not None:
+        assert use_raw, (
+            "For normalization (CPM or TPM), please set use_raw=True"
+        )
+    if modality not in ["RNA", "ATAC"]:  # methylation
+        assert normalize_per_cell, (
+            "For methylation, normalize_per_cell should be True"
+        )
     raw_adata = load_adata(adata_path, backed="r")
     if obs_path is not None:
         if isinstance(obs_path, str):
@@ -342,7 +363,11 @@ def scrna2pseudobulk(
                 cal_stats,
                 adata_path=adata_path,
                 obs1=obs1,
+                modality=modality,
+                expression_cutoff=expression_cutoff,
                 use_raw=use_raw,
+                normalize_per_cell=normalize_per_cell,
+                clip_norm_value=clip_norm_value,
                 sum_only=True,
             )
             futures[future] = group
@@ -414,7 +439,7 @@ def scrna2pseudobulk(
         return adata
 
 
-def stat_pseudobulk(
+def pseudobulk_stats(
     adata_path,
     downsample=2000,
     obs_path=None,
@@ -427,7 +452,7 @@ def stat_pseudobulk(
     clip_norm_value=10,
     save=None,
 ):
-    """Compute pseudobulk summary statistics (min/q25/q50/q75/max/std/frac) per group.
+    """Aggregate single-cell data into pseudobulk and compute per-group summary statistics (min/q25/q50/q75/max/std/frac).
 
     For each group defined by *groupby*, computes per-gene percentiles,
     standard deviation, and the fraction of expressing (or hypomethylated)
