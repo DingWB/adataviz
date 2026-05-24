@@ -585,8 +585,18 @@ def interactive_dotHeatmap(
     size_min=5,
     size_max=30,
     renderer="notebook",
+    query=None,
 ):
-    """Interactive Plotly dot heatmap: dot size = frac, colour = mean."""
+    """Interactive Plotly dot heatmap: dot size = frac, colour = mean.
+
+    Parameters
+    ----------
+    query : str, optional
+        Pandas-style query string passed through to
+        :func:`get_genes_mean_frac` to subset ``adata.obs`` before
+        materialising the expression matrix. Example:
+        ``"Subclass == 'L2/3'"``.
+    """
     import plotly.io as pio
     import plotly.graph_objects as go
 
@@ -595,6 +605,7 @@ def interactive_dotHeatmap(
 
     if renderer is not None:
         pio.renderers.default = renderer
+
     plot_data = get_genes_mean_frac(
         adata,
         obs=obs,
@@ -606,6 +617,7 @@ def interactive_dotHeatmap(
         normalize_per_cell=normalize_per_cell,
         clip_norm_value=clip_norm_value,
         hypo_score=False,
+        query=query,
     )
     x_labels = plot_data[groupby].unique().tolist()
     if gene_order is None:

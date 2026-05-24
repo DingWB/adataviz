@@ -368,10 +368,18 @@ def get_genes_mean_frac(
     normalize_per_cell: bool = True,
     clip_norm_value: float = 10,
     hypo_score: bool = False,
+    query: Optional[str] = None,
 ):
     """Per-group mean expression and expressing-cell fraction.
 
     Returns a tidy DataFrame ``[groupby, "Gene", "Mean", "frac"]``.
+
+    Parameters
+    ----------
+    query : str, optional
+        Pandas-style query string applied to ``adata.obs`` to subset cells
+        before loading expression data into memory. Useful with backed
+        AnnData to avoid materialising the full matrix.
     """
     if isinstance(adata, str):
         adata = anndata.read_h5ad(os.path.expanduser(adata), backed="r")
@@ -379,7 +387,11 @@ def get_genes_mean_frac(
     missing = [g for g in genes if g not in keep]
     if missing:
         print(f"genes not found in adata: {missing}")
-    use = adata[:, keep].to_memory()
+    if query is not None:
+        kept_cells = adata.obs.query(query).index
+        use = adata[kept_cells, keep].to_memory()
+    else:
+        use = adata[:, keep].to_memory()
     if hasattr(adata, "isbacked") and adata.isbacked:
         adata.file.close()
 
