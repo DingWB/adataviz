@@ -387,15 +387,43 @@ def get_genes_mean_frac(
     missing = [g for g in genes if g not in keep]
     if missing:
         print(f"genes not found in adata: {missing}")
+
+    # Pseudobulk detection. ``pseudobulk_stats`` (in adataviz.tools) emits
+    # an adata where:
+    #   * obs.index = unique values of the aggregation groupby (e.g.
+    #     subclass labels), obs.index.name = that groupby.
+    #   * obs.columns = ['cell_count'] only (no Subclass / Group column).
+    #   * layers carry ``min/q25/q50/q75/max/sum/std/frac/mean``.
+    # Cell-level obs has no meaning here; the groups are already
+    # aggregated.
+    is_pseudobulk = "mean" in adata.layers
+
     if query is not None:
-        # Apply query against the user-provided obs when given, otherwise
-        # against adata.obs. Restrict kept_cells to rows that also exist
-        # in adata so backed subsetting stays valid.
-        if obs is not None:
-            obs = _resolve_obs_arg(adata, obs).query(query)
-            kept_cells = obs.index.intersection(adata.obs_names)
+        if is_pseudobulk:
+            # Make the group label queryable as a column under any of:
+            # the user's ``groupby`` name and the original
+            # ``obs.index.name``. This lets ``query="Subclass=='X'"``
+            # work even though pseudobulk_stats does not store
+            # ``Subclass`` as an obs column.
+            aug = adata.obs.copy()
+            label_cols = {groupby, aug.index.name} - {None}
+            for col in label_cols:
+                if col not in aug.columns:
+                    aug[col] = aug.index.astype(str)
+            kept_cells = aug.query(query).index
         else:
-            kept_cells = adata.obs.query(query).index
+            # Cell-level adata.
+            if obs is not None:
+                obs = _resolve_obs_arg(adata, obs).query(query)
+                kept_cells = obs.index.intersection(adata.obs_names)
+            else:
+                kept_cells = adata.obs.query(query).index
+        if len(kept_cells) == 0:
+            raise ValueError(
+                f"query={query!r} matched 0 rows in adata.obs "
+                f"(pseudobulk={is_pseudobulk}). "
+                f"Available labels sample: {list(adata.obs_names[:5])}."
+            )
         # h5py forbids fancy indexing on both axes simultaneously, so
         # subset rows on the backed object first, materialize, then
         # subset columns in memory.
@@ -405,15 +433,28 @@ def get_genes_mean_frac(
     if hasattr(adata, "isbacked") and adata.isbacked:
         adata.file.close()
 
-    if "mean" in use.layers:
-        plot_data = use.to_df(layer=layer).stack().reset_index()
+    if is_pseudobulk or "mean" in use.layers:
+        # Pseudobulk path. ``use.obs_names`` IS the list of group labels
+        # (no need to consult ``use.obs`` for a groupby column — it
+        # doesn't carry one). Use ``stack(dropna=False)`` so genes whose
+        # mean is NaN for a queried single group don't silently drop the
+        # entire row.
+        mean_df = use.to_df(layer=layer)
+        frac_df = use.to_df(layer="frac")
+
+        plot_data = mean_df.stack(dropna=False).reset_index()
         plot_data.columns = [groupby, "Gene", "Mean"]
-        D = use.to_df(layer="frac").stack().to_dict()
-        plot_data["frac"] = (
-            plot_data.loc[:, [groupby, "Gene"]]
-            .apply(lambda x: tuple(x.tolist()), axis=1)
-            .map(D)
-        )
+
+        frac_long = frac_df.stack(dropna=False).reset_index()
+        frac_long.columns = [groupby, "Gene", "frac"]
+
+        plot_data = plot_data.merge(frac_long, on=[groupby, "Gene"], how="left")
+        if plot_data.empty:
+            raise ValueError(
+                "Pseudobulk plot_data is empty — check that `keep` "
+                "(intersection of `genes` with adata.var_names) is "
+                "non-empty and that the queried group(s) exist."
+            )
         return plot_data
 
     if use_raw and use.raw is not None:
