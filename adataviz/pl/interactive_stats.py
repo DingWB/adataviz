@@ -704,10 +704,6 @@ def _get_boxplot_data(adata, variable, gene, obs=None):
     import anndata
 
     assert isinstance(adata, anndata.AnnData)
-    if adata.isbacked:
-        use_adata = adata[:, gene].to_memory()
-    else:
-        use_adata = adata[:, gene].copy()
     if isinstance(obs, str):
         obs_path = os.path.abspath(os.path.expanduser(obs))
         sep = "\t" if obs_path.endswith((".tsv", ".txt")) else ","
@@ -715,9 +711,14 @@ def _get_boxplot_data(adata, variable, gene, obs=None):
     else:
         assert isinstance(obs, pd.DataFrame)
         data = obs.copy()
-    overlap = data.index.intersection(use_adata.obs_names)
+    overlap = data.index.intersection(adata.obs_names)
     data = data.loc[overlap]
-    use_adata = use_adata[overlap, :]
+    # Subset cells + single gene before materialising, so backed AnnData
+    # only loads `len(overlap)` rows.
+    if adata.isbacked:
+        use_adata = adata[overlap, gene].to_memory()
+    else:
+        use_adata = adata[overlap, gene].copy()
     data[gene] = use_adata.to_df()[gene].tolist()
     return data.loc[:, [variable, gene]]
 
@@ -733,11 +734,20 @@ def interactive_boxplot(
     height=700,
     show=True,
     renderer="notebook",
+    query=None,
 ):
     """Interactive Plotly boxplot of a gene by a categorical variable.
 
     Auto-detects whether ``adata`` carries pre-computed stat layers
     (pseudobulk). For multi-gene support use :func:`interactive_violin`.
+
+    Parameters
+    ----------
+    query : str, optional
+        Pandas-style query string applied to ``adata.obs`` (and to
+        ``obs`` if provided) to subset cells before computing the
+        boxplot. For backed AnnData this avoids materialising rows
+        that will be discarded. Example: ``"Region == 'CTX'"``.
     """
     import anndata
     import plotly.express as px
@@ -751,8 +761,20 @@ def interactive_boxplot(
         pio.renderers.default = renderer
     if isinstance(adata, str):
         adata = anndata.read_h5ad(adata, backed="r")
+    # Resolve query into a kept_cells index, but defer the actual row
+    # selection until the per-gene to_memory step below so that backed
+    # AnnData only loads `len(kept_cells)` rows of a single column.
+    kept_cells = None
+    if query is not None:
+        kept_cells = adata.obs.query(query).index
+        if obs is not None and isinstance(obs, pd.DataFrame):
+            obs = obs.query(query)
     if obs is None:
-        obs = adata.obs.copy()
+        obs = (
+            adata.obs.loc[kept_cells].copy()
+            if kept_cells is not None
+            else adata.obs.copy()
+        )
     if not _has_stats(adata):
         plot_df = _get_boxplot_data(adata, variable, gene, obs=obs)
         range_y = [plot_df[gene].quantile(0.01), plot_df[gene].quantile(0.99)]
@@ -785,11 +807,12 @@ def interactive_boxplot(
             height=height,
         )
     else:
+        row_sel = kept_cells if kept_cells is not None else slice(None)
         if adata.isbacked:
-            use_adata = adata[:, gene].to_memory()
+            use_adata = adata[row_sel, gene].to_memory()
             adata.file.close()
         else:
-            use_adata = adata[:, gene].copy()
+            use_adata = adata[row_sel, gene].copy()
         keys = ["min", "q25", "q50", "q75", "max", "mean", "std"]
         plot_data = pd.concat(
             [use_adata.to_df(layer=k)[gene].rename(k) for k in keys], axis=1
