@@ -388,7 +388,14 @@ def get_genes_mean_frac(
     if missing:
         print(f"genes not found in adata: {missing}")
     if query is not None:
-        kept_cells = adata.obs.query(query).index
+        # Apply query against the user-provided obs when given, otherwise
+        # against adata.obs. Restrict kept_cells to rows that also exist
+        # in adata so backed subsetting stays valid.
+        if obs is not None:
+            obs = _resolve_obs_arg(adata, obs).query(query)
+            kept_cells = obs.index.intersection(adata.obs_names)
+        else:
+            kept_cells = adata.obs.query(query).index
         use = adata[kept_cells, keep].to_memory()
     else:
         use = adata[:, keep].to_memory()
