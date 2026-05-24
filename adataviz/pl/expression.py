@@ -396,7 +396,10 @@ def get_genes_mean_frac(
             kept_cells = obs.index.intersection(adata.obs_names)
         else:
             kept_cells = adata.obs.query(query).index
-        use = adata[kept_cells, keep].to_memory()
+        # h5py forbids fancy indexing on both axes simultaneously, so
+        # subset rows on the backed object first, materialize, then
+        # subset columns in memory.
+        use = adata[kept_cells].to_memory()[:, keep].copy()
     else:
         use = adata[:, keep].to_memory()
     if hasattr(adata, "isbacked") and adata.isbacked:

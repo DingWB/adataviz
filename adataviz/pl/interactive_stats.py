@@ -714,9 +714,11 @@ def _get_boxplot_data(adata, variable, gene, obs=None):
     overlap = data.index.intersection(adata.obs_names)
     data = data.loc[overlap]
     # Subset cells + single gene before materialising, so backed AnnData
-    # only loads `len(overlap)` rows.
+    # only loads `len(overlap)` rows. h5py disallows fancy indexing on
+    # both axes at once, so subset rows on the backed object first and
+    # take the column after materialisation.
     if adata.isbacked:
-        use_adata = adata[overlap, gene].to_memory()
+        use_adata = adata[overlap].to_memory()[:, gene].copy()
     else:
         use_adata = adata[overlap, gene].copy()
     data[gene] = use_adata.to_df()[gene].tolist()
@@ -809,7 +811,8 @@ def interactive_boxplot(
     else:
         row_sel = kept_cells if kept_cells is not None else slice(None)
         if adata.isbacked:
-            use_adata = adata[row_sel, gene].to_memory()
+            # h5py disallows fancy indexing on both axes simultaneously.
+            use_adata = adata[row_sel].to_memory()[:, gene].copy()
             adata.file.close()
         else:
             use_adata = adata[row_sel, gene].copy()
