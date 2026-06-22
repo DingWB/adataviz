@@ -19,7 +19,7 @@ def plot_pseudotime(
     groupby: str = "Age",
     y: str = "dpt_pseudotime",
     hue: Optional[str] = None,
-    figsize=(5, 3.5),
+    figsize=None,
     palette: Union[None, Mapping[str, str], str] = None,
     rotation: Optional[float] = None,
     ylabel: str = "Pseudotime",
@@ -84,6 +84,10 @@ def plot_pseudotime(
     else:
         color_palette = None
 
+    # Scale width with the number of violins so they don't get crushed.
+    if figsize is None:
+        figsize = (max(5.0, 0.45 * len(order) + 1.5), 3.5)
+
     fig, ax = plt.subplots(figsize=figsize)
     sns.violinplot(
         data=data, x=groupby, y=y,
@@ -92,7 +96,12 @@ def plot_pseudotime(
         inner=None, saturation=0.8, ax=ax, cut=0, linewidth=0.6,
     )
     ax.set_ylabel(ylabel)
-    if rotation is not None:
+    # Auto-rotate x tick labels when there are many or long category names,
+    # so they don't overlap. Callers can still force a specific rotation.
+    if rotation is None:
+        maxlen = max((len(str(o)) for o in order), default=0)
+        rotation = 45 if (len(order) > 6 or maxlen > 6) else 0
+    if rotation:
         plt.setp(
             ax.get_xticklabels(),
             rotation=rotation,

@@ -89,7 +89,7 @@ def interactive_rose(
         ),
         height=height,
         width=width,
-        margin=dict(l=20, r=20, t=40, b=20),
+        margin=dict(l=60, r=60, t=50, b=40),
     )
     _maybe_save(fig, save)
     return fig
@@ -131,7 +131,7 @@ def interactive_ring(
         )
     )
     fig.update_layout(
-        title=title, height=height, width=width, margin=dict(l=20, r=20, t=40, b=20)
+        title=title, height=height, width=width, margin=dict(l=60, r=60, t=40, b=20)
     )
     _maybe_save(fig, save)
     return fig
@@ -219,8 +219,9 @@ def interactive_area(
         width=width,
         xaxis_title=split_by,
         yaxis_title="Fraction" if normalize else "Count",
-        margin=dict(l=40, r=20, t=40, b=40),
+        margin=dict(l=60, r=20, t=40, b=80),
     )
+    fig.update_xaxes(tickangle=-45, automargin=True)
     _maybe_save(fig, save)
     return fig
 
@@ -276,8 +277,9 @@ def interactive_trend(
         width=width,
         xaxis_title=split_by,
         yaxis_title="Fraction" if normalize else "Count",
-        margin=dict(l=40, r=20, t=40, b=40),
+        margin=dict(l=60, r=20, t=40, b=80),
     )
+    fig.update_xaxes(tickangle=-45, automargin=True)
     _maybe_save(fig, save)
     return fig
 
@@ -367,7 +369,7 @@ def interactive_sankey(
         )
     )
     fig.update_layout(
-        title=title, height=height, width=width, margin=dict(l=20, r=20, t=40, b=20)
+        title=title, height=height, width=width, margin=dict(l=60, r=60, t=40, b=20)
     )
     _maybe_save(fig, save)
     return fig
@@ -663,20 +665,27 @@ def interactive_dotHeatmap(
         )
     )
     fig.update_xaxes(
-        type="category", categoryorder="array", categoryarray=x_labels, tickangle=-45
+        type="category", categoryorder="array", categoryarray=x_labels,
+        tickangle=-45, automargin=True,
     )
     fig.update_yaxes(
-        type="category", categoryorder="array", categoryarray=list(reversed(y_labels))
+        type="category", categoryorder="array",
+        categoryarray=list(reversed(y_labels)), automargin=True,
     )
     if title is None:
         title = groupby
+    # Grow with the number of groups (x) and genes (y) so dots/labels don't
+    # get crushed; reserve margins for angled labels and the colorbar.
+    auto_w = max(width, 250 + 28 * len(x_labels))
+    auto_h = max(height, 150 + 24 * len(y_labels))
     fig.update_layout(
         title=title or "",
         xaxis_title=groupby,
         yaxis_title="Gene",
-        width=width,
-        height=height,
+        width=auto_w,
+        height=auto_h,
         plot_bgcolor="white",
+        margin=dict(l=80, r=90, t=60, b=120),
     )
     if show:
         show_fig(fig, filename=f"dotHeatmap.{groupby}")
@@ -1080,12 +1089,13 @@ def interactive_dot_plot(
         xaxis_title=split_by,
         yaxis_title=groupby,
         yaxis=dict(autorange="reversed"),
-        height=height,
-        width=width,
+        height=max(height, 150 + 22 * len(cats)),
+        width=max(width, 250 + 30 * len(splits)),
         template="plotly_white",
-        margin=dict(l=80, r=40, t=50, b=80),
+        margin=dict(l=120, r=90, t=50, b=100),
     )
-    fig.update_xaxes(tickangle=-30)
+    fig.update_xaxes(tickangle=-45, automargin=True)
+    fig.update_yaxes(automargin=True)
     _maybe_save(fig, save)
     return fig
 
@@ -1313,7 +1323,13 @@ def interactive_upset(
     )
 
     fig.update_xaxes(showticklabels=False, range=[-0.5, n_int - 0.5], row=1, col=2)
-    fig.update_yaxes(title_text="Intersection size", row=1, col=2)
+    # Headroom so the "outside" bar count labels aren't clipped by the title.
+    fig.update_yaxes(
+        title_text="Intersection size",
+        range=[0, max(int_sizes) * 1.15] if int_sizes else None,
+        row=1,
+        col=2,
+    )
     fig.update_xaxes(title_text="Set size", autorange="reversed", row=2, col=1)
     fig.update_yaxes(
         tickmode="array",
@@ -1396,14 +1412,15 @@ def interactive_complex_heatmap(
     )
     fig.update_layout(
         title=title,
-        height=height,
-        width=width,
+        height=max(height, 150 + 22 * len(mean_df.index)),
+        width=max(width, 200 + 26 * len(mean_df.columns)),
         xaxis_title="gene",
         yaxis_title=groupby,
         template="plotly_white",
-        margin=dict(l=80, r=40, t=50, b=80),
+        margin=dict(l=100, r=80, t=50, b=110),
     )
-    fig.update_xaxes(tickangle=-45)
+    fig.update_xaxes(tickangle=-45, automargin=True)
+    fig.update_yaxes(automargin=True)
     _maybe_save(fig, save)
     return fig
 
@@ -1468,22 +1485,24 @@ def interactive_complex_dotplot(
     )
     fig.update_layout(
         title=title,
-        height=height,
-        width=width,
+        height=max(height, 150 + 24 * len(cats)),
+        width=max(width, 200 + 26 * len(genes)),
         template="plotly_white",
         xaxis=dict(
             tickmode="array",
             tickvals=np.arange(len(genes)),
             ticktext=genes,
             tickangle=-45,
+            automargin=True,
         ),
         yaxis=dict(
             tickmode="array",
             tickvals=np.arange(len(cats)),
             ticktext=cats,
             autorange="reversed",
+            automargin=True,
         ),
-        margin=dict(l=120, r=40, t=50, b=100),
+        margin=dict(l=120, r=80, t=50, b=110),
     )
     _maybe_save(fig, save)
     return fig

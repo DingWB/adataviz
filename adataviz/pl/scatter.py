@@ -167,8 +167,12 @@ def plot_categorical(
     legend_kws.setdefault("fontsize", legend_fontsize)
     legend_kws.setdefault("title", groupby)
     legend_kws.setdefault("title_fontsize", legend_title_fontsize)
-    if ncol is not None:
-        legend_kws.setdefault("ncol", ncol)
+    if ncol is None:
+        # Wrap large categorical legends into multiple columns (~20 per
+        # column) so they don't run off the bottom of the figure.
+        n_cats = int(adata.obs[groupby].nunique(dropna=True))
+        ncol = max(1, (n_cats + 19) // 20)
+    legend_kws.setdefault("ncol", ncol)
     kwargs.setdefault(
         "dodge_kws",
         dict(

@@ -119,9 +119,10 @@ class AnnDataCollection:
             per_source_info.append(info)
             if var_names is None:
                 var_names = src_vars
-            else:
-                assert var_names == src_vars, (
-                    f"Var names in file {paths[i]} differ from previous files; this may lead to incorrect merging."
+            elif var_names != src_vars:
+                raise ValueError(
+                    f"Var names in file {paths[i]} differ from previous files; "
+                    "all sources must share identical var_names for correct merging."
                 )
 
         # Concatenate obs
@@ -232,6 +233,138 @@ class AnnDataCollection:
             source_info = [raw_info]
 
         return cls(src_paths, adata=adata, source_info=source_info)
+
+    def write_h5ad(self, path: str, thread: int = 8) -> None:
+        """Write this collection's real `X` to a consolidated `.h5ad`.
+
+        Memory-efficient: writes the obs/var/uns/obsm metadata skeleton first
+        (with an empty `X`), then rebuilds the CSR `X` group in place by reading
+        one source block at a time from `adata_paths` and appending to resizable
+        HDF5 datasets. Peak memory is bounded to ~`thread` source blocks rather
+        than the full matrix. The result reads back as a plain `AnnData`.
+
+        Parameters
+        ----------
+        path : str
+            Destination `.h5ad` path.
+        thread : int, optional
+            Number of source files read concurrently (bounded prefetch).
+            Default 8.
+        """
+        import h5py
+        from collections import deque
+
+        if self.adata is None:
+            raise ValueError(
+                "AnnDataCollection has no merged metadata (`adata` is None); "
+                "nothing to write."
+            )
+        path = os.path.expanduser(path)
+
+        merged = self.adata
+        obs = merged.obs
+        n_obs = obs.shape[0]
+        out_var_names = list(map(str, merged.var_names))
+        n_vars = len(out_var_names)
+        paths = self.adata_paths
+
+        if "_source_idx" not in obs.columns:
+            raise ValueError(
+                "AnnDataCollection obs is missing '_source_idx'; cannot locate "
+                "source rows for streaming write."
+            )
+        src_indices = obs["_source_idx"].values.astype(int)
+        has_pos = "_orig_obs_pos" in obs.columns
+        if has_pos:
+            orig_pos = obs["_orig_obs_pos"].values.astype(int)
+        elif "_orig_obs_name" in obs.columns:
+            orig_name = obs["_orig_obs_name"].to_numpy()
+        else:
+            raise ValueError(
+                "AnnDataCollection obs is missing both '_orig_obs_pos' and "
+                "'_orig_obs_name'; cannot locate source rows."
+            )
+
+        # Build contiguous same-source runs over the final obs order so each
+        # block of CSR rows is written sequentially.
+        runs = []  # (start, end, source_idx, row_key)
+        i = 0
+        while i < n_obs:
+            s = src_indices[i]
+            j = i + 1
+            while j < n_obs and src_indices[j] == s:
+                j += 1
+            row_key = orig_pos[i:j] if has_pos else orig_name[i:j]
+            runs.append((i, j, int(s), row_key))
+            i = j
+
+        # 1) Write metadata skeleton (empty X) via anndata so obs/var/uns/obsm
+        #    are encoded correctly. Drop collection-identifying uns keys so the
+        #    result reads back as a plain AnnData.
+        meta = merged.copy()
+        meta.X = sp.csr_matrix((n_obs, n_vars), dtype=np.float32)
+        for k in ("src_paths", "individual_adata_paths", "src_info", "metadata_path"):
+            meta.uns.pop(k, None)
+        meta.write_h5ad(path)
+
+        # 2) Replace the X group with a streamed CSR matrix.
+        indptr = np.zeros(n_obs + 1, dtype=np.int64)
+        with h5py.File(path, "a") as f:
+            if "X" in f:
+                del f["X"]
+            g = f.create_group("X")
+            g.attrs["encoding-type"] = "csr_matrix"
+            g.attrs["encoding-version"] = "0.1.0"
+            g.attrs["shape"] = np.array([n_obs, n_vars], dtype=np.int64)
+            data_ds = g.create_dataset(
+                "data", shape=(0,), maxshape=(None,), dtype=np.float32, chunks=True
+            )
+            indices_ds = g.create_dataset(
+                "indices", shape=(0,), maxshape=(None,), dtype=np.int32, chunks=True
+            )
+
+            nnz = 0
+
+            def _write_block(start, end, block):
+                nonlocal nnz
+                bd = block.data
+                bi = block.indices.astype(np.int32)
+                m = bd.shape[0]
+                data_ds.resize((nnz + m,))
+                data_ds[nnz : nnz + m] = bd
+                indices_ds.resize((nnz + m,))
+                indices_ds[nnz : nnz + m] = bi
+                indptr[start + 1 : end + 1] = block.indptr[1:] + nnz
+                nnz += m
+
+            max_workers = max(1, int(thread))
+            if max_workers == 1 or len(runs) <= 1:
+                for start, end, s, row_key in runs:
+                    block = _read_source_block(paths[s], row_key, out_var_names)
+                    _write_block(start, end, block)
+            else:
+                # Bounded prefetch: keep at most `max_workers` blocks in flight,
+                # consume in run order so CSR rows stay sequential.
+                with ThreadPoolExecutor(max_workers=max_workers) as exe:
+                    pending = deque()
+                    ri = 0
+                    while ri < len(runs) and len(pending) < max_workers:
+                        st, en, s, rk = runs[ri]
+                        pending.append(
+                            (st, en, exe.submit(_read_source_block, paths[s], rk, out_var_names))
+                        )
+                        ri += 1
+                    while pending:
+                        st, en, fut = pending.popleft()
+                        _write_block(st, en, fut.result())
+                        if ri < len(runs):
+                            st2, en2, s2, rk2 = runs[ri]
+                            pending.append(
+                                (st2, en2, exe.submit(_read_source_block, paths[s2], rk2, out_var_names))
+                            )
+                            ri += 1
+
+            g.create_dataset("indptr", data=indptr, dtype=np.int64)
 
     def __len__(self) -> int:
         """Return the number of observations (cells) in the collection."""
@@ -528,9 +661,16 @@ class AnnDataView:
 
         # Check for integer position column (faster HDF5 access)
         has_pos = "_orig_obs_pos" in sel_obs.columns
+        has_name = "_orig_obs_name" in sel_obs.columns
         if has_pos:
             sel_orig_pos = sel_obs["_orig_obs_pos"].values.astype(int)
-        sel_orig_obs = sel_obs["_orig_obs_name"].to_numpy()
+        if has_name:
+            sel_orig_obs = sel_obs["_orig_obs_name"].to_numpy()
+        if not (has_pos or has_name):
+            raise ValueError(
+                "sel_obs is missing both '_orig_obs_pos' and '_orig_obs_name'; "
+                "cannot locate source rows."
+            )
 
         # Build column mapping: positions in source var axis → positions in output var axis.
         # All sources share the same var_names, so we compute this once.
@@ -571,7 +711,9 @@ class AnnDataView:
                     # Sort positions for sequential HDF5 reads, then restore original order
                     sort_order = np.argsort(row_key)
                     sorted_pos = row_key[sort_order]
-                    unsort_order = np.argsort(sort_order)
+                    # Inverse permutation directly (O(n) vs a second argsort).
+                    unsort_order = np.empty_like(sort_order)
+                    unsort_order[sort_order] = np.arange(sort_order.size)
                     X_rows = a.X[sorted_pos, :]
                     # Restore original row order
                     if sp.issparse(X_rows):
@@ -653,8 +795,100 @@ class AnnDataView:
         return out
 
 
-# Backward-compatible alias for the previous (mis-spelled) public name.
-is_annadatacollection = is_anndatacollection
+
+def read_h5ad(path: str, **kwargs):
+    """Read a `.h5ad` file, dispatching on its type.
+
+    If `path` points to a merged file produced by
+    `AnnDataCollection.from_files` (detected via `is_anndatacollection`), it is
+    loaded as an `AnnDataCollection`. Otherwise it is read as a plain
+    `anndata.AnnData` via `anndata.read_h5ad`.
+
+    Parameters
+    ----------
+    path : str
+        Path to the `.h5ad` file.
+    **kwargs
+        Extra keyword arguments forwarded to `anndata.read_h5ad` when the file
+        is a plain `AnnData` (e.g. `backed="r"`). Ignored for
+        `AnnDataCollection` files.
+
+    Returns
+    -------
+    AnnDataCollection or anndata.AnnData
+    """
+    path = os.path.expanduser(path)
+    if is_anndatacollection(path):
+        return AnnDataCollection.read(path)
+    return anndata.read_h5ad(path, **kwargs)
+
+
+def _read_source_block(
+    path: str, row_key: np.ndarray, out_var_names: List[str]
+) -> sp.csr_matrix:
+    """Read a block of rows from one source `.h5ad` as a CSR matrix.
+
+    Parameters
+    ----------
+    path : str
+        Source `.h5ad` file.
+    row_key : np.ndarray
+        Either integer positions (`_orig_obs_pos`) or obs-name labels
+        (`_orig_obs_name`) selecting rows, in the desired output order.
+    out_var_names : list of str
+        Target variable order; columns are reordered/selected to match.
+
+    Returns
+    -------
+    scipy.sparse.csr_matrix
+        Shape `(len(row_key), len(out_var_names))`, dtype float32.
+    """
+    a = anndata.read_h5ad(path, backed="r")
+    try:
+        row_key = np.asarray(row_key)
+        if np.issubdtype(row_key.dtype, np.integer):
+            # Sort positions for sequential HDF5 reads, then restore order.
+            order = np.argsort(row_key)
+            sorted_pos = row_key[order]
+            # Inverse permutation directly (O(n) vs a second argsort).
+            unsort = np.empty_like(order)
+            unsort[order] = np.arange(order.size)
+            X_rows = a.X[sorted_pos, :]
+            X_rows = X_rows.tocsr() if sp.issparse(X_rows) else sp.csr_matrix(X_rows)
+            X_rows = X_rows[unsort, :]
+        else:
+            X_rows = a[row_key, :].X
+            X_rows = X_rows.tocsr() if sp.issparse(X_rows) else sp.csr_matrix(X_rows)
+
+        # Map source var positions to the output var order.
+        src_var = list(map(str, a.var_names))
+        n_out = len(out_var_names)
+        # Fast path: source var order already matches the output order
+        # (the common case — `from_files` requires identical vars). Avoids a
+        # full CSR column-gather copy on every block.
+        if src_var == list(out_var_names):
+            out = X_rows
+        else:
+            pos_map = {v: i for i, v in enumerate(src_var)}
+            col_pos = np.array([pos_map.get(v, -1) for v in out_var_names], dtype=int)
+            present = col_pos >= 0
+            if present.all():
+                out = X_rows[:, col_pos]
+            else:
+                out = sp.lil_matrix((X_rows.shape[0], n_out), dtype=np.float32)
+                out[:, np.nonzero(present)[0]] = X_rows[:, col_pos[present]]
+        if not sp.isspmatrix_csr(out):
+            out = out.tocsr()
+        return out.astype(np.float32, copy=False)
+    finally:
+        try:
+            a.file.close()
+        except Exception:
+            try:
+                a._file.close()
+            except Exception:
+                pass
+
 
 
 def main():

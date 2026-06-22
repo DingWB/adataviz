@@ -139,7 +139,7 @@ def complex_heatmap(
     annotate_palettes: Optional[Mapping[str, Any]] = None,
     row_cluster: bool = True,
     col_cluster: bool = False,
-    figsize=(7, 5),
+    figsize=None,
     title: Optional[str] = None,
     save: Optional[str] = None,
     show: bool = False,
@@ -186,6 +186,12 @@ def complex_heatmap(
         adata, cats, groupby, palette, annotate, annotate_palettes, annot_kws
     )
 
+    # Scale the figure with the number of genes (columns) and groups (rows)
+    # so tick labels stay readable instead of overlapping on large panels.
+    if figsize is None:
+        n_col, n_row = len(mean_df.columns), len(mean_df.index)
+        figsize = (max(4.0, 0.28 * n_col + 2.5), max(3.0, 0.28 * n_row + 1.8))
+
     fig = plt.figure(figsize=figsize)
     plot_kws = dict(plot_kws or {})
     plot_kws.update(kwargs)
@@ -213,7 +219,7 @@ def complex_heatmap(
     cm = pch.ClusterMapPlotter(**base)
     _strip_cbar_white_lines(cm)
     if title:
-        fig.suptitle(title)
+        fig.suptitle(title, y=1.02)
     save_or_show(fig, save, show=show)
     return cm
 
@@ -231,7 +237,7 @@ def complex_dotplot(
     annotate_palettes: Optional[Mapping[str, Any]] = None,
     row_cluster: bool = False,
     col_cluster: bool = False,
-    figsize=(7, 5),
+    figsize=None,
     title: Optional[str] = None,
     save: Optional[str] = None,
     show: bool = False,
@@ -274,6 +280,12 @@ def complex_dotplot(
         adata, cats, groupby, palette, annotate, annotate_palettes, annot_kws
     )
 
+    # Scale with gene (column) and group (row) counts so dots and tick
+    # labels stay readable instead of overlapping on large panels.
+    if figsize is None:
+        n_col, n_row = len(mean_df.columns), len(mean_df.index)
+        figsize = (max(4.0, 0.30 * n_col + 2.5), max(3.0, 0.28 * n_row + 1.8))
+
     fig = plt.figure(figsize=figsize)
     plot_kws = dict(plot_kws or {})
     plot_kws.update(kwargs)
@@ -308,6 +320,6 @@ def complex_dotplot(
     cm = pch.DotClustermapPlotter(**base)
     _strip_cbar_white_lines(cm)
     if title:
-        fig.suptitle(title)
+        fig.suptitle(title, y=1.02)
     save_or_show(fig, save, show=show)
     return cm

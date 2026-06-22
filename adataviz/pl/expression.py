@@ -553,7 +553,7 @@ def gene_dotplot(
     normalize_per_cell: bool = True,
     clip_norm_value: float = 10,
     hypo_score: bool = False,
-    figsize=(10, 4),
+    figsize=None,
     marker: str = "o",
     plot_kws: Optional[Mapping[str, Any]] = None,
     transpose: bool = False,
@@ -766,14 +766,23 @@ def gene_dotplot(
         top_anno, left_anno = col_ha, None
         x, y = groupby, "Gene"
         x_order = df_cols.index.tolist()
-        y_order = gene_order
+        y_order = gene_order if gene_order is not None else keep
         col_side, row_side = "bottom", "left"
     else:
         top_anno, left_anno = None, col_ha
         x, y = "Gene", groupby
-        x_order = gene_order
+        x_order = gene_order if gene_order is not None else keep
         y_order = df_cols.index.tolist()
         col_side, row_side = "bottom", "right"
+
+    # Auto-size the figure from the grid dimensions so tick labels and dots
+    # don't overlap when there are many genes/groups. (A fixed size crushes
+    # labels into each other; bbox_inches="tight" can't fix that.)
+    if figsize is None:
+        n_groups = len(df_cols.index)
+        n_genes = len(keep)
+        n_x, n_y = (n_groups, n_genes) if not transpose else (n_genes, n_groups)
+        figsize = (max(6.0, 0.30 * n_x + 3.0), max(3.0, 0.24 * n_y + 2.0))
 
     defaults = dict(
         marker=marker,
@@ -828,6 +837,6 @@ def gene_dotplot(
         )
     _strip_cbar_white_lines(cm)
     if title:
-        fig.suptitle(title)
+        fig.suptitle(title, y=1.02)
     save_or_show(fig, save, show=show)
     return cm

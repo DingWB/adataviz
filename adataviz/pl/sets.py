@@ -82,7 +82,7 @@ def venn_plot(
         )
     if title:
         ax.set_title(title)
-    save_or_show(fig, save)
+    save_or_show(fig, save, show=show)
     return ax
 
 
@@ -92,7 +92,7 @@ def upset_plot(
     set_by: str,
     order: Optional[Sequence] = None,
     min_subset_size: Optional[int] = None,
-    figsize=(8, 4),
+    figsize=None,
     save: Optional[str] = None,
     show: bool = False,
     title: Optional[str] = None,
@@ -114,6 +114,10 @@ def upset_plot(
     else:
         labels = list(sets.keys())
     series = upsetplot.from_contents({l: sets[l] for l in labels})
+    # Scale width with the number of sets so the matrix/bars and count
+    # labels don't crowd together; give the combined layout enough height.
+    if figsize is None:
+        figsize = (max(8.0, 0.7 * len(labels) + 4.0), 5.0)
     fig = plt.figure(figsize=figsize)
     kw = dict(sort_by=sort_by, show_counts=True)
     if min_subset_size is not None:
@@ -121,5 +125,5 @@ def upset_plot(
     upsetplot.UpSet(series, **kw).plot(fig=fig)
     if title:
         fig.suptitle(title)
-    save_or_show(fig, save)
+    save_or_show(fig, save, show=show)
     return fig
