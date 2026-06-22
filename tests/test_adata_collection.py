@@ -197,7 +197,7 @@ def test_anndatacollection_write_h5ad():
     with peak_memory() as pm:
         ds = _build_collection()
 
-        out_path = "mouse_dev.100kb-CGN.written.h5ad"
+        out_path = "mouse_dev.100kb-CGN.h5ad"
         start = time.perf_counter()
         ds.write_h5ad(out_path, thread=10)
         logger.info(

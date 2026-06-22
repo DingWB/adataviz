@@ -139,7 +139,10 @@ class AnnDataCollection:
                 else ","
             )
             metadata_path = os.path.expanduser(metadata_path)
-            meta = pd.read_csv(metadata_path, index_col=0, sep=sep)
+            # low_memory=False reads the whole file at once so column dtypes are
+            # inferred consistently (avoids the chunked-inference DtypeWarning on
+            # columns that look numeric in some rows and string in others).
+            meta = pd.read_csv(metadata_path, index_col=0, sep=sep, low_memory=False)
             meta_ids = set(meta.index.astype(str).tolist())
             # keep_ids= list(set(merged_obs.index.astype(str)).intersection(meta_ids))
             keep_ids = [
