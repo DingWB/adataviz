@@ -295,9 +295,6 @@ def plot_gene(
     use.obs = obs.loc[use.obs_names]
     use.obs[gene] = use.to_df().loc[use.obs_names, gene].tolist()
 
-    if title is None:
-        title = query_str if query_str is not None else gene
-
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize, dpi=300)
     else:
@@ -314,7 +311,8 @@ def plot_gene(
         basis=basis if not basis.startswith("X_") else basis[2:],
         **scatter_kws,
     )
-    ax.set_title(title)
+    if not title is None:
+        ax.set_title(title)
     if save:
         fig.savefig(os.path.expanduser(save), bbox_inches="tight")
     if show:

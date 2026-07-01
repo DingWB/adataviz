@@ -602,7 +602,9 @@ def gene_dotplot(
         obs = obs.query(query_str)
     overlap = list(set(use.obs_names) & set(obs.index))
     obs = obs.loc[overlap]
-    use = use[overlap, :]
+    # ``.copy()`` materialises the view so subsequent ``use.obs[...] = ...``
+    # assignments don't emit ``ImplicitModificationWarning``.
+    use = use[overlap, :].copy()
 
     if isinstance(groupby, list):
         joined = "+".join(groupby)

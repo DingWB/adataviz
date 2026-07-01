@@ -21,6 +21,8 @@ sometimes leaves at the bottom of colorbars.
 
 from __future__ import annotations
 
+import contextlib
+import warnings
 from typing import Any, Mapping, Optional, Sequence, Union
 
 import matplotlib.pyplot as plt
@@ -30,6 +32,36 @@ import pandas as pd
 from ._utils import resolve_palette, save_or_show
 
 __all__ = ["complex_heatmap", "complex_dotplot"]
+
+
+@contextlib.contextmanager
+def _quiet_pch(fig):
+    """Silence upstream PyComplexHeatmap warnings while it draws ``fig``.
+
+    - Disables ``figure.autolayout`` on the target figure so that
+      PyComplexHeatmap's manual GridSpec layout does not trigger the
+      "Axes are not compatible with tight_layout" warning on canvas draw.
+    - Filters the pandas ``FutureWarning`` about callable ``mean`` /
+      ``DataFrame.applymap`` that comes from ``PyComplexHeatmap.dotHeatmap``.
+    """
+    # Force this figure off any auto-layout engine (tight/constrained) that
+    # ``figure.autolayout=True`` in our rcParams would otherwise install.
+    try:
+        fig.set_layout_engine("none")
+    except Exception:
+        pass
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            category=FutureWarning,
+            module=r"PyComplexHeatmap\..*",
+        )
+        warnings.filterwarnings(
+            "ignore",
+            message=r".*not compatible with tight_layout.*",
+            category=UserWarning,
+        )
+        yield
 
 
 def _aggregate(adata, groupby, genes, layer=None, use_raw=False, expression_cutoff=0):
@@ -216,11 +248,13 @@ def complex_heatmap(
         base[k] = v
     if legend_kws:
         base["legend_kws"] = dict(legend_kws)
-    cm = pch.ClusterMapPlotter(**base)
+    with _quiet_pch(fig):
+        cm = pch.ClusterMapPlotter(**base)
     _strip_cbar_white_lines(cm)
     if title:
         fig.suptitle(title, y=1.02)
-    save_or_show(fig, save, show=show)
+    with _quiet_pch(fig):
+        save_or_show(fig, save, show=show)
     return cm
 
 
@@ -317,9 +351,11 @@ def complex_dotplot(
         base[k] = v
     if legend_kws:
         base["cmap_legend_kws"] = dict(legend_kws)
-    cm = pch.DotClustermapPlotter(**base)
+    with _quiet_pch(fig):
+        cm = pch.DotClustermapPlotter(**base)
     _strip_cbar_white_lines(cm)
     if title:
         fig.suptitle(title, y=1.02)
-    save_or_show(fig, save, show=show)
+    with _quiet_pch(fig):
+        save_or_show(fig, save, show=show)
     return cm

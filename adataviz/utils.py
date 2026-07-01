@@ -2369,6 +2369,10 @@ def continuous_scatter(
                 ax.get_position().height * 0.2,
             ]
         )  # left, bottom, width, height
+        # Exclude the manually-positioned colorbar axes from tight_layout /
+        # figure.autolayout so they don't trigger:
+        #   "This figure includes Axes that are not compatible with tight_layout"
+        ax_legend.set_in_layout(False)
         # print("test:",hue_norm)
         # cbar_kws.setdefault('vmin',hue_norm[0])
         # cbar_kws.setdefault('vmax',hue_norm[1])
