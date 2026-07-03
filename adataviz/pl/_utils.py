@@ -264,7 +264,25 @@ def use_scientific_style():
 
 
 def show_fig(fig, filename: str = "plot"):
-    """Display a Plotly figure with an editable interactive toolbar."""
+    """Display a Plotly figure with an editable interactive toolbar.
+
+    Renders ``fig`` with a customised Plotly mode-bar configuration that
+    enables interactive editing (dragging titles/legends/annotations,
+    scroll-to-zoom, etc.) and sets SVG as the default export format.
+
+    Parameters
+    ----------
+    fig : plotly.graph_objects.Figure
+        The Plotly figure to display.
+    filename : str, default ``"plot"``
+        Base filename used when the figure is exported via the mode-bar
+        "download" (camera) button; the image is saved as ``<filename>.svg``.
+
+    Returns
+    -------
+    None
+        The figure is shown in-place via ``fig.show(config=...)``.
+    """
     config = {
         "displayModeBar": "hover",
         "showLink": False,

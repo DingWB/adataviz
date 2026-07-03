@@ -61,7 +61,46 @@ def interactive_rose(
     height: int = 500,
     width: Optional[int] = None,
 ):
-    """Plotly polar bar chart (Nightingale rose) of category counts."""
+    """Interactive polar bar chart (Nightingale rose) of category counts.
+
+    Draws one wedge per category of ``groupby`` whose radius encodes the
+    number of cells in that category. Returns an interactive Plotly
+    figure that can be displayed inline in Jupyter or written to HTML.
+
+    Parameters
+    ----------
+    adata : AnnData, DataFrame or path
+        Source of the observation metadata. Resolved via
+        :func:`resolve_adata_obs`, so an ``AnnData``, an ``obs``-like
+        ``DataFrame`` or a path to either is accepted.
+    groupby : str
+        Column in ``obs`` whose category counts are plotted as the
+        angular wedges of the rose.
+    order : sequence, optional
+        Explicit ordering of the categories around the circle. When
+        ``None`` the natural categorical order (or sorted unique values)
+        is used.
+    palette : dict, str or None, optional
+        Colour mapping for the categories. Accepts a ``{category: colour}``
+        mapping, a path to an ``.xlsx`` palette sheet, or ``None`` to fall
+        back to colours stored in ``adata.uns`` or a generated default.
+    title : str, optional
+        Figure title. ``None`` leaves the plot untitled.
+    save : str, optional
+        Output path. A ``.html`` extension writes a standalone HTML file;
+        any other extension writes a static image via ``write_image``.
+        ``None`` disables saving.
+    height : int, default 500
+        Figure height in pixels.
+    width : int, optional
+        Figure width in pixels. ``None`` lets Plotly size it
+        automatically.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        The interactive polar bar chart figure.
+    """
     import plotly.graph_objects as go
 
     obs, ad = resolve_adata_obs(adata)
@@ -111,7 +150,46 @@ def interactive_ring(
     height: int = 500,
     width: Optional[int] = None,
 ):
-    """Plotly donut chart of ``groupby`` proportions."""
+    """Interactive donut chart of ``groupby`` proportions.
+
+    Shows the relative share of each category of ``groupby`` as a pie
+    with a central hole. Returns an interactive Plotly figure suitable
+    for inline display or HTML export.
+
+    Parameters
+    ----------
+    adata : AnnData, DataFrame or path
+        Source of the observation metadata, resolved via
+        :func:`resolve_adata_obs`.
+    groupby : str
+        Column in ``obs`` whose category proportions are shown as pie
+        slices.
+    order : sequence, optional
+        Explicit ordering of the slices. When ``None`` the natural
+        categorical order (or sorted unique values) is used.
+    palette : dict, str or None, optional
+        Colour mapping for the categories. Accepts a ``{category: colour}``
+        mapping, a path to an ``.xlsx`` palette sheet, or ``None`` to fall
+        back to colours stored in ``adata.uns`` or a generated default.
+    hole : float, default 0.45
+        Fraction of the radius cut out at the centre; ``0`` yields a
+        full pie and larger values a thinner ring.
+    title : str, optional
+        Figure title. ``None`` leaves the plot untitled.
+    save : str, optional
+        Output path. ``.html`` writes standalone HTML; any other
+        extension writes a static image. ``None`` disables saving.
+    height : int, default 500
+        Figure height in pixels.
+    width : int, optional
+        Figure width in pixels. ``None`` lets Plotly size it
+        automatically.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        The interactive donut chart figure.
+    """
     import plotly.graph_objects as go
 
     obs, ad = resolve_adata_obs(adata)
@@ -152,7 +230,43 @@ def interactive_pie(
     height: int = 500,
     width: Optional[int] = None,
 ):
-    """Plotly pie chart of ``groupby`` proportions (no hole)."""
+    """Interactive pie chart of ``groupby`` proportions (no hole).
+
+    Thin wrapper around :func:`interactive_ring` with ``hole=0.0``, so
+    the slices form a solid pie rather than a donut. Returns an
+    interactive Plotly figure.
+
+    Parameters
+    ----------
+    adata : AnnData, DataFrame or path
+        Source of the observation metadata, resolved via
+        :func:`resolve_adata_obs`.
+    groupby : str
+        Column in ``obs`` whose category proportions are shown as pie
+        slices.
+    order : sequence, optional
+        Explicit ordering of the slices. When ``None`` the natural
+        categorical order (or sorted unique values) is used.
+    palette : dict, str or None, optional
+        Colour mapping for the categories, forwarded unchanged to
+        :func:`interactive_ring`.
+    title : str, optional
+        Figure title. ``None`` leaves the plot untitled.
+    save : str, optional
+        Output path. ``.html`` writes standalone HTML; any other
+        extension writes a static image. ``None`` disables saving.
+    height : int, default 500
+        Figure height in pixels.
+    width : int, optional
+        Figure width in pixels. ``None`` lets Plotly size it
+        automatically.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        The interactive pie chart figure produced by
+        :func:`interactive_ring`.
+    """
     return interactive_ring(
         adata,
         groupby=groupby,
@@ -184,7 +298,52 @@ def interactive_area(
     height: int = 500,
     width: Optional[int] = None,
 ):
-    """Plotly stacked area chart, mirroring :func:`area_plot`."""
+    """Interactive stacked area chart, mirroring :func:`area_plot`.
+
+    Cross-tabulates ``groupby`` against ``split_by`` and stacks one area
+    trace per ``groupby`` category across the ``split_by`` values on the
+    x-axis. Returns an interactive Plotly figure.
+
+    Parameters
+    ----------
+    adata : AnnData, DataFrame or path
+        Source of the observation metadata, resolved via
+        :func:`resolve_adata_obs`.
+    groupby : str
+        Column in ``obs`` used for the stacked areas (one filled series
+        per category).
+    split_by : str
+        Column in ``obs`` mapped to the x-axis; each value defines a
+        column of the underlying cross-tabulation.
+    order : sequence, optional
+        Explicit ordering of the ``groupby`` categories (stack order).
+        ``None`` uses the natural categorical order.
+    split_order : sequence, optional
+        Explicit ordering of the ``split_by`` values along the x-axis.
+        ``None`` uses the natural categorical order.
+    normalize : bool, default True
+        When ``True`` each x-position is normalised to fractions summing
+        to 1; when ``False`` raw counts are stacked.
+    palette : dict, str or None, optional
+        Colour mapping for the ``groupby`` categories. Accepts a
+        ``{category: colour}`` mapping, a path to an ``.xlsx`` palette
+        sheet, or ``None`` for colours from ``adata.uns`` or a default.
+    title : str, optional
+        Figure title. ``None`` leaves the plot untitled.
+    save : str, optional
+        Output path. ``.html`` writes standalone HTML; any other
+        extension writes a static image. ``None`` disables saving.
+    height : int, default 500
+        Figure height in pixels.
+    width : int, optional
+        Figure width in pixels. ``None`` lets Plotly size it
+        automatically.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        The interactive stacked area chart figure.
+    """
     import plotly.graph_objects as go
 
     obs, ad = resolve_adata_obs(adata)
@@ -244,7 +403,53 @@ def interactive_trend(
     height: int = 500,
     width: Optional[int] = None,
 ):
-    """Plotly line trend mirror of :func:`trend_plot`."""
+    """Interactive line-trend chart, mirroring :func:`trend_plot`.
+
+    Cross-tabulates ``groupby`` against ``split_by`` and draws one
+    line-plus-marker trace per ``groupby`` category across the
+    ``split_by`` values on the x-axis. Returns an interactive Plotly
+    figure.
+
+    Parameters
+    ----------
+    adata : AnnData, DataFrame or path
+        Source of the observation metadata, resolved via
+        :func:`resolve_adata_obs`.
+    groupby : str
+        Column in ``obs`` used for the individual trend lines (one line
+        per category).
+    split_by : str
+        Column in ``obs`` mapped to the x-axis; each value defines a
+        column of the underlying cross-tabulation.
+    order : sequence, optional
+        Explicit ordering of the ``groupby`` categories. ``None`` uses
+        the natural categorical order.
+    split_order : sequence, optional
+        Explicit ordering of the ``split_by`` values along the x-axis.
+        ``None`` uses the natural categorical order.
+    normalize : bool, default True
+        When ``True`` each x-position is normalised to fractions summing
+        to 1; when ``False`` raw counts are plotted.
+    palette : dict, str or None, optional
+        Colour mapping for the ``groupby`` categories. Accepts a
+        ``{category: colour}`` mapping, a path to an ``.xlsx`` palette
+        sheet, or ``None`` for colours from ``adata.uns`` or a default.
+    title : str, optional
+        Figure title. ``None`` leaves the plot untitled.
+    save : str, optional
+        Output path. ``.html`` writes standalone HTML; any other
+        extension writes a static image. ``None`` disables saving.
+    height : int, default 500
+        Figure height in pixels.
+    width : int, optional
+        Figure width in pixels. ``None`` lets Plotly size it
+        automatically.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        The interactive line-trend chart figure.
+    """
     import plotly.graph_objects as go
 
     obs, ad = resolve_adata_obs(adata)
@@ -301,9 +506,50 @@ def interactive_sankey(
     height: int = 500,
     width: Optional[int] = None,
 ):
-    """Plotly Sankey diagram mirroring :func:`sankey_plot`.
+    """Interactive Sankey diagram mirroring :func:`sankey_plot`.
 
-    Each link can be hovered for the underlying cell count.
+    Cross-tabulates the ``left`` and ``right`` columns and draws a flow
+    diagram whose link widths encode the number of cells transitioning
+    between each pair of categories; empty nodes are dropped and each
+    link can be hovered for its underlying count. Returns an interactive
+    Plotly figure.
+
+    Parameters
+    ----------
+    adata : AnnData, DataFrame or path
+        Source of the observation metadata, resolved via
+        :func:`resolve_adata_obs`.
+    left : str
+        Column in ``obs`` providing the left-hand (source) nodes.
+    right : str
+        Column in ``obs`` providing the right-hand (target) nodes.
+    left_order : sequence, optional
+        Explicit ordering of the left-hand nodes. ``None`` uses the
+        natural categorical order.
+    right_order : sequence, optional
+        Explicit ordering of the right-hand nodes. ``None`` uses the
+        natural categorical order.
+    palette : dict, str or None, optional
+        Colour mapping for the left-hand nodes (link colours are derived
+        from these as semi-transparent fills); right-hand nodes are
+        coloured from ``adata.uns`` or a default. Accepts a
+        ``{category: colour}`` mapping, an ``.xlsx`` palette path, or
+        ``None``.
+    title : str, optional
+        Figure title. ``None`` leaves the plot untitled.
+    save : str, optional
+        Output path. ``.html`` writes standalone HTML; any other
+        extension writes a static image. ``None`` disables saving.
+    height : int, default 500
+        Figure height in pixels.
+    width : int, optional
+        Figure width in pixels. ``None`` lets Plotly size it
+        automatically.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        The interactive Sankey diagram figure.
     """
     import plotly.graph_objects as go
 
@@ -402,10 +648,81 @@ def interactive_embedding(
     clip_norm_value=10,
     renderer="notebook",
 ):
-    """Interactive Plotly scatter on an embedding (UMAP/etc.).
+    """Interactive scatter on a 2-D embedding (UMAP, t-SNE, etc.).
 
-    Pass ``variable`` for a categorical colouring or ``gene`` for a
-    continuous one. ``annotation`` adds an extra hover field.
+    Colours points either by a categorical ``obs`` column (``variable``)
+    or by a continuous gene's expression (``gene``). The figure is built
+    with :func:`plotly.express.scatter` using a WebGL renderer so it can
+    handle large numbers of cells interactively.
+
+    Parameters
+    ----------
+    adata : AnnData or path, optional
+        Source data. Required when ``gene`` is supplied (expression is
+        read from it) and used for the embedding coordinates; may be
+        ``None`` if ``obs`` already contains the embedding columns.
+    obs : DataFrame or path, optional
+        Pre-computed observation table. When given it is intersected with
+        ``adata`` (if any); otherwise ``adata.obs`` is used.
+    variable : str, optional
+        Categorical ``obs`` column to colour by. Mutually intended with
+        ``gene`` (``gene`` takes precedence when both are set).
+    gene : str, optional
+        Gene name to colour by continuous expression; requires
+        ``adata``.
+    annotation : str, optional
+        Extra ``obs`` column added to the hover tooltip only.
+    basis : str, default "umap"
+        Embedding key (without the ``X_`` prefix) read from
+        ``adata.obsm[f"X_{basis}"]``.
+    vmin : str, default "p1"
+        Lower percentile (``"p<N>"``) used as the low end of the
+        continuous colour range for ``gene`` colouring.
+    vmax : str, default "p99"
+        Upper percentile (``"p<N>"``) used as the high end of the
+        continuous colour range for ``gene`` colouring.
+    cmap : str, default "jet"
+        Continuous colour scale name passed to Plotly for gene
+        expression.
+    title : str, optional
+        Figure title. ``None`` auto-generates one from ``basis`` and the
+        coloured field.
+    width : int, default 900
+        Figure width in pixels (also feeds automatic marker sizing).
+    height : int, default 750
+        Figure height in pixels (also feeds automatic marker sizing).
+    palette : dict, str or None, optional
+        Categorical colour mapping. A ``{category: colour}`` dict or a
+        path to an ``.xlsx`` palette sheet (resolved via
+        :func:`load_color_palette`); unused categories are dropped.
+        ``None`` falls back to a qualitative default sequence.
+    size : int, optional
+        Marker diameter in pixels. ``None`` derives a size automatically
+        from the point count and figure area.
+    show : bool, default True
+        When ``True`` the figure is displayed via ``show_fig`` and
+        ``None`` is returned; when ``False`` the figure object is
+        returned instead.
+    downsample : int, optional
+        If set and the data has more rows than this, randomly subsample
+        to this many points before plotting.
+    target_fill : float, default 0.05
+        Target fraction of the plot area covered by markers, used by the
+        automatic marker-size heuristic when ``size`` is ``None``.
+    normalize_per_cell : bool, default False
+        When colouring by ``gene``, normalise expression per cell (via
+        :func:`normalize_mc_by_cell`) before plotting.
+    clip_norm_value : float, default 10
+        Clipping ceiling applied during per-cell normalisation.
+    renderer : str, default "notebook"
+        Plotly IO renderer to activate (e.g. ``"notebook"``,
+        ``"browser"``). ``None`` leaves the current default unchanged.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure or None
+        The interactive embedding scatter figure, or ``None`` when
+        ``show=True`` (the figure is displayed instead of returned).
     """
     import plotly.express as px
     import plotly.io as pio
@@ -551,12 +868,59 @@ def interactive_embedding(
 
 
 def interactive_categorical(adata, groupby, basis="umap", **kwargs):
-    """Convenience wrapper: interactive scatter coloured by a categorical column."""
+    """Interactive embedding scatter coloured by a categorical column.
+
+    Thin convenience wrapper around :func:`interactive_embedding` that
+    forwards ``groupby`` as the categorical ``variable`` argument.
+
+    Parameters
+    ----------
+    adata : AnnData or path
+        Source data providing the embedding and ``obs``.
+    groupby : str
+        Categorical ``obs`` column to colour by (passed as ``variable``).
+    basis : str, default "umap"
+        Embedding key (without the ``X_`` prefix).
+    **kwargs
+        Additional keyword arguments forwarded verbatim to
+        :func:`interactive_embedding` (e.g. ``palette``, ``size``,
+        ``show``, ``width``, ``height``, ``renderer``).
+
+    Returns
+    -------
+    plotly.graph_objects.Figure or None
+        The figure from :func:`interactive_embedding`, or ``None`` when
+        it is asked to display the plot (``show=True``).
+    """
     return interactive_embedding(adata=adata, variable=groupby, basis=basis, **kwargs)
 
 
 def interactive_gene(adata, gene, basis="umap", **kwargs):
-    """Convenience wrapper: interactive scatter coloured by a gene's expression."""
+    """Interactive embedding scatter coloured by a gene's expression.
+
+    Thin convenience wrapper around :func:`interactive_embedding` that
+    forwards ``gene`` for continuous expression colouring.
+
+    Parameters
+    ----------
+    adata : AnnData or path
+        Source data; must contain ``gene`` in ``var_names`` and the
+        requested embedding.
+    gene : str
+        Gene name to colour by continuous expression.
+    basis : str, default "umap"
+        Embedding key (without the ``X_`` prefix).
+    **kwargs
+        Additional keyword arguments forwarded verbatim to
+        :func:`interactive_embedding` (e.g. ``cmap``, ``vmin``, ``vmax``,
+        ``normalize_per_cell``, ``show``, ``renderer``).
+
+    Returns
+    -------
+    plotly.graph_objects.Figure or None
+        The figure from :func:`interactive_embedding`, or ``None`` when
+        it is asked to display the plot (``show=True``).
+    """
     return interactive_embedding(adata=adata, gene=gene, basis=basis, **kwargs)
 
 
@@ -589,15 +953,87 @@ def interactive_dotHeatmap(
     renderer="notebook",
     query=None,
 ):
-    """Interactive Plotly dot heatmap: dot size = frac, colour = mean.
+    """Interactive dot heatmap of gene expression across groups.
+
+    For each ``(group, gene)`` pair the dot size encodes the fraction of
+    expressing cells and the dot colour encodes the mean expression.
+    Expression statistics are prepared by :func:`get_genes_mean_frac`
+    (which also handles normalisation and the ``query`` subset), and the
+    result is an interactive Plotly figure.
 
     Parameters
     ----------
+    adata : AnnData or path, optional
+        Source data passed to :func:`get_genes_mean_frac`. May be
+        ``None`` if ``obs`` supplies the needed metadata.
+    obs : DataFrame or path, optional
+        Alternative observation metadata forwarded to
+        :func:`get_genes_mean_frac`.
+    genes : sequence of str, optional
+        Genes to include. ``None`` defers gene selection to
+        :func:`get_genes_mean_frac`.
+    groupby : str, default "Subclass"
+        ``obs`` column defining the groups placed along the x-axis.
+    modality : str, default "RNA"
+        Data modality forwarded to :func:`get_genes_mean_frac` for
+        selecting the expression matrix.
+    title : str, optional
+        Figure title. ``None`` defaults to ``groupby``.
+    use_raw : bool, default False
+        Whether to use ``adata.raw`` when computing expression, forwarded
+        to :func:`get_genes_mean_frac`.
+    expression_cutoff : str, default "p5"
+        Percentile-style cutoff (``"p<N>"``) used by
+        :func:`get_genes_mean_frac` to decide which cells count as
+        expressing.
+    normalize_per_cell : bool, default True
+        Whether to normalise expression per cell before summarising,
+        forwarded to :func:`get_genes_mean_frac`.
+    clip_norm_value : float, default 10
+        Clipping ceiling applied during per-cell normalisation.
+    width : int, default 900
+        Minimum figure width in pixels; the actual width grows with the
+        number of groups so dots and labels stay legible.
+    height : int, default 700
+        Minimum figure height in pixels; the actual height grows with the
+        number of genes.
+    gene_order : sequence of str, optional
+        Explicit ordering of genes on the y-axis (only genes present in
+        the data are kept). ``None`` uses the order returned by
+        :func:`get_genes_mean_frac`.
+    colorscale : str, default "greens"
+        Plotly colour scale used to encode mean expression.
+    vmin : str, default "p1"
+        Lower percentile (``"p<N>"``) of mean expression used as the low
+        end of the colour range.
+    vmax : str, default "p99"
+        Upper percentile (``"p<N>"``) of mean expression used as the high
+        end of the colour range.
+    show : bool, default True
+        When ``True`` the figure is displayed via ``show_fig`` and
+        ``None`` is returned; when ``False`` the figure object is
+        returned.
+    reversescale : bool, default False
+        Reverse the colour scale direction.
+    size_min : int, default 5
+        Marker size (pixels) for a fraction of 0.
+    size_max : int, default 30
+        Marker size (pixels) for a fraction of 1; intermediate fractions
+        are linearly interpolated between ``size_min`` and ``size_max``.
+    renderer : str, default "notebook"
+        Plotly IO renderer to activate. ``None`` leaves the current
+        default unchanged.
     query : str, optional
         Pandas-style query string passed through to
         :func:`get_genes_mean_frac` to subset ``adata.obs`` before
         materialising the expression matrix. Example:
         ``"Subclass == 'L2/3'"``.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure or None
+        The interactive dot heatmap figure, or ``None`` when
+        ``show=True`` (the figure is displayed instead of returned).
     """
     import plotly.io as pio
     import plotly.graph_objects as go
@@ -747,18 +1183,62 @@ def interactive_boxplot(
     renderer="notebook",
     query=None,
 ):
-    """Interactive Plotly boxplot of a gene by a categorical variable.
+    """Interactive Plotly boxplot of a single gene grouped by a categorical variable.
 
-    Auto-detects whether ``adata`` carries pre-computed stat layers
-    (pseudobulk). For multi-gene support use :func:`interactive_violin`.
+    Builds an interactive box plot for one ``gene`` split across the
+    categories of ``variable``. The function auto-detects whether
+    ``adata`` carries pre-computed statistic layers (``min``/``q25``/
+    ``q50``/``q75``/``max``/``mean``/``std``, i.e. pseudobulk); if so it
+    draws pre-summarised boxes, otherwise it computes the box from the
+    raw per-cell values. For multi-gene support use
+    :func:`interactive_violin`.
 
     Parameters
     ----------
+    adata : anndata.AnnData or str
+        Annotated data matrix, or a path to an ``.h5ad`` file. A string
+        is opened in backed (``"r"``) mode so that only the required
+        rows/columns are materialised.
+    variable : str
+        Column in ``adata.obs`` (or ``obs``) whose categories define the
+        X-axis groups and the box colours.
+    gene : str
+        Gene (``adata.var_names`` entry) plotted on the Y axis.
+    obs : pandas.DataFrame, optional
+        Pre-built observation table to use instead of ``adata.obs``. When
+        ``None`` (default) the observations are taken from ``adata``
+        (subset by ``query`` if given).
+    palette : str or dict, optional
+        Colour specification passed to
+        :func:`adataviz.tools.load_color_palette`. May be a palette name
+        resolved against ``adata`` for ``variable`` or a ``{category:
+        colour}`` mapping. When ``None`` a default qualitative (D3)
+        sequence is used.
+    title : str, optional
+        Figure title. When ``None`` a title of the form
+        ``"Boxplot: {gene} by {variable}"`` is generated.
+    width : int, default 1100
+        Figure width in pixels.
+    height : int, default 700
+        Figure height in pixels.
+    show : bool, default True
+        If ``True`` the figure is rendered via the internal ``show_fig``
+        helper and ``None`` is returned; if ``False`` the
+        :class:`plotly.graph_objects.Figure` is returned instead.
+    renderer : str, default "notebook"
+        Plotly renderer to set as the default (``plotly.io.renderers``).
+        Pass ``None`` to leave the current renderer unchanged.
     query : str, optional
         Pandas-style query string applied to ``adata.obs`` (and to
         ``obs`` if provided) to subset cells before computing the
         boxplot. For backed AnnData this avoids materialising rows
         that will be discarded. Example: ``"Region == 'CTX'"``.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure or None
+        The interactive box-plot figure, or ``None`` when ``show`` is
+        ``True`` (the figure is displayed instead of returned).
     """
     import anndata
     import plotly.express as px
@@ -891,8 +1371,58 @@ def interactive_violin(
 ):
     """Interactive multi-gene violin plot via Plotly.
 
-    Each gene becomes a facet column. Categories along the X axis are
-    coloured by ``groupby``.
+    Each gene becomes a facet column and the categories of ``groupby``
+    are laid out along the X axis and coloured accordingly. Expression
+    values are melted into long form so a single faceted figure spans
+    all requested genes.
+
+    Parameters
+    ----------
+    adata : anndata.AnnData
+        Annotated data matrix. A concrete ``AnnData`` is required (a
+        :class:`TypeError` is raised otherwise).
+    genes : str or sequence of str
+        Gene or genes to plot. A single string is wrapped into a
+        one-element list; each gene becomes a facet column.
+    groupby : str
+        Column in ``adata.obs`` defining the X-axis categories and the
+        violin colours.
+    layer : str, optional
+        Name of an ``adata.layers`` entry to read expression from. When
+        ``None`` (default) the main ``X`` matrix (or ``raw.X`` if
+        ``use_raw``) is used.
+    use_raw : bool, default False
+        If ``True`` and ``adata.raw`` is set, read gene values and
+        ``var_names`` from ``adata.raw`` instead of ``adata``.
+    palette : str or dict, optional
+        Colour specification. A string is resolved via
+        :func:`adataviz.tools.load_color_palette` for ``groupby``; a
+        dict is used directly as a ``{category: colour}`` map. When
+        ``None`` a default qualitative (D3) sequence is used.
+    title : str, optional
+        Figure title. When ``None`` a title of the form
+        ``"Expression by {groupby}"`` is generated.
+    width : int, default 1100
+        Figure width in pixels.
+    height : int, default 600
+        Figure height in pixels.
+    show : bool, default True
+        If ``True`` the figure is displayed via ``show_fig`` and ``None``
+        is returned; if ``False`` the figure object is returned.
+    renderer : str, default "notebook"
+        Plotly renderer to set as the default. Pass ``None`` to leave the
+        current renderer unchanged.
+    box : bool, default True
+        Whether to overlay a box plot inside each violin.
+    points : bool, default False
+        If ``True`` all underlying data points are shown (``points="all"``);
+        if ``False`` no points are drawn.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure or None
+        The interactive faceted violin figure, or ``None`` when ``show``
+        is ``True``.
     """
     import plotly.express as px
     import plotly.io as pio
@@ -976,7 +1506,59 @@ def interactive_stacked_bar(
     show=True,
     renderer="notebook",
 ):
-    """Interactive Plotly stacked bar plot of composition."""
+    """Interactive Plotly stacked bar plot of categorical composition.
+
+    Cross-tabulates ``groupby`` against ``split_by`` and draws one
+    stacked bar per ``split_by`` category, with each stack segment
+    representing a ``groupby`` category. Optionally normalises each bar
+    to fractions summing to one.
+
+    Parameters
+    ----------
+    adata : anndata.AnnData or str
+        Annotated data matrix or path; the observation table is resolved
+        via ``resolve_adata_obs``.
+    groupby : str
+        Column in ``adata.obs`` whose categories become the coloured
+        stack segments within each bar.
+    split_by : str
+        Column in ``adata.obs`` whose categories define the individual
+        bars along the X axis.
+    normalize : bool, default True
+        If ``True`` each bar is normalised so segment heights are
+        fractions summing to one (Y axis labelled "Fraction"); if
+        ``False`` raw counts are shown (Y axis labelled "Count").
+    palette : str or dict, optional
+        Colour specification for ``groupby``. A string is resolved via
+        :func:`adataviz.tools.load_color_palette`; a dict is used as a
+        ``{category: colour}`` map. When ``None`` a default qualitative
+        (D3) sequence is used.
+    order : sequence, optional
+        Explicit ordering of the ``groupby`` categories (stack order and
+        legend). When ``None`` the natural categorical order is used.
+    split_order : sequence, optional
+        Explicit ordering of the ``split_by`` categories (bar order along
+        the X axis). When ``None`` the natural categorical order is used.
+    title : str, optional
+        Figure title. When ``None`` a title of the form
+        ``"{groupby} composition by {split_by}"`` is generated.
+    width : int, default 900
+        Figure width in pixels.
+    height : int, default 600
+        Figure height in pixels.
+    show : bool, default True
+        If ``True`` the figure is displayed via ``show_fig`` and ``None``
+        is returned; if ``False`` the figure object is returned.
+    renderer : str, default "notebook"
+        Plotly renderer to set as the default. Pass ``None`` to leave the
+        current renderer unchanged.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure or None
+        The interactive stacked bar figure, or ``None`` when ``show`` is
+        ``True``.
+    """
     import plotly.express as px
     import plotly.io as pio
 
@@ -1043,9 +1625,51 @@ def interactive_dot_plot(
     height: int = 500,
     width: int = 700,
 ):
-    """Plotly scatter where size = count and colour = column-fraction.
+    """Interactive Plotly dot plot where marker size = count and colour = column-fraction.
 
-    Mirrors :func:`adataviz.pl.dot_plot`.
+    Cross-tabulates ``groupby`` (rows) against ``split_by`` (columns) and
+    draws a grid of dots: dot area encodes the raw cell count while dot
+    colour encodes the fraction of that count within its ``split_by``
+    column. Mirrors :func:`adataviz.pl.dot_plot`.
+
+    Parameters
+    ----------
+    adata : anndata.AnnData or str
+        Annotated data matrix or path; the observation table is resolved
+        via ``resolve_adata_obs``.
+    groupby : str
+        Column in ``adata.obs`` whose categories form the Y-axis rows.
+    split_by : str
+        Column in ``adata.obs`` whose categories form the X-axis columns
+        and define the denominator for the colour fractions.
+    order : sequence, optional
+        Explicit ordering of the ``groupby`` categories (Y axis). When
+        ``None`` the natural categorical order is used.
+    split_order : sequence, optional
+        Explicit ordering of the ``split_by`` categories (X axis). When
+        ``None`` the natural categorical order is used.
+    cmap : str, default "Viridis"
+        Plotly continuous colourscale name used to map column fractions
+        (0-1) onto dot colours.
+    size_max : int, default 30
+        Maximum dot size in pixels; scales the ``sizeref`` used to map
+        counts to marker area.
+    title : str, optional
+        Figure title. When ``None`` no title is shown.
+    save : str, optional
+        Path to save the figure to via the internal ``_maybe_save``
+        helper. When ``None`` the figure is not written to disk.
+    height : int, default 500
+        Minimum figure height in pixels; the effective height grows with
+        the number of ``groupby`` categories.
+    width : int, default 700
+        Minimum figure width in pixels; the effective width grows with
+        the number of ``split_by`` categories.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        The interactive dot-plot figure.
     """
     import plotly.graph_objects as go
 
@@ -1121,7 +1745,44 @@ def interactive_chord(
 
     Plotly does not provide a native chord renderer, so this function
     draws a Sankey with both columns as separate node sets - the same
-    information chord_plot encodes circularly.
+    information a chord plot encodes circularly. It is a thin wrapper that
+    forwards all arguments to :func:`interactive_sankey`.
+
+    Parameters
+    ----------
+    adata : anndata.AnnData or str
+        Annotated data matrix or path; forwarded to
+        :func:`interactive_sankey`.
+    left : str
+        Column in ``adata.obs`` used as the left-hand node set (source).
+    right : str
+        Column in ``adata.obs`` used as the right-hand node set (target).
+    left_order : sequence, optional
+        Explicit ordering of the ``left`` categories. When ``None`` the
+        natural categorical order is used.
+    right_order : sequence, optional
+        Explicit ordering of the ``right`` categories. When ``None`` the
+        natural categorical order is used.
+    palette : dict, str or None, optional
+        Colour specification for the nodes, forwarded to
+        :func:`interactive_sankey`. May be a ``{category: colour}``
+        mapping, a palette name, or ``None`` for defaults.
+    title : str, optional
+        Figure title. When ``None`` the wrapped function's default is
+        used.
+    save : str, optional
+        Path to save the figure to. When ``None`` the figure is not
+        written to disk.
+    height : int, default 600
+        Figure height in pixels.
+    width : int, default 800
+        Figure width in pixels.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        The interactive Sankey figure produced by
+        :func:`interactive_sankey`.
     """
     return interactive_sankey(
         adata,
@@ -1155,9 +1816,12 @@ def interactive_upset(
     top_n: int = 25,
     min_intersection_size: int = 1,
 ):
-    """Interactive UpSet plot.
+    """Interactive UpSet plot of set overlaps across a categorical variable.
 
-    Renders three coordinated panels via :mod:`plotly.subplots`:
+    For each category of ``groupby`` a set is built from the unique
+    ``set_by`` values it contains, and the sizes of every observed
+    combination of sets are visualised. Renders three coordinated panels
+    via :mod:`plotly.subplots`:
 
     - **Top**: vertical bars with the size of each intersection.
     - **Bottom-right**: a dot/line matrix indicating which sets each
@@ -1168,10 +1832,42 @@ def interactive_upset(
 
     Parameters
     ----------
+    adata : anndata.AnnData or str
+        Annotated data matrix or path; the observation table is resolved
+        via ``resolve_adata_obs``.
+    groupby : str
+        Column in ``adata.obs`` whose categories define the individual
+        sets.
+    set_by : str
+        Column in ``adata.obs`` whose values are the items distributed
+        into the sets (the universe of elements whose overlaps are
+        counted).
+    order : sequence, optional
+        Explicit ordering of the ``groupby`` categories (set order). When
+        ``None`` the natural categorical order is used.
+    palette : dict, str or None, optional
+        Colour specification for the sets, resolved via
+        ``resolve_palette``. May be a ``{category: colour}`` mapping, a
+        palette name, or ``None`` for defaults.
+    title : str, optional
+        Figure title. When ``None`` a title of the form
+        ``"{set_by} overlap across {groupby}"`` is generated.
+    save : str, optional
+        Path to save the figure to via ``_maybe_save``. When ``None`` the
+        figure is not written to disk.
+    height : int, default 600
+        Figure height in pixels.
+    width : int, default 900
+        Figure width in pixels.
     top_n : int, default 25
         Keep the ``top_n`` largest intersections.
     min_intersection_size : int, default 1
         Drop combinations seen fewer times than this threshold.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        The interactive UpSet figure.
     """
     import plotly.graph_objects as go
     from plotly.subplots import make_subplots
@@ -1382,7 +2078,50 @@ def interactive_complex_heatmap(
     height: int = 500,
     width: int = 800,
 ):
-    """Plotly heatmap of mean gene expression per group (mirror of :func:`complex_heatmap`)."""
+    """Interactive Plotly heatmap of mean gene expression per group.
+
+    Aggregates mean expression of ``genes`` within each category of
+    ``groupby`` and renders it as an interactive heatmap, optionally
+    z-scored across rows or columns. Interactive mirror of
+    :func:`complex_heatmap`.
+
+    Parameters
+    ----------
+    adata : anndata.AnnData or str
+        Annotated data matrix or path; aggregated via the internal
+        ``_aggregate`` helper.
+    genes : sequence of str
+        Genes to include as heatmap columns.
+    groupby : str
+        Column in ``adata.obs`` whose categories form the heatmap rows.
+    layer : str, optional
+        Name of an ``adata.layers`` entry to aggregate. When ``None``
+        (default) the main ``X`` matrix (or ``raw`` if ``use_raw``) is
+        used.
+    use_raw : bool, default False
+        If ``True`` aggregate from ``adata.raw`` instead of ``adata.X``.
+    z_score : str or None, default "row"
+        Standardisation applied to the mean matrix: ``"row"`` z-scores
+        each gene across groups, ``"col"`` z-scores each group across
+        genes, and ``None`` leaves raw means. When z-scoring the
+        colourbar is centred at zero.
+    cmap : str, default "RdBu_r"
+        Plotly continuous colourscale name.
+    title : str, optional
+        Figure title. When ``None`` no title is shown.
+    save : str, optional
+        Path to save the figure to via ``_maybe_save``. When ``None`` the
+        figure is not written to disk.
+    height : int, default 500
+        Minimum figure height in pixels; grows with the number of groups.
+    width : int, default 800
+        Minimum figure width in pixels; grows with the number of genes.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        The interactive heatmap figure.
+    """
     import plotly.graph_objects as go
     from .complex_heatmap import _aggregate
 
@@ -1444,7 +2183,53 @@ def interactive_complex_dotplot(
     width: int = 800,
     size_max: int = 22,
 ):
-    """Plotly dot heatmap mirror of :func:`complex_dotplot`."""
+    """Interactive Plotly dot heatmap of expression (size = % expressing, colour = mean).
+
+    Aggregates, per category of ``groupby``, the mean expression and the
+    fraction of expressing cells for each gene, then draws a grid of
+    dots where dot size encodes the expressing fraction and dot colour
+    encodes the mean expression. Interactive mirror of
+    :func:`complex_dotplot`.
+
+    Parameters
+    ----------
+    adata : anndata.AnnData or str
+        Annotated data matrix or path; aggregated via the internal
+        ``_aggregate`` helper.
+    genes : sequence of str
+        Genes to include as columns of the dot grid.
+    groupby : str
+        Column in ``adata.obs`` whose categories form the rows.
+    layer : str, optional
+        Name of an ``adata.layers`` entry to aggregate. When ``None``
+        (default) the main ``X`` matrix (or ``raw`` if ``use_raw``) is
+        used.
+    use_raw : bool, default False
+        If ``True`` aggregate from ``adata.raw`` instead of ``adata.X``.
+    expression_cutoff : float, default 0
+        Threshold above which a cell is counted as expressing a gene when
+        computing the expressing-fraction (dot size).
+    cmap : str, default "Reds"
+        Plotly continuous colourscale name used for the mean-expression
+        colour.
+    title : str, optional
+        Figure title. When ``None`` no title is shown.
+    save : str, optional
+        Path to save the figure to via ``_maybe_save``. When ``None`` the
+        figure is not written to disk.
+    height : int, default 500
+        Minimum figure height in pixels; grows with the number of groups.
+    width : int, default 800
+        Minimum figure width in pixels; grows with the number of genes.
+    size_max : int, default 22
+        Maximum dot diameter in pixels, used to scale the expressing
+        fraction (0-1) into marker sizes.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        The interactive dot-heatmap figure.
+    """
     import plotly.graph_objects as go
     from .complex_heatmap import _aggregate
 

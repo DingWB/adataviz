@@ -75,11 +75,67 @@ def sankey_plot(
 ):
     """Two-column Sankey/alluvial flow between ``left`` and ``right`` columns.
 
-    Implemented as a pure matplotlib drawing: rectangles for nodes and
-    smooth filled cubic-Bezier ribbons for flows.
+    Draws a Sankey (alluvial) diagram where each category on the ``left``
+    column becomes a node on the left axis and each category on the
+    ``right`` column becomes a node on the right axis. The width of every
+    ribbon connecting a left node to a right node is proportional to the
+    number of observations (rows of ``adata.obs``) that fall into that
+    pair of categories, so the plot visualises how the ``left`` grouping
+    maps onto the ``right`` grouping. Implemented as a pure matplotlib
+    drawing: rectangles for nodes and smooth filled cubic-Bezier ribbons
+    for flows.
 
     Parameters
     ----------
+    adata : AnnData, DataFrame, or path
+        Cell metadata source. Operates on ``adata.obs`` when given an
+        AnnData; a DataFrame or path is resolved to a metadata table.
+    left : str
+        Column in ``adata.obs`` whose categories form the left-hand
+        nodes of the diagram.
+    right : str
+        Column in ``adata.obs`` whose categories form the right-hand
+        nodes of the diagram.
+    left_order : sequence, optional
+        Explicit ordering of the ``left`` categories from top to bottom.
+        When ``None`` the natural categorical order is used.
+    right_order : sequence, optional
+        Explicit ordering of the ``right`` categories from top to bottom.
+        When ``None`` the natural categorical order is used.
+    palette : dict, str, or None, default None
+        Colour specification for the ``left`` nodes and their ribbons.
+        May be a ``{category: colour}`` mapping, a name/path resolved by
+        the palette machinery, or ``None`` to fall back to
+        ``adata.uns[<left>_colors]`` or a generated default palette. The
+        ``right`` nodes are always coloured from the ``right`` column's
+        own resolved palette.
+    figsize : tuple of float, default (8, 5)
+        Figure size in inches, used only when ``ax`` is None.
+    ax : matplotlib.axes.Axes, optional
+        Existing axes to draw into. When ``None`` a new figure and axes
+        are created using ``figsize``.
+    save : str, optional
+        If given, path to write the figure to (delegated to
+        ``save_or_show``); otherwise the figure is not saved.
+    show : bool, default False
+        Whether to display the figure interactively. Retained for API
+        consistency; display is handled by ``save_or_show``.
+    title : str, optional
+        Title placed above the axes. No title is drawn when ``None``.
+    gap : float, default 0.015
+        Vertical gap (in axes-fraction units) inserted between adjacent
+        nodes on each side. Node heights are scaled so the stack always
+        fits within the canvas regardless of this gap.
+    flow_alpha : float, default 0.55
+        Opacity of the ribbons connecting the nodes.
+    label_fontsize : float, default 9
+        Base font size for node labels. Automatically shrunk when there
+        are many nodes so labels do not overlap.
+    show_legend : bool, default False
+        When True, draw a legend of the ``left`` categories on the axes.
+    legend_kws : dict, optional
+        Forwarded to :meth:`matplotlib.axes.Axes.legend` when
+        ``show_legend=True``.
     min_flow_frac : float, default 0.0
         Drop ribbons whose share of the grand total is below this
         fraction (e.g. ``0.005`` removes flows under 0.5%). Useful when
@@ -88,9 +144,11 @@ def sankey_plot(
         Drop nodes whose total share on either side is below this
         fraction. Smaller categories are pruned before layout so the
         remaining ones use the full canvas height.
-    legend_kws : dict, optional
-        Forwarded to :meth:`matplotlib.figure.Figure.legend` when
-        ``show_legend=True``.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The axes containing the Sankey diagram.
     """
     obs, ad = resolve_adata_obs(adata)
     left_cats = categorical_order(obs[left], left_order)
@@ -286,10 +344,64 @@ def chord_plot(
 ):
     """Circular chord diagram of ``left`` × ``right`` co-occurrence.
 
-    Uses :mod:`pycirclize` when available (better labels and ribbons),
-    otherwise falls back to a self-contained matplotlib renderer. Pass
-    ``adjust_text=True`` (default) to nudge overlapping labels apart in
-    the fallback renderer.
+    Builds a symmetric co-occurrence matrix from the ``left`` and
+    ``right`` categories and renders it as a chord (circular) diagram:
+    every category becomes an arc (sector) around the ring, and the
+    ribbons connecting two sectors are proportional to how often those
+    two categories co-occur across observations in ``adata.obs``. This
+    gives a compact circular view of the same relationships shown by
+    :func:`sankey_plot`. Uses :mod:`pycirclize` when available (better
+    labels and ribbons), otherwise falls back to a self-contained
+    matplotlib renderer.
+
+    Parameters
+    ----------
+    adata : AnnData, DataFrame, or path
+        Cell metadata source. Operates on ``adata.obs`` when given an
+        AnnData; a DataFrame or path is resolved to a metadata table.
+    left : str
+        Column in ``adata.obs`` providing the first set of categories.
+    right : str
+        Column in ``adata.obs`` providing the second set of categories.
+    left_order : sequence, optional
+        Explicit ordering of the ``left`` categories. When ``None`` the
+        natural categorical order is used.
+    right_order : sequence, optional
+        Explicit ordering of the ``right`` categories. When ``None`` the
+        natural categorical order is used.
+    palette : dict, str, or None, default None
+        Colour specification for the sectors. May be a
+        ``{category: colour}`` mapping, a name/path resolved by the
+        palette machinery, or ``None`` to fall back to
+        ``adata.uns[<left>_colors]`` or a generated default palette.
+    figsize : tuple of float, default (6, 6)
+        Figure size in inches.
+    save : str, optional
+        If given, path to write the figure to (delegated to
+        ``save_or_show``); otherwise the figure is not saved.
+    show : bool, default False
+        Whether to display the figure interactively. Retained for API
+        consistency; display is handled by ``save_or_show``.
+    title : str, optional
+        Title placed above the figure. No title is drawn when ``None``.
+    space : int, default 2
+        Angular gap (in degrees) between adjacent sectors around the
+        ring. Passed through to :class:`pycirclize.Circos` when
+        available.
+    adjust_text : bool, default True
+        When True, nudge overlapping sector labels apart using
+        ``adjustText`` (applies to both the pycirclize and matplotlib
+        fallback renderers).
+    min_flow_frac : float, default 0.0
+        Drop ribbons whose share of the grand total is below this
+        fraction; fully empty rows and columns are removed afterwards so
+        zero-size sectors do not appear. Raises ``ValueError`` if the
+        threshold removes every flow.
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        The figure containing the chord diagram.
     """
     obs, ad = resolve_adata_obs(adata)
     left_cats = categorical_order(obs[left], left_order)

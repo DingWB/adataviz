@@ -41,8 +41,54 @@ def venn_plot(
 ):
     """Venn diagram of ``set_by`` values present in each ``groupby`` group.
 
-    Supports 2 or 3 groups; for higher cardinality use :func:`upset_plot`.
-    Requires the optional dependency :mod:`matplotlib_venn`.
+    For each group defined by ``groupby``, the unique (non-null) values in
+    the ``set_by`` column are collected into a set, and the pairwise /
+    triple-wise overlaps between those sets are drawn as a proportional
+    Venn diagram. Supports 2 or 3 groups; for higher cardinality use
+    :func:`upset_plot`. Requires the optional dependency
+    :mod:`matplotlib_venn`.
+
+    Parameters
+    ----------
+    adata : AnnData or path
+        Data source. The observation metadata (``adata.obs`` or an
+        equivalent table) must contain the ``groupby`` and ``set_by``
+        columns; resolved via :func:`resolve_adata_obs`.
+    groupby : str
+        Metadata column whose categories define the sets (one circle per
+        category). Must yield exactly 2 or 3 distinct groups after any
+        ``order`` filtering.
+    set_by : str
+        Metadata column whose unique values populate each group's set;
+        values are cast to ``str`` and null entries are dropped before the
+        overlaps are computed.
+    order : sequence, optional
+        Explicit ordering / subset of the ``groupby`` categories to plot.
+        Only entries that actually occur in the data are kept. When
+        ``None`` (default), all groups are used in their natural order.
+    palette : dict, str, or None, default None
+        Colour mapping for the set circles. A ``{group: hex}`` dict, an
+        Excel palette path/sheet name, or ``None`` to resolve colours from
+        ``adata.uns`` / a default palette via :func:`resolve_palette`.
+    figsize : tuple of float, default (5, 5)
+        Figure size in inches; only used when ``ax`` is ``None`` and a new
+        figure is created.
+    ax : matplotlib.axes.Axes, optional
+        Existing axes to draw into. When ``None`` (default) a new figure
+        and axes are created.
+    save : str, optional
+        Path to write the figure to. When ``None`` (default) the figure is
+        not saved.
+    show : bool, default False
+        Whether to display the figure interactively (forwarded to
+        :func:`save_or_show`).
+    title : str, optional
+        Axes title. When ``None`` (default) no title is set.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The axes containing the Venn diagram.
     """
     try:
         from matplotlib_venn import venn2, venn3  # type: ignore
@@ -100,7 +146,54 @@ def upset_plot(
 ):
     """UpSet plot of ``set_by`` overlaps across ``groupby`` groups.
 
-    Requires the optional dependency :mod:`upsetplot`.
+    Builds one set of ``set_by`` values per ``groupby`` category and
+    visualises the size of every intersection as an UpSet plot (a matrix of
+    set memberships paired with intersection-size bars). Scales to any
+    number of groups, unlike :func:`venn_plot`. Requires the optional
+    dependency :mod:`upsetplot`.
+
+    Parameters
+    ----------
+    adata : AnnData or path
+        Data source whose observation metadata contains ``groupby`` and
+        ``set_by``; resolved via :func:`resolve_adata_obs`.
+    groupby : str
+        Metadata column whose categories define the sets (one column in the
+        UpSet membership matrix per category).
+    set_by : str
+        Metadata column whose unique values populate each group's set;
+        values are cast to ``str`` and null entries are dropped before the
+        intersections are computed.
+    order : sequence, optional
+        Explicit ordering / subset of the ``groupby`` categories to include.
+        Only entries present in the data are kept. When ``None`` (default),
+        all groups are used in their natural order.
+    min_subset_size : int, optional
+        Minimum size an intersection must have to be shown; smaller
+        intersections are hidden. When ``None`` (default) all non-empty
+        intersections are drawn.
+    figsize : tuple of float, optional
+        Figure size in inches. When ``None`` (default) the width scales with
+        the number of sets (``max(8.0, 0.7 * n_sets + 4.0)``) and the height
+        is fixed at 5.0 so the matrix, bars and count labels stay readable.
+    save : str, optional
+        Path to write the figure to. When ``None`` (default) the figure is
+        not saved.
+    show : bool, default False
+        Whether to display the figure interactively (forwarded to
+        :func:`save_or_show`).
+    title : str, optional
+        Figure super-title. When ``None`` (default) no title is set.
+    sort_by : str, default "cardinality"
+        How the intersections are ordered along the plot, forwarded to
+        :class:`upsetplot.UpSet` (e.g. ``"cardinality"`` to sort by
+        intersection size or ``"degree"`` to sort by the number of
+        participating sets).
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        The figure containing the UpSet plot.
     """
     try:
         import upsetplot  # type: ignore

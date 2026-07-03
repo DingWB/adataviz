@@ -64,23 +64,71 @@ def rose_plot(
 ):
     """Draw a Nightingale rose (polar) chart of category counts.
 
+    Each ``groupby`` category is drawn as a wedge on a polar axis whose
+    radial length encodes its cell count. When ``split_by`` is given, every
+    wedge is stacked into the ``split_by`` sub-categories, giving a compact
+    circular view of how one categorical annotation is composed across
+    another.
+
     Parameters
     ----------
-    adata : AnnData, DataFrame, or path
-        Cell metadata source. Operates on ``adata.obs`` when given an AnnData.
+    adata : AnnData, pandas.DataFrame, or str
+        Cell metadata source. When an :class:`~anndata.AnnData` is passed the
+        function operates on ``adata.obs`` and can pick up colours from
+        ``adata.uns[f"{groupby}_colors"]``; a DataFrame or a path to one is
+        also accepted.
     groupby : str
-        Column whose categories define wedges.
+        Column in the metadata whose categories define the wedges (one wedge
+        per category, sized by its count).
     split_by : str, optional
-        Column whose categories stack within each wedge.
+        Column whose categories are stacked within each ``groupby`` wedge. If
+        ``None`` (default), each wedge is a single solid bar.
+    order : sequence, optional
+        Explicit ordering of the ``groupby`` categories around the circle.
+        Defaults to the natural categorical order of the column.
+    split_order : sequence, optional
+        Explicit ordering of the ``split_by`` stack segments. Only used when
+        ``split_by`` is provided.
+    palette : dict, str, or None, default None
+        Colour mapping. A dict maps category -> colour; a str is treated as a
+        path to a palette workbook/sheet; ``None`` (default) resolves colours
+        from the AnnData ``uns`` colours or a generated default. When
+        ``split_by`` is given the palette applies to the ``split_by``
+        categories, otherwise to the ``groupby`` categories.
+    figsize : tuple of float, default (5, 5)
+        Figure size in inches, used only when a new figure is created
+        (i.e. ``ax`` is ``None``).
+    ax : matplotlib.axes.Axes, optional
+        Existing polar axes to draw into. If ``None`` (default) a new figure
+        with a polar subplot is created.
+    save : str, optional
+        If given, the figure is written to this path.
+    show : bool, default False
+        Whether to display the figure interactively.
+    title : str, optional
+        Axes title. Extra top padding is reserved so it clears the labels.
+    edgecolor : str, default "white"
+        Colour of the wedge borders.
+    linewidth : float, default 0.5
+        Width of the wedge borders.
+    show_legend : bool, default True
+        Whether to draw a legend. Only relevant when ``split_by`` is set
+        (a single-category rose has no legend).
     legend_kws : dict, optional
-        Forwarded to :meth:`matplotlib.axes.Axes.legend`.
-    label_orientation : {"radial", "vertical", "none"}, default ``"radial"``
+        Extra keyword arguments forwarded to
+        :meth:`matplotlib.axes.Axes.legend` (merged with sensible defaults).
+    label_orientation : {"radial", "vertical", "none"}, default "radial"
         ``"radial"`` rotates each label tangent to its wedge (flipped on the
         lower half so it stays right-side-up); ``"vertical"`` keeps labels
         upright; ``"none"`` hides labels.
     label_pad : float, default 1.12
-        Multiplier on ``rmax`` controlling label distance from the outer
+        Multiplier on ``rmax`` controlling the label distance from the outer
         ring (raise to avoid title overlap).
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The polar axes containing the rose plot.
     """
     obs, ad = resolve_adata_obs(adata)
     cats = categorical_order(obs[groupby], order)
@@ -192,20 +240,74 @@ def ring_plot(
     adjust_text: bool = False,
     label_orientation: str = "horizontal",
 ):
-    """Donut chart for ``groupby`` value counts.
+    """Donut (ring) chart of ``groupby`` value counts.
+
+    Draws a single pie with a hollow centre so the proportions of each
+    ``groupby`` category read as ring segments. Percentage labels on very
+    small slices are suppressed to reduce clutter, and category labels can
+    optionally be placed around the ring or replaced by a legend.
 
     Parameters
     ----------
-    legend_loc : {"right", "center"}, default ``"right"``
-        ``"right"`` places the legend to the right of the donut
-        (useful when there are many categories); ``"center"`` draws it
-        inside the donut hole - clean look when categories are few.
-    label_orientation : {"horizontal", "radial"}, default ``"horizontal"``
-        ``"radial"`` rotates each external label tangent to its wedge
-        (flipped on the lower half so it stays readable).
+    adata : AnnData, pandas.DataFrame, or str
+        Cell metadata source. When an :class:`~anndata.AnnData` is passed the
+        function operates on ``adata.obs`` and can pick up colours from
+        ``adata.uns[f"{groupby}_colors"]``; a DataFrame or a path to one is
+        also accepted.
+    groupby : str
+        Column whose category counts are turned into ring segments.
+    order : sequence, optional
+        Explicit ordering of the ``groupby`` categories. Defaults to the
+        natural categorical order of the column.
+    palette : dict, str, or None, default None
+        Colour mapping. A dict maps category -> colour; a str is treated as a
+        path to a palette workbook/sheet; ``None`` (default) resolves colours
+        from the AnnData ``uns`` colours or a generated default.
+    width : float, default 0.35
+        Radial width of the ring as a fraction of the radius (smaller values
+        yield a thinner donut with a larger hole).
+    figsize : tuple of float, default (4.5, 4.5)
+        Figure size in inches, used only when a new figure is created
+        (``ax`` is ``None``).
+    ax : matplotlib.axes.Axes, optional
+        Existing axes to draw into. If ``None`` (default) a new figure and
+        axes are created.
+    save : str, optional
+        If given, the figure is written to this path.
+    show : bool, default False
+        Whether to display the figure interactively.
+    title : str, optional
+        Axes title.
+    autopct : str or None, default "%.1f%%"
+        Percentage format string for slice labels. Slices below 3%% are left
+        unlabelled; pass ``None`` to disable percentage labels entirely.
+    edgecolor : str, default "white"
+        Colour of the wedge borders.
+    show_legend : bool, default False
+        Whether to draw a legend of the categories.
+    legend_kws : dict, optional
+        Extra keyword arguments forwarded to
+        :meth:`matplotlib.axes.Axes.legend` (merged with defaults).
+    legend_loc : {"right", "center"}, default "right"
+        ``"right"`` places the legend to the right of the donut (useful when
+        there are many categories); ``"center"`` draws it inside the donut
+        hole - a clean look when categories are few.
     show_labels : bool, optional
-        Auto-disabled when there are >12 categories. Pass
-        ``adjust_text=True`` to nudge labels apart with :mod:`adjustText`.
+        Whether to draw category labels around the ring. When ``None``
+        (default) this is auto-enabled only if there are <=12 categories and
+        ``legend_loc`` is not ``"center"``. Labels on slices below 2%% are
+        dropped to declutter.
+    adjust_text : bool, default False
+        If ``True``, nudge overlapping labels apart with :mod:`adjustText`.
+    label_orientation : {"horizontal", "radial"}, default "horizontal"
+        ``"radial"`` rotates each external label tangent to its wedge
+        (flipped on the lower half so it stays readable); ``"horizontal"``
+        keeps labels upright.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The axes containing the ring plot.
     """
     obs, ad = resolve_adata_obs(adata)
     cats = categorical_order(obs[groupby], order)
@@ -317,10 +419,70 @@ def pie_plot(
 ):
     """Pie chart of ``groupby`` counts, optionally faceted by ``split_by``.
 
-    For a single pie returns the :class:`Axes`; for a faceted grid
-    returns the array of axes. With many categories a shared legend is
-    drawn and individual labels are suppressed automatically (override
-    via ``show_labels``).
+    Draws a standard pie of the ``groupby`` category proportions. When
+    ``split_by`` is provided, a grid of pies is produced - one per
+    ``split_by`` category - so the composition can be compared across
+    conditions. With many categories a shared legend is drawn and per-slice
+    labels are suppressed automatically (override via ``show_labels``).
+
+    Parameters
+    ----------
+    adata : AnnData, pandas.DataFrame, or str
+        Cell metadata source. When an :class:`~anndata.AnnData` is passed the
+        function operates on ``adata.obs`` and can pick up colours from
+        ``adata.uns[f"{groupby}_colors"]``; a DataFrame or a path to one is
+        also accepted.
+    groupby : str
+        Column whose category counts define the pie slices.
+    split_by : str, optional
+        Column used to facet the plot into one pie per category. If ``None``
+        (default) a single pie is drawn.
+    order : sequence, optional
+        Explicit ordering of the ``groupby`` slices. Defaults to the natural
+        categorical order of the column.
+    split_order : sequence, optional
+        Explicit ordering of the ``split_by`` facets. Only used when
+        ``split_by`` is provided.
+    palette : dict, str, or None, default None
+        Colour mapping. A dict maps category -> colour; a str is treated as a
+        path to a palette workbook/sheet; ``None`` (default) resolves colours
+        from the AnnData ``uns`` colours or a generated default.
+    figsize : tuple of float, optional
+        Figure size in inches. When ``None`` (default) a sensible size is
+        chosen automatically: ``(4.5, 4.5)`` for a single pie, or a size
+        scaled by the facet grid dimensions.
+    ncols : int, optional
+        Number of columns in the facet grid. Only used when ``split_by`` is
+        set; defaults to ``min(n_facets, 4)``.
+    save : str, optional
+        If given, the figure is written to this path.
+    show : bool, default False
+        Whether to display the figure interactively.
+    title : str, optional
+        Overall title. Used as the axes title for a single pie or the figure
+        suptitle for a facet grid.
+    autopct : str or None, default "%.1f%%"
+        Percentage format string for slice labels. Slices below 3%% are left
+        unlabelled; pass ``None`` to disable percentage labels entirely.
+    show_legend : bool, optional
+        Whether to draw a shared legend. When ``None`` (default) it is
+        enabled automatically whenever per-slice labels are hidden
+        (i.e. it is the inverse of ``show_labels``).
+    legend_kws : dict, optional
+        Extra keyword arguments forwarded to the legend (merged with
+        defaults).
+    show_labels : bool, optional
+        Whether to draw slice labels. When ``None`` (default) labels are
+        enabled only if there are <=10 categories. Labels on slices below
+        2%% are dropped to declutter.
+    adjust_text : bool, default False
+        If ``True``, nudge overlapping labels apart with :mod:`adjustText`.
+
+    Returns
+    -------
+    matplotlib.axes.Axes or numpy.ndarray of Axes
+        A single axes when ``split_by`` is ``None``; otherwise the flattened
+        array of facet axes.
     """
     obs, ad = resolve_adata_obs(adata)
     cats = categorical_order(obs[groupby], order)
@@ -444,7 +606,64 @@ def area_plot(
     show_legend: bool = True,
     legend_kws: Optional[Mapping[str, Any]] = None,
 ):
-    """Stacked area chart of ``groupby`` composition across ``split_by``."""
+    """Stacked area chart of ``groupby`` composition across ``split_by``.
+
+    For each ordered ``split_by`` category (x-axis) the ``groupby``
+    proportions are stacked into filled bands, so the plot reads as the
+    evolution of the composition across the ``split_by`` axis. By default
+    the bands are column-normalised to fractions summing to 1.
+
+    Parameters
+    ----------
+    adata : AnnData, pandas.DataFrame, or str
+        Cell metadata source. When an :class:`~anndata.AnnData` is passed the
+        function operates on ``adata.obs`` and can pick up colours from
+        ``adata.uns[f"{groupby}_colors"]``; a DataFrame or a path to one is
+        also accepted.
+    groupby : str
+        Column whose categories form the stacked bands.
+    split_by : str
+        Column defining the ordered x-axis positions (one stacked column
+        per category).
+    order : sequence, optional
+        Explicit ordering of the ``groupby`` bands. Defaults to the natural
+        categorical order of the column.
+    split_order : sequence, optional
+        Explicit ordering of the ``split_by`` categories along the x-axis.
+        Defaults to the natural categorical order.
+    normalize : bool, default True
+        If ``True``, each column is normalised so the bands sum to 1
+        (fractions); if ``False``, raw counts are stacked.
+    palette : dict, str, or None, default None
+        Colour mapping for the ``groupby`` bands. A dict maps
+        category -> colour; a str is treated as a path to a palette
+        workbook/sheet; ``None`` (default) resolves colours from the AnnData
+        ``uns`` colours or a generated default.
+    figsize : tuple of float, default (6, 4)
+        Figure size in inches, used only when a new figure is created
+        (``ax`` is ``None``).
+    ax : matplotlib.axes.Axes, optional
+        Existing axes to draw into. If ``None`` (default) a new figure and
+        axes are created.
+    save : str, optional
+        If given, the figure is written to this path.
+    show : bool, default False
+        Whether to display the figure interactively.
+    title : str, optional
+        Axes title.
+    alpha : float, default 0.85
+        Opacity of the filled area bands.
+    show_legend : bool, default True
+        Whether to draw a legend of the ``groupby`` categories.
+    legend_kws : dict, optional
+        Extra keyword arguments forwarded to
+        :meth:`matplotlib.axes.Axes.legend` (merged with defaults).
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The axes containing the stacked area plot.
+    """
     obs, ad = resolve_adata_obs(adata)
     splits = categorical_order(obs[split_by], split_order)
     cats = categorical_order(obs[groupby], order)
@@ -511,11 +730,60 @@ def dot_plot(
     title: Optional[str] = None,
     cbar_label: Optional[str] = None,
 ):
-    """Dot plot where size = count and colour = column-fraction.
+    """Dot plot where dot size = count and colour = column-fraction.
 
-    Rows are ``groupby`` categories, columns are ``split_by``. Useful
-    for visualising the relative composition of one categorical variable
-    across another.
+    Rows are ``groupby`` categories and columns are ``split_by`` categories.
+    Each dot's area encodes the absolute cell count while its colour encodes
+    the fraction of that ``split_by`` column made up by the ``groupby``
+    category, making it easy to read both abundance and relative composition
+    at once.
+
+    Parameters
+    ----------
+    adata : AnnData, pandas.DataFrame, or str
+        Cell metadata source. When an :class:`~anndata.AnnData` is passed the
+        function operates on ``adata.obs``; a DataFrame or a path to one is
+        also accepted.
+    groupby : str
+        Column whose categories form the plot rows.
+    split_by : str
+        Column whose categories form the plot columns; colour is the
+        fraction within each of these columns.
+    order : sequence, optional
+        Explicit ordering of the ``groupby`` rows. Defaults to the natural
+        categorical order of the column.
+    split_order : sequence, optional
+        Explicit ordering of the ``split_by`` columns. Defaults to the
+        natural categorical order.
+    palette : dict, str, or None, default None
+        Accepted for API consistency with the other composition plots. The
+        dot colours are driven by ``cmap`` (fraction values), so this is not
+        used to colour the dots.
+    cmap : str, default "viridis"
+        Matplotlib colormap name used to encode the within-column fraction
+        (mapped over the range 0-1).
+    size_max : float, default 250.0
+        Marker area (in points squared) assigned to the largest count; all
+        other dots are scaled linearly relative to it.
+    figsize : tuple of float, optional
+        Figure size in inches. When ``None`` (default) a size is derived
+        from the number of rows and columns.
+    ax : matplotlib.axes.Axes, optional
+        Existing axes to draw into. If ``None`` (default) a new figure and
+        axes are created.
+    save : str, optional
+        If given, the figure is written to this path.
+    show : bool, default False
+        Whether to display the figure interactively.
+    title : str, optional
+        Axes title.
+    cbar_label : str, optional
+        Label for the colour bar. Defaults to ``f"Fraction within {split_by}"``.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The axes containing the dot plot.
     """
     obs, ad = resolve_adata_obs(adata)
     cats = categorical_order(obs[groupby], order)
@@ -593,7 +861,63 @@ def trend_plot(
     show_legend: bool = True,
     legend_kws: Optional[Mapping[str, Any]] = None,
 ):
-    """Line trend of each ``groupby`` category across ordered ``split_by``."""
+    """Line trend of each ``groupby`` category across ordered ``split_by``.
+
+    Plots one line per ``groupby`` category tracing its value across the
+    ordered ``split_by`` axis. By default the values are column-normalised
+    fractions, so the plot shows how the relative abundance of each category
+    changes across conditions; set ``normalize=False`` for raw counts.
+
+    Parameters
+    ----------
+    adata : AnnData, pandas.DataFrame, or str
+        Cell metadata source. When an :class:`~anndata.AnnData` is passed the
+        function operates on ``adata.obs`` and can pick up colours from
+        ``adata.uns[f"{groupby}_colors"]``; a DataFrame or a path to one is
+        also accepted.
+    groupby : str
+        Column whose categories are drawn as separate lines.
+    split_by : str
+        Column defining the ordered x-axis positions.
+    order : sequence, optional
+        Explicit ordering of the ``groupby`` lines. Defaults to the natural
+        categorical order of the column.
+    split_order : sequence, optional
+        Explicit ordering of the ``split_by`` categories along the x-axis.
+        Defaults to the natural categorical order.
+    normalize : bool, default True
+        If ``True``, each x position is column-normalised so the lines
+        represent fractions; if ``False``, raw counts are plotted.
+    palette : dict, str, or None, default None
+        Colour mapping for the lines. A dict maps category -> colour; a str
+        is treated as a path to a palette workbook/sheet; ``None`` (default)
+        resolves colours from the AnnData ``uns`` colours or a generated
+        default.
+    figsize : tuple of float, default (6, 4)
+        Figure size in inches, used only when a new figure is created
+        (``ax`` is ``None``).
+    ax : matplotlib.axes.Axes, optional
+        Existing axes to draw into. If ``None`` (default) a new figure and
+        axes are created.
+    save : str, optional
+        If given, the figure is written to this path.
+    show : bool, default False
+        Whether to display the figure interactively.
+    title : str, optional
+        Axes title.
+    marker : str, default "o"
+        Matplotlib marker style drawn at each data point along the lines.
+    show_legend : bool, default True
+        Whether to draw a legend of the ``groupby`` categories.
+    legend_kws : dict, optional
+        Extra keyword arguments forwarded to
+        :meth:`matplotlib.axes.Axes.legend` (merged with defaults).
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The axes containing the trend plot.
+    """
     obs, ad = resolve_adata_obs(adata)
     cats = categorical_order(obs[groupby], order)
     splits = categorical_order(obs[split_by], split_order)
@@ -673,6 +997,70 @@ def bar_plot(
     The y-axis is intentionally hidden (no ticks / labels / spine) for a
     cleaner publication-style composition plot, mirroring the legacy
     ``stacked_barplot`` API.
+
+    Parameters
+    ----------
+    adata : AnnData, pandas.DataFrame, or str
+        Cell metadata source. When an :class:`~anndata.AnnData` is passed the
+        function operates on ``adata.obs`` and can pick up colours from
+        ``adata.uns[f"{groupby}_colors"]``; a DataFrame or a path to one is
+        also accepted.
+    groupby : str
+        Column whose categories are stacked within each bar.
+    split_by : str
+        Column defining the individual bars (one bar per category).
+    order : sequence, optional
+        Explicit ordering of the ``groupby`` stack segments. Defaults to the
+        natural categorical order of the column.
+    split_order : sequence, optional
+        Explicit ordering of the ``split_by`` bars along the x-axis.
+        Defaults to the natural categorical order (may be overridden by
+        ``sort_by``).
+    normalize : bool, default True
+        If ``True``, each bar is row-normalised so its segments sum to 1
+        (proportions); if ``False``, raw counts are stacked.
+    palette : dict, str, or None, default None
+        Colour mapping for the ``groupby`` segments. A dict maps
+        category -> colour; a str is treated as a path to a palette
+        workbook/sheet; ``None`` (default) resolves colours from the AnnData
+        ``uns`` colours or a generated default.
+    figsize : tuple of float, optional
+        Figure size in inches. When ``None`` (default) a size is derived
+        from the number of bars and categories.
+    ax : matplotlib.axes.Axes, optional
+        Existing axes to draw into. If ``None`` (default) a new figure and
+        axes are created.
+    save : str, optional
+        If given, the figure is written to this path.
+    show : bool, default False
+        Whether to display the figure interactively (forwarded to the
+        save/show helper).
+    title : str, optional
+        Axes title.
+    rotation : float, default -45
+        Rotation angle (degrees) of the x tick labels; the sign also
+        controls their horizontal alignment.
+    gap : float, default 0.05
+        Fractional gap between adjacent bars (bar width is ``1 - gap``).
+    edgecolor : str, default "black"
+        Colour of the bar segment borders.
+    linewidth : float, default 0.1
+        Width of the bar segment borders.
+    show_legend : bool, default True
+        Whether to draw a legend of the ``groupby`` categories (placed
+        outside the axes on the right).
+    legend_kws : dict, optional
+        Extra keyword arguments that override the default legend styling
+        passed to :meth:`matplotlib.axes.Axes.legend`.
+    sort_by : str, optional
+        Name of a ``groupby`` category; when given, bars are sorted in
+        ascending order of that category's value, overriding
+        ``split_order``.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The axes containing the stacked bar plot.
     """
     obs, ad = resolve_adata_obs(adata)
     splits = categorical_order(obs[split_by], split_order)

@@ -88,22 +88,94 @@ def boxplot(
 ):
     """Multi-gene, multi-group box / violin / strip plot.
 
+    Draws per-gene distributions of expression across the categories of
+    ``groupby``. Expression values are pulled into a tidy long-form table
+    (one row per cell x gene) from ``adata.X`` (or ``adata.raw.X`` /
+    ``adata.layers[layer]``) and rendered with seaborn. A single gene
+    produces one panel; multiple genes stack vertically, one panel per
+    gene, sharing the group (X) axis.
+
     Parameters
     ----------
     adata : AnnData
-        Source data.
-    genes : str or list of str
-        Gene(s) to plot. A single gene draws one panel; multiple genes
-        draw one panel per gene (sharing the X axis).
+        Source data. Must be an :class:`anndata.AnnData`; expression is
+        read from it (see ``layer`` / ``use_raw``).
+    genes : str or sequence of str
+        Gene(s) to plot. Must exist in the resolved var space
+        (``adata.raw.var_names`` when ``use_raw=True``, else
+        ``adata.var_names``). A single string draws one panel; a sequence
+        draws one stacked panel per gene.
     groupby : str
-        Column in ``adata.obs`` used as the X axis.
+        Column in ``adata.obs`` used as the categorical X axis; each
+        category becomes one violin/box/strip.
     kind : {"violin", "box", "strip"}, default ``"violin"``
-        Plot style. ``"violin"`` uses ``seaborn.violinplot`` with
-        ``cut=0`` (so distributions don't bleed past the data range).
+        Plot style. ``"violin"`` uses :func:`seaborn.violinplot` with
+        ``cut=0`` (distributions don't extend past the observed data
+        range) and width-normalised densities; ``"box"`` uses
+        :func:`seaborn.boxplot` with outliers hidden; ``"strip"`` uses
+        :func:`seaborn.stripplot`.
+    layer : str, optional
+        Name of an ``adata.layers`` entry to read expression from. When
+        given and present, it takes precedence over ``adata.X``.
+    use_raw : bool, default False
+        If True and ``adata.raw`` exists, read expression and gene names
+        from ``adata.raw`` instead of ``adata``. Ignored when ``layer``
+        is provided (the layer is always taken from ``adata``).
+    order : sequence, optional
+        Explicit ordering of ``groupby`` categories along the X axis.
+        Categories not listed are dropped. When None, the natural
+        categorical order of the data is used.
+    gene_order : sequence, optional
+        Explicit ordering of gene panels (top to bottom). Defaults to the
+        order given in ``genes``.
+    palette : dict, str, or None, optional
+        Colour mapping for the ``groupby`` categories. A dict maps
+        category -> colour; a string names a palette / colour sheet
+        resolved via :func:`resolve_palette`. When None, colours are
+        resolved from ``adata`` (e.g. stored ``*_colors``) or a default
+        palette.
+    figsize : tuple of float, optional
+        Figure size in inches. When None it is derived from the number of
+        categories and genes (wider for more groups, taller for more
+        genes).
+    ax : matplotlib.axes.Axes, optional
+        Existing Axes to draw into. Only allowed when plotting a single
+        gene; passing an Axes with multiple genes raises ``ValueError``.
+        When None a new figure and Axes are created.
+    title : str, optional
+        Figure-level title drawn via ``fig.suptitle``.
     show_strip : bool, default False
-        Overlay a low-alpha strip plot on top of the violin/box.
+        When ``kind`` is ``"violin"`` or ``"box"``, overlay a low-alpha
+        black strip plot of the individual points on top.
+    strip_size : float, default 0.5
+        Marker size for strip points (both ``kind="strip"`` and the
+        ``show_strip`` overlay).
+    show_legend : bool, default True
+        Whether to draw a category legend (only rendered on the first
+        panel and only when ``legend_kws`` is provided).
     legend_kws : dict, optional
-        Forwarded to :meth:`matplotlib.axes.Axes.legend`.
+        Keyword arguments forwarded to :meth:`matplotlib.axes.Axes.legend`
+        (merged with a ``title=groupby`` default). If None, no legend is
+        drawn even when ``show_legend`` is True.
+    rotation : float, default -45
+        Rotation (degrees) applied to the X tick labels on the bottom
+        panel. The sign controls horizontal alignment (left for negative,
+        right otherwise).
+    save : str, optional
+        Path to write the figure to. When given the figure is saved via
+        :func:`save_or_show`.
+    show : bool, default False
+        Whether to display the figure (``plt.show``) via
+        :func:`save_or_show`.
+    sharey : bool, default False
+        When plotting multiple genes, whether the stacked panels share a
+        common Y axis scale.
+
+    Returns
+    -------
+    matplotlib.axes.Axes or list of matplotlib.axes.Axes
+        The single Axes when one gene is plotted, otherwise the list of
+        per-gene Axes.
     """
     import seaborn as sns
 
@@ -242,11 +314,63 @@ def stacked_violinplot(
 ):
     """Compact stacked violin plot.
 
-    Each row (or column with ``swap_axes=True``) is one gene; each x-tick
-    is a group. ``standardize='gene'`` rescales each gene to ``[0, 1]`` so
-    relative differences across groups are comparable across genes.
+    A clean seaborn-based stacked violin: each row (or each column when
+    ``swap_axes=True``) is one gene and each tick along the shared axis is
+    a ``groupby`` category. Optional per-gene or per-group min-max
+    rescaling makes relative patterns comparable across genes. Requires no
+    scanpy dependency.
 
-    No scanpy dependency.
+    Parameters
+    ----------
+    adata : AnnData
+        Source data. Expression is read from it (see ``layer`` /
+        ``use_raw``).
+    genes : sequence of str
+        Genes to plot, one violin row (or column) each. Must exist in the
+        resolved var space.
+    groupby : str
+        Column in ``adata.obs`` defining the categorical axis of groups.
+    layer : str, optional
+        Name of an ``adata.layers`` entry to read expression from; takes
+        precedence over ``adata.X`` when present.
+    use_raw : bool, default False
+        If True and ``adata.raw`` exists, read expression and gene names
+        from ``adata.raw``. Ignored when ``layer`` is supplied.
+    order : sequence, optional
+        Explicit ordering of ``groupby`` categories. Categories not listed
+        are dropped; None uses the data's natural order.
+    palette : dict, str, or None, optional
+        Colour mapping for the ``groupby`` categories, resolved via
+        :func:`resolve_palette` (dict, palette/sheet name, or None for a
+        default).
+    standardize : {"gene", "group", None}, default ``"gene"``
+        Per-gene min-max rescaling to ``[0, 1]``. ``"gene"`` rescales each
+        gene across all cells; ``"group"`` rescales each ``(group, gene)``
+        combination independently; None leaves raw values unscaled.
+    figsize : tuple of float, optional
+        Figure size in inches. When None it is derived from the number of
+        categories and genes and the ``swap_axes`` orientation.
+    title : str, optional
+        Figure-level title drawn via ``fig.suptitle``.
+    save : str, optional
+        Path to write the figure to (via :func:`save_or_show`).
+    show : bool, default False
+        Whether to display the figure (via :func:`save_or_show`).
+    swap_axes : bool, default False
+        When True, lay genes out as columns with horizontal violins
+        instead of the default rows with vertical violins.
+    rotation : float, default -45
+        Rotation (degrees) of the gene/group tick labels along the
+        outer axis.
+    inner : str, optional, default ``"quart"``
+        ``inner`` argument forwarded to :func:`seaborn.violinplot`
+        controlling the inner representation (e.g. ``"quart"`` for
+        quartile lines, or None for nothing).
+
+    Returns
+    -------
+    list of matplotlib.axes.Axes
+        The per-gene Axes making up the stacked plot.
     """
     import seaborn as sns
 
@@ -372,14 +496,70 @@ def get_genes_mean_frac(
 ):
     """Per-group mean expression and expressing-cell fraction.
 
-    Returns a tidy DataFrame ``[groupby, "Gene", "Mean", "frac"]``.
+    Computes, for every gene and every ``groupby`` category, the mean
+    expression and the fraction of cells considered "expressing". This is
+    the data-preparation helper behind :func:`gene_dotplot` and the
+    interactive dot plot: it returns a tidy table rather than a figure.
+    It transparently handles two input shapes -- ordinary cell-level
+    AnnData and pre-aggregated pseudobulk AnnData (as produced by
+    ``adataviz.tools.pseudobulk_stats``, detected by a ``"mean"`` layer),
+    in which case stored ``mean`` and ``frac`` layers are used directly.
 
     Parameters
     ----------
+    adata : AnnData or str
+        Source data or a path to an ``.h5ad`` file (opened backed and
+        closed after use). May be cell-level or pseudobulk.
+    genes : sequence of str
+        Genes to summarise. Genes absent from ``adata.var_names`` are
+        reported and skipped.
+    groupby : str, default ``"Subclass"``
+        Grouping used for aggregation. For cell-level data it is a column
+        in the (resolved) obs; for pseudobulk data it names the group
+        label carried by ``obs_names`` and becomes the output column.
+    obs : DataFrame, str, or None, optional
+        Alternative cell metadata. A path is read as CSV/TSV (delimiter
+        inferred from extension) with the first column as index; a
+        DataFrame is used directly; None uses ``adata.obs``. Rows are
+        intersected with ``adata.obs_names``.
+    modality : str, default ``"RNA"``
+        Data modality. For ``"RNA"``/``"ATAC"`` the expressing fraction
+        uses an ``expression_cutoff``; other modalities (e.g. methylation)
+        instead count cells below 1 as the fraction and may be normalised
+        per cell.
+    layer : str, default ``"mean"``
+        For pseudobulk input, the layer used as the mean-expression
+        matrix (paired with the ``"frac"`` layer for fractions).
+    use_raw : bool, default False
+        For cell-level input, if True and ``adata.raw`` exists, use raw
+        counts as the expression matrix.
+    expression_cutoff : str or float, default ``"p5"``
+        Threshold above which a cell counts as expressing (RNA/ATAC). A
+        float is used directly; a string is resolved from the data as a
+        percentile (``"p5"`` -> 5th percentile), ``"median"``, or
+        ``"mean"`` of all non-aggregated values.
+    normalize_per_cell : bool, default True
+        For non-RNA/ATAC modalities, whether to normalise each cell before
+        aggregating (via :func:`normalize_mc_by_cell`).
+    clip_norm_value : float, default 10
+        Clip value passed to :func:`normalize_mc_by_cell` when
+        normalising non-RNA/ATAC data.
+    hypo_score : bool, default False
+        Passed to :func:`normalize_mc_by_cell`; controls hypo-methylation
+        scoring for methylation-like modalities.
     query : str, optional
-        Pandas-style query string applied to ``adata.obs`` to subset cells
-        before loading expression data into memory. Useful with backed
-        AnnData to avoid materialising the full matrix.
+        Pandas-style query applied to ``adata.obs`` (or the resolved
+        ``obs``) to subset cells/groups *before* loading expression into
+        memory -- useful with backed AnnData to avoid materialising the
+        full matrix. For pseudobulk input the group label is exposed as a
+        queryable column. Raises if the query matches no rows.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Long-form table with columns ``[groupby, "Gene", "Mean", "frac"]``,
+        where ``"Mean"`` is the per-group mean expression and ``"frac"``
+        the fraction of expressing cells for each gene/group.
     """
     if isinstance(adata, str):
         adata = anndata.read_h5ad(os.path.expanduser(adata), backed="r")
@@ -563,13 +743,100 @@ def gene_dotplot(
 ):
     """Rich PyComplexHeatmap dot heatmap with hierarchical annotations.
 
-    Compared to :func:`adataviz.pl.complex_dotplot`, this function adds
-    optional ``parent_col`` (for two-level annotation), ``query_str``
-    pre-filtering, and full ``plot_kws`` passthrough to
-    ``DotClustermapPlotter``. Useful for figure-quality marker panels.
+    Draws a dot heatmap where dot colour encodes mean expression and dot
+    size encodes the fraction of expressing cells, for each gene across
+    the categories of ``groupby``. Compared to a plain dot plot, this
+    function adds an optional two-level ``parent_col`` annotation,
+    ``query_str`` pre-filtering, palette-sheet colour resolution, and full
+    ``plot_kws`` passthrough to ``DotClustermapPlotter`` -- aimed at
+    figure-quality marker panels.
 
-    All extra ``plot_kws`` are forwarded directly to
-    :class:`PyComplexHeatmap.DotClustermapPlotter`.
+    Parameters
+    ----------
+    adata : AnnData or str
+        Source data or a path to an ``.h5ad`` file (opened backed and
+        closed after use).
+    genes : sequence of str
+        Genes to display (one heatmap row, or column when ``transpose``).
+        Genes absent from ``adata.var_names`` are reported and skipped.
+    groupby : str or sequence of str, default ``"Subclass"``
+        Grouping used for the group axis. A sequence is joined with
+        ``"+"`` into a single composite grouping (and each part gets its
+        own annotation track).
+    parent_col : str, optional
+        A coarser ``adata.obs`` column used as a second-level (parent)
+        annotation track and to order the groups hierarchically. When None
+        only the ``groupby`` annotation is drawn.
+    obs : DataFrame, str, or None, optional
+        Alternative cell metadata (DataFrame or path); None uses
+        ``adata.obs``. Rows are intersected with ``adata.obs_names``.
+    query_str : str, optional
+        Pandas-style query applied to ``obs`` to subset cells before
+        aggregation. Also used as the default ``title`` when set.
+    modality : str, default ``"RNA"``
+        Data modality; controls the expressing-fraction computation and
+        whether per-cell normalisation is applied (see ``get_genes_mean_frac``).
+    use_raw : bool, default True
+        If True and ``adata.raw`` exists, use raw counts as the expression
+        matrix.
+    expression_cutoff : str or float, default ``"p5"``
+        Threshold above which a cell counts as expressing (RNA/ATAC). A
+        float is used directly; a string is resolved as a percentile
+        (``"p5"``), ``"median"``, or ``"mean"``.
+    cell_type_order : sequence, optional
+        Explicit ordering of the group categories along the group axis;
+        entries not present in the data are ignored.
+    gene_order : sequence, optional
+        Explicit ordering of genes along the gene axis. Defaults to the
+        kept-gene order.
+    row_cluster : bool, default False
+        Whether to hierarchically cluster heatmap rows.
+    col_cluster : bool, default False
+        Whether to hierarchically cluster heatmap columns.
+    cmap : str, default ``"Reds"``
+        Matplotlib colormap name mapping mean expression to dot colour.
+    palette : dict, str, or None, optional
+        Colours for the annotation tracks. A dict maps category ->
+        colour for ``groupby``; a path to an ``.xlsx`` colour sheet is
+        read per sheet (``groupby``, its ``"+"`` parts, and ``parent_col``);
+        None resolves default palettes via :func:`resolve_palette`.
+    legend_kws : dict, optional
+        Colorbar legend options forwarded as ``cmap_legend_kws`` to
+        ``DotClustermapPlotter``. Defaults to
+        ``dict(extendfrac=0.1, extend="both", label="Mean")``.
+    normalize_per_cell : bool, default True
+        For non-RNA/ATAC modalities, whether to normalise each cell before
+        aggregating (via :func:`normalize_mc_by_cell`).
+    clip_norm_value : float, default 10
+        Clip value passed to :func:`normalize_mc_by_cell`.
+    hypo_score : bool, default False
+        Passed to :func:`normalize_mc_by_cell` for methylation-like data.
+    figsize : tuple of float, optional
+        Figure size in inches. When None it is auto-sized from the number
+        of genes and groups so dots and tick labels don't overlap.
+    marker : str, default ``"o"``
+        Marker shape used for the dots (and the dot-size legend).
+    plot_kws : dict, optional
+        Extra keyword arguments forwarded to
+        :class:`PyComplexHeatmap.DotClustermapPlotter`. Sensible defaults
+        (clustering, tick-label sides/rotation, legend placement, spines,
+        etc.) are filled in via ``setdefault`` and can be overridden here.
+    transpose : bool, default False
+        When True, place genes on the X axis and groups on the Y axis
+        (annotation moves to the left) instead of the default layout.
+    title : str, optional
+        Figure title. Defaults to ``query_str`` (or ``groupby`` when no
+        query is given).
+    save : str, optional
+        Path to write the figure to (via :func:`save_or_show`).
+    show : bool, default False
+        Whether to display the figure (via :func:`save_or_show`).
+
+    Returns
+    -------
+    PyComplexHeatmap.DotClustermapPlotter
+        The fitted clustermap plotter object (its axes are accessible via
+        ``.heatmap_axes`` etc.).
     """
     from PyComplexHeatmap import (
         HeatmapAnnotation,

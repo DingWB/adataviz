@@ -440,7 +440,7 @@ def zoom_min_max(vmin, vmax, scale):
     return vmin - delta_value, vmax + delta_value
 
 
-def zoom_ax(ax, zoom_scale, on="both"):
+def zoom_ax(ax, zoom_scale, on="both", tight_base=True):
     """
     Zoom (expand) the axis limits of a matplotlib Axes.
 
@@ -453,8 +453,19 @@ def zoom_ax(ax, zoom_scale, on="both"):
         (show more space), values < 1 zoom in.
     on : str, default "both"
         Which axes to zoom. Options: "both", "x", "y".
+    tight_base : bool, default True
+        If True, reset the axes data margins to 0 (hugging the data
+        extent) before applying ``zoom_scale``. This avoids stacking
+        matplotlib's default 5% autoscale margin on top of the zoom,
+        which would otherwise leave a large empty border around the
+        plotted points after a tight-bbox save.
     """
     on = on.lower()
+    if tight_base and ax.get_autoscale_on():
+        # Recompute the view limits from the data extent with no margin
+        # so that ``zoom_scale`` is the only padding applied.
+        ax.margins(0)
+        ax.autoscale_view()
     xlim = ax.get_xlim()
     xlim_zoomed = zoom_min_max(vmin=xlim[0], vmax=xlim[1], scale=zoom_scale)
 

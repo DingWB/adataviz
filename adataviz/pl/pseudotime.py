@@ -31,20 +31,63 @@ def plot_pseudotime(
 ):
     """Violin plot of pseudotime values grouped by a categorical variable.
 
+    Draws one violin per ``groupby`` category showing the distribution of
+    the pseudotime column ``y``. Groups are ordered along the X axis by
+    their mean pseudotime (ascending), infinite pseudotime values are
+    clamped to 1, and an optional ``hue`` produces split/grouped violins.
+
     Parameters
     ----------
-    pseudotime : path or DataFrame
-        TSV file or DataFrame with at least the columns *y* and *groupby*.
-    groupby : str
-        Column to group cells along the X axis.
-    y : str
-        Pseudotime column.
+    pseudotime : str or pandas.DataFrame
+        Either a path to a tab-separated file (read with the first column as
+        the index) or an in-memory DataFrame. Must contain at least the
+        ``y`` and ``groupby`` columns (and ``hue`` when supplied).
+    groupby : str, default "Age"
+        Column used to group cells along the X axis; one violin is drawn per
+        category, ordered by ascending mean of ``y``.
+    y : str, default "dpt_pseudotime"
+        Numeric pseudotime column plotted on the Y axis. Infinite values in
+        this column are replaced with 1 before plotting.
     hue : str, optional
-        Secondary grouping for split violins.
-    palette : dict, path, or None
-        Either a ``{group: hex}`` dict or an Excel palette path.
+        Secondary categorical column for split/grouped violins. Its levels
+        are ordered by ascending mean ``y``. When ``None`` (default) no hue
+        split is applied and no legend is drawn.
+    figsize : tuple of float, optional
+        Figure size in inches. When ``None`` (default) the width scales with
+        the number of violins (``max(5.0, 0.45 * n_groups + 1.5)``) and the
+        height is fixed at 3.5 so densely populated axes stay legible.
+    palette : dict, str, or None, default None
+        Colour mapping for the violins. A ``{group: hex}`` dict is used
+        directly; a path to an existing Excel palette file is read (using
+        ``sheet_name`` or ``groupby`` as the sheet, with a ``Hex`` column);
+        anything else (including ``None``) falls back to seaborn defaults.
+    rotation : float, optional
+        Rotation angle in degrees for the X tick labels. When ``None``
+        (default) labels are auto-rotated to 45 degrees if there are more
+        than 6 groups or any group name is longer than 6 characters, else
+        left horizontal. Negative angles anchor the labels to the left.
+    ylabel : str, default "Pseudotime"
+        Label for the Y axis.
+    save : str, optional
+        Path to write the figure to. When ``None`` (default) the figure is
+        not saved.
+    show : bool, default False
+        Whether to display the figure interactively (forwarded to
+        :func:`save_or_show`).
+    title : str, optional
+        Axes title. When ``None`` (default) no title is set.
     legend_kws : dict, optional
-        Forwarded to the legend (only used when ``hue`` is given).
+        Extra keyword arguments merged (via :func:`merge_legend_kws`) into
+        the legend call. Only used when ``hue`` is given; the legend title
+        defaults to the ``hue`` column name.
+    sheet_name : str, optional
+        Sheet name to read when ``palette`` is an Excel file path. When
+        ``None`` (default) the ``groupby`` column name is used as the sheet.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The axes containing the pseudotime violin plot.
     """
     import seaborn as sns
 

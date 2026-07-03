@@ -184,19 +184,94 @@ def complex_heatmap(
 ):
     """Annotated clustered heatmap of mean gene expression per group.
 
+    Cells in ``adata`` are aggregated by ``groupby`` (mean expression of the
+    selected ``genes`` per group), optionally z-scored across rows or columns,
+    and drawn as a clustered, annotated heatmap via
+    :class:`PyComplexHeatmap.ClusterMapPlotter`. Each row is a group and each
+    column a gene; a left-side ``Group`` annotation stripe (plus any extra
+    ``annotate`` columns) labels the rows, and colour encodes the (standardised)
+    mean expression.
+
     Parameters
     ----------
-    annotate : list of str, optional
-        Extra ``adata.obs`` columns drawn as additional row annotations
-        (one stripe per column). The dominant value per ``groupby`` is used.
+    adata : AnnData
+        Annotated data matrix. Must be a real :class:`~anndata.AnnData`; a
+        ``TypeError`` is raised otherwise.
+    genes : sequence of str
+        Gene / feature names to display as heatmap columns. Every entry must
+        exist in ``adata.var_names`` (or ``adata.raw.var_names`` when
+        ``use_raw=True``); a ``KeyError`` is raised for missing genes.
+    groupby : str
+        Column in ``adata.obs`` used to aggregate cells into groups (heatmap
+        rows). Values are coerced to ``str`` before grouping.
+    layer : str, optional
+        Name of an ``adata.layers`` entry to read expression from. If ``None``
+        (default) or the name is absent, ``adata.X`` (or ``adata.raw.X`` when
+        ``use_raw=True``) is used instead.
+    use_raw : bool, default ``False``
+        If ``True`` and ``adata.raw`` is present, read expression from
+        ``adata.raw`` instead of ``adata``.
+    z_score : {"row", "col", None}, default ``"row"``
+        Standardisation applied to the aggregated mean matrix before plotting.
+        ``"row"`` z-scores each group (subtract row mean, divide by row std),
+        ``"col"`` z-scores each gene, and ``None`` leaves the raw means. Zero
+        standard deviations are handled safely (result filled with 0).
+    cmap : str, default ``"RdBu_r"``
+        Matplotlib colormap name used for the heatmap fill.
+    palette : dict, str or None, optional
+        Colour spec for the primary ``Group`` (``groupby``) annotation stripe.
+        Accepts an explicit ``{category: colour}`` mapping, a path to an Excel
+        palette sheet, or ``None`` to auto-resolve from
+        ``adata.uns[f"{groupby}_colors"]`` (falling back to matplotlib
+        ``tab10``/``tab20``). See :func:`resolve_palette`.
+    annotate : sequence of str, optional
+        Extra ``adata.obs`` columns drawn as additional left-side row
+        annotation stripes (one stripe per column). For each group the dominant
+        (modal) value of the column is used.
     annotate_palettes : dict, optional
-        Per-annotation-column palette spec.
+        Per-annotation-column palette spec, mapping an ``annotate`` column name
+        to a palette (dict / Excel path / ``None``) resolved the same way as
+        ``palette``.
+    row_cluster : bool, default ``True``
+        Whether to hierarchically cluster and reorder the rows (groups).
+    col_cluster : bool, default ``False``
+        Whether to hierarchically cluster and reorder the columns (genes).
+    figsize : tuple of float, optional
+        Figure size in inches. If ``None`` (default) it is derived from the
+        number of genes and groups so tick labels stay readable on large
+        panels.
+    title : str, optional
+        Figure suptitle drawn above the heatmap. No title if ``None``.
+    save : str, optional
+        Path to write the figure to (parent directories created as needed).
+        If ``None`` (default) the figure is not saved.
+    show : bool, default ``False``
+        If ``True`` display the figure with ``plt.show()``.
+    show_rownames : bool, default ``True``
+        Whether to draw row (group) labels.
+    show_colnames : bool, default ``True``
+        Whether to draw column (gene) labels.
+    legend_kws : dict, optional
+        Extra keyword arguments forwarded as the ``legend_kws`` of the
+        underlying ``ClusterMapPlotter`` (colorbar / legend styling).
     plot_kws : dict, optional
-        Forwarded to :class:`PyComplexHeatmap.ClusterMapPlotter`.
+        Extra keyword arguments forwarded to
+        :class:`PyComplexHeatmap.ClusterMapPlotter`, overriding the wrapper's
+        defaults for any key they set.
     annot_kws : dict, optional
-        Forwarded to :class:`PyComplexHeatmap.HeatmapAnnotation`.
+        Extra keyword arguments forwarded to
+        :class:`PyComplexHeatmap.HeatmapAnnotation` used to build the row
+        annotations.
     **kwargs
-        Any extra keyword goes straight into ``ClusterMapPlotter``.
+        Additional keyword arguments merged into ``plot_kws`` and passed
+        straight through to ``ClusterMapPlotter``, so any PyComplexHeatmap
+        parameter not exposed explicitly here remains reachable.
+
+    Returns
+    -------
+    PyComplexHeatmap.ClusterMapPlotter
+        The fitted plotter object holding the drawn heatmap (its ``fig`` /
+        axes can be used for further customisation).
     """
     import PyComplexHeatmap as pch
 
@@ -283,7 +358,99 @@ def complex_dotplot(
     marker: str = "o",
     **kwargs,
 ):
-    """Dot heatmap: dot size = fraction expressing, colour = mean expression."""
+    """Dot heatmap: dot size = fraction expressing, colour = mean expression.
+
+    Cells in ``adata`` are aggregated by ``groupby`` and the selected ``genes``
+    are rendered as a dot plot via
+    :class:`PyComplexHeatmap.DotClustermapPlotter`. Each row is a group and each
+    column a gene; the dot **size** encodes the fraction of cells in the group
+    expressing the gene (expression strictly above ``expression_cutoff``) and
+    the dot **colour** encodes the group's mean expression. A left-side
+    ``Group`` annotation stripe (plus any extra ``annotate`` columns) labels the
+    rows.
+
+    Parameters
+    ----------
+    adata : AnnData
+        Annotated data matrix. Must be a real :class:`~anndata.AnnData`; a
+        ``TypeError`` is raised otherwise.
+    genes : sequence of str
+        Gene / feature names to display as dot-plot columns. Every entry must
+        exist in ``adata.var_names`` (or ``adata.raw.var_names`` when
+        ``use_raw=True``); a ``KeyError`` is raised for missing genes.
+    groupby : str
+        Column in ``adata.obs`` used to aggregate cells into groups (dot-plot
+        rows). Values are coerced to ``str`` before grouping.
+    layer : str, optional
+        Name of an ``adata.layers`` entry to read expression from. If ``None``
+        (default) or the name is absent, ``adata.X`` (or ``adata.raw.X`` when
+        ``use_raw=True``) is used instead.
+    use_raw : bool, default ``False``
+        If ``True`` and ``adata.raw`` is present, read expression from
+        ``adata.raw`` instead of ``adata``.
+    expression_cutoff : float, default ``0``
+        Threshold used to compute the expressing fraction (dot size): a cell
+        counts as expressing a gene when its value is strictly greater than
+        this cutoff.
+    cmap : str, default ``"Reds"``
+        Matplotlib colormap name mapping mean expression to dot colour.
+    palette : dict, str or None, optional
+        Colour spec for the primary ``Group`` (``groupby``) annotation stripe.
+        Accepts an explicit ``{category: colour}`` mapping, a path to an Excel
+        palette sheet, or ``None`` to auto-resolve from
+        ``adata.uns[f"{groupby}_colors"]`` (falling back to matplotlib
+        ``tab10``/``tab20``). See :func:`resolve_palette`.
+    annotate : sequence of str, optional
+        Extra ``adata.obs`` columns drawn as additional left-side row
+        annotation stripes (one stripe per column). For each group the dominant
+        (modal) value of the column is used.
+    annotate_palettes : dict, optional
+        Per-annotation-column palette spec, mapping an ``annotate`` column name
+        to a palette (dict / Excel path / ``None``) resolved the same way as
+        ``palette``.
+    row_cluster : bool, default ``False``
+        Whether to hierarchically cluster and reorder the rows (groups).
+    col_cluster : bool, default ``False``
+        Whether to hierarchically cluster and reorder the columns (genes).
+    figsize : tuple of float, optional
+        Figure size in inches. If ``None`` (default) it is derived from the
+        number of genes and groups so dots and tick labels stay readable on
+        large panels.
+    title : str, optional
+        Figure suptitle drawn above the dot plot. No title if ``None``.
+    save : str, optional
+        Path to write the figure to (parent directories created as needed).
+        If ``None`` (default) the figure is not saved.
+    show : bool, default ``False``
+        If ``True`` display the figure with ``plt.show()``.
+    show_rownames : bool, default ``True``
+        Whether to draw row (group) labels.
+    show_colnames : bool, default ``True``
+        Whether to draw column (gene) labels.
+    legend_kws : dict, optional
+        Extra keyword arguments forwarded as the ``cmap_legend_kws`` of the
+        underlying ``DotClustermapPlotter`` (colour legend styling).
+    plot_kws : dict, optional
+        Extra keyword arguments forwarded to
+        :class:`PyComplexHeatmap.DotClustermapPlotter`, overriding the
+        wrapper's defaults for any key they set.
+    annot_kws : dict, optional
+        Extra keyword arguments forwarded to
+        :class:`PyComplexHeatmap.HeatmapAnnotation` used to build the row
+        annotations.
+    marker : str, default ``"o"``
+        Matplotlib marker used for the dots.
+    **kwargs
+        Additional keyword arguments merged into ``plot_kws`` and passed
+        straight through to ``DotClustermapPlotter``, so any PyComplexHeatmap
+        parameter not exposed explicitly here remains reachable.
+
+    Returns
+    -------
+    PyComplexHeatmap.DotClustermapPlotter
+        The fitted plotter object holding the drawn dot heatmap (its ``fig`` /
+        axes can be used for further customisation).
+    """
     import PyComplexHeatmap as pch
 
     mean_df, frac_df = _aggregate(
