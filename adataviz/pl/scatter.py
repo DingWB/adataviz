@@ -88,6 +88,8 @@ def plot_categorical(
     sheet_name: Optional[str] = None,
     show: bool = True,
     figsize=(4, 3.5),
+    dpi: int = 300,
+    pad_inches: float = 0.02,
     ncol: Optional[int] = None,
     fontsize: int = 5,
     legend_fontsize: int = 5,
@@ -187,7 +189,7 @@ def plot_categorical(
     )
 
     if ax is None:
-        fig, ax = plt.subplots(figsize=figsize, dpi=300)
+        fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
     else:
         fig = ax.figure
     categorical_scatter(
@@ -199,7 +201,13 @@ def plot_categorical(
         **kwargs,
     )
     if save:
-        fig.savefig(os.path.expanduser(save), bbox_inches="tight")
+        fig.set_dpi(dpi)
+        fig.savefig(
+            os.path.expanduser(save),
+            dpi=dpi,
+            bbox_inches="tight",
+            pad_inches=pad_inches,
+        )
     if show:
         plt.show()
     return ax
@@ -226,6 +234,8 @@ def plot_gene(
     hypo_score: bool = False,
     clip_norm_value: float = 10,
     figsize=(4, 4),
+    dpi: int = 300,
+    pad_inches: float = 0.02,
     ax=None,
     save: Optional[str] = None,
     show: bool = True,
@@ -296,7 +306,7 @@ def plot_gene(
     use.obs[gene] = use.to_df().loc[use.obs_names, gene].tolist()
 
     if ax is None:
-        fig, ax = plt.subplots(figsize=figsize, dpi=300)
+        fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
     else:
         fig = ax.figure
     continuous_scatter(
@@ -314,7 +324,13 @@ def plot_gene(
     if not title is None:
         ax.set_title(title)
     if save:
-        fig.savefig(os.path.expanduser(save), bbox_inches="tight")
+        fig.set_dpi(dpi)
+        fig.savefig(
+            os.path.expanduser(save),
+            dpi=dpi,
+            bbox_inches="tight",
+            pad_inches=pad_inches,
+        )
     if show:
         plt.show()
     return ax

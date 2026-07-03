@@ -129,6 +129,9 @@ def mpl_style():
     mpl.rcParams["font.sans-serif"] = "Arial"
     mpl.rcParams["figure.dpi"] = 80
     mpl.rcParams["savefig.dpi"] = 300
+    mpl.rcParams["savefig.transparent"] = True   # -> transparent=True
+    mpl.rcParams["savefig.bbox"] = "tight"        # -> bbox_inches="tight"
+    mpl.rcParams["savefig.pad_inches"] = 0.02
 
 
 def parse_json(url):
@@ -1754,7 +1757,7 @@ def categorical_scatter(
 
     # determine rasterized
     if rasterized == "auto":
-        if n_dots > 200:
+        if n_dots > 2000:
             rasterized = True
         else:
             rasterized = False
