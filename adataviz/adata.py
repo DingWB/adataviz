@@ -294,7 +294,11 @@ class AnnDataCollection:
         return cls(src_paths, adata=adata, source_info=source_info)
 
     def write_h5ad(
-        self, path: str, thread: int = 8, layer: Optional[str] = None
+        self,
+        path: str,
+        thread: int = 8,
+        layer: Optional[str] = None,
+        dense: Optional[bool] = None,
     ) -> None:
         """Write this collection's real `X` to a consolidated `.h5ad`.
 
@@ -316,9 +320,14 @@ class AnnDataCollection:
             `None` (default) the main `X` matrix is used; otherwise the named
             entry in `layers` is read. The written matrix is always stored as
             the output file's `X`.
+        dense : bool or None, optional
+            Storage format for the written `X`. When ``True`` the matrix is
+            written as a dense HDF5 array; when ``False`` as a streamed CSR
+            group. When ``None`` (default) the format is auto-detected from the
+            first source file's `X` (or `layer`) encoding, so a dense source
+            stays dense and a sparse source stays sparse.
         """
         import h5py
-        from collections import deque
 
         if self.adata is None:
             raise ValueError(
@@ -373,66 +382,68 @@ class AnnDataCollection:
             meta.uns.pop(k, None)
         meta.write_h5ad(path)
 
-        # 2) Replace the X group with a streamed CSR matrix.
-        indptr = np.zeros(n_obs + 1, dtype=np.int64)
+        # 2) Replace the X group/dataset with a streamed matrix. Output density
+        #    follows `dense` when given, else the first source's encoding.
+        if dense is None:
+            dense = (
+                _detect_x_encoding(paths[runs[0][2]], layer) == "dense"
+                if runs
+                else False
+            )
+
         with h5py.File(path, "a") as f:
             if "X" in f:
                 del f["X"]
-            g = f.create_group("X")
-            g.attrs["encoding-type"] = "csr_matrix"
-            g.attrs["encoding-version"] = "0.1.0"
-            g.attrs["shape"] = np.array([n_obs, n_vars], dtype=np.int64)
-            data_ds = g.create_dataset(
-                "data", shape=(0,), maxshape=(None,), dtype=np.float32, chunks=True
-            )
-            indices_ds = g.create_dataset(
-                "indices", shape=(0,), maxshape=(None,), dtype=np.int32, chunks=True
-            )
+            if dense:
+                # Dense output: shape is known up front, so fill row blocks in
+                # place (no resize needed). Peak memory stays bounded to a few
+                # source blocks.
+                X_ds = f.create_dataset(
+                    "X", shape=(n_obs, n_vars), dtype=np.float32, chunks=True
+                )
+                X_ds.attrs["encoding-type"] = "array"
+                X_ds.attrs["encoding-version"] = "0.2.0"
 
-            nnz = 0
+                def _write_block(start, end, block):
+                    X_ds[start:end, :] = block
 
-            def _write_block(start, end, block):
-                nonlocal nnz
-                bd = block.data
-                bi = block.indices.astype(np.int32)
-                m = bd.shape[0]
-                data_ds.resize((nnz + m,))
-                data_ds[nnz : nnz + m] = bd
-                indices_ds.resize((nnz + m,))
-                indices_ds[nnz : nnz + m] = bi
-                indptr[start + 1 : end + 1] = block.indptr[1:] + nnz
-                nnz += m
-
-            max_workers = max(1, int(thread))
-            if max_workers == 1 or len(runs) <= 1:
-                for start, end, s, row_key in runs:
-                    block = _read_source_block(
-                        paths[s], row_key, out_var_names, layer=layer
-                    )
-                    _write_block(start, end, block)
+                _stream_source_blocks(
+                    runs, paths, out_var_names, layer, thread, True, _write_block
+                )
             else:
-                # Bounded prefetch: keep at most `max_workers` blocks in flight,
-                # consume in run order so CSR rows stay sequential.
-                with ThreadPoolExecutor(max_workers=max_workers) as exe:
-                    pending = deque()
-                    ri = 0
-                    while ri < len(runs) and len(pending) < max_workers:
-                        st, en, s, rk = runs[ri]
-                        pending.append(
-                            (st, en, exe.submit(_read_source_block, paths[s], rk, out_var_names, layer))
-                        )
-                        ri += 1
-                    while pending:
-                        st, en, fut = pending.popleft()
-                        _write_block(st, en, fut.result())
-                        if ri < len(runs):
-                            st2, en2, s2, rk2 = runs[ri]
-                            pending.append(
-                                (st2, en2, exe.submit(_read_source_block, paths[s2], rk2, out_var_names, layer))
-                            )
-                            ri += 1
+                # Sparse output: append each block's data/indices to resizable
+                # datasets and accumulate the shared indptr.
+                indptr = np.zeros(n_obs + 1, dtype=np.int64)
+                g = f.create_group("X")
+                g.attrs["encoding-type"] = "csr_matrix"
+                g.attrs["encoding-version"] = "0.1.0"
+                g.attrs["shape"] = np.array([n_obs, n_vars], dtype=np.int64)
+                data_ds = g.create_dataset(
+                    "data", shape=(0,), maxshape=(None,), dtype=np.float32, chunks=True
+                )
+                indices_ds = g.create_dataset(
+                    "indices", shape=(0,), maxshape=(None,), dtype=np.int32, chunks=True
+                )
 
-            g.create_dataset("indptr", data=indptr, dtype=np.int64)
+                nnz = 0
+
+                def _write_block(start, end, block):
+                    nonlocal nnz
+                    bd = block.data
+                    bi = block.indices.astype(np.int32)
+                    m = bd.shape[0]
+                    data_ds.resize((nnz + m,))
+                    data_ds[nnz : nnz + m] = bd
+                    indices_ds.resize((nnz + m,))
+                    indices_ds[nnz : nnz + m] = bi
+                    indptr[start + 1 : end + 1] = block.indptr[1:] + nnz
+                    nnz += m
+
+                _stream_source_blocks(
+                    runs, paths, out_var_names, layer, thread, False, _write_block
+                )
+
+                g.create_dataset("indptr", data=indptr, dtype=np.int64)
 
     def __len__(self) -> int:
         """Return the number of observations (cells) in the collection."""
@@ -907,11 +918,75 @@ def read_h5ad(path: str, **kwargs):
     return anndata.read_h5ad(path, **kwargs)
 
 
+def _detect_x_encoding(path: str, layer: Optional[str] = None) -> str:
+    """Return ``"dense"`` or ``"sparse"`` for a source file's X (or named layer).
+
+    Sparse matrices are stored as an HDF5 group (csr/csc); dense arrays as an
+    HDF5 dataset. Falls back to ``"sparse"`` if the element cannot be inspected.
+    """
+    a = anndata.read_h5ad(path, backed="r")
+    try:
+        elem = a.file["X"] if layer is None else a.file["layers"][layer]
+        return "dense" if isinstance(elem, h5py.Dataset) else "sparse"
+    except Exception:
+        return "sparse"
+    finally:
+        _close_backed(a)
+
+
+def _stream_source_blocks(
+    runs,
+    paths,
+    out_var_names,
+    layer,
+    thread,
+    as_dense,
+    write_block,
+) -> None:
+    """Read source blocks in run order and hand each to ``write_block``.
+
+    Uses bounded prefetch (at most ``thread`` blocks in flight) so blocks are
+    consumed sequentially while reads overlap. Each block passed to
+    ``write_block(start, end, block)`` is a CSR matrix when ``as_dense`` is
+    False, otherwise a dense float32 ndarray.
+    """
+    from collections import deque
+
+    max_workers = max(1, int(thread))
+    if max_workers == 1 or len(runs) <= 1:
+        for start, end, s, row_key in runs:
+            block = _read_source_block(
+                paths[s], row_key, out_var_names, layer=layer, as_dense=as_dense
+            )
+            write_block(start, end, block)
+        return
+
+    with ThreadPoolExecutor(max_workers=max_workers) as exe:
+        pending = deque()
+        ri = 0
+        while ri < len(runs) and len(pending) < max_workers:
+            st, en, s, rk = runs[ri]
+            pending.append(
+                (st, en, exe.submit(_read_source_block, paths[s], rk, out_var_names, layer, as_dense))
+            )
+            ri += 1
+        while pending:
+            st, en, fut = pending.popleft()
+            write_block(st, en, fut.result())
+            if ri < len(runs):
+                st2, en2, s2, rk2 = runs[ri]
+                pending.append(
+                    (st2, en2, exe.submit(_read_source_block, paths[s2], rk2, out_var_names, layer, as_dense))
+                )
+                ri += 1
+
+
 def _read_source_block(
     path: str,
     row_key: np.ndarray,
     out_var_names: List[str],
     layer: Optional[str] = None,
+    as_dense: bool = False,
 ) -> sp.csr_matrix:
     """Read a block of rows from one source `.h5ad` as a CSR matrix.
 
@@ -927,22 +1002,33 @@ def _read_source_block(
     layer : str or None, optional
         Name of the source layer to read. When `None` (default) the main `X`
         matrix is used; otherwise the named entry in `layers` is read.
+    as_dense : bool, optional
+        When ``True`` return a dense float32 ndarray instead of a CSR matrix.
+        Default ``False``.
 
     Returns
     -------
-    scipy.sparse.csr_matrix
-        Shape `(len(row_key), len(out_var_names))`, dtype float32.
+    scipy.sparse.csr_matrix or numpy.ndarray
+        Shape `(len(row_key), len(out_var_names))`, dtype float32. Dense when
+        `as_dense` is True, otherwise CSR.
     """
     a = anndata.read_h5ad(path, backed="r")
     try:
         row_key = np.asarray(row_key)
         if np.issubdtype(row_key.dtype, np.integer):
             X_rows = _read_rows_in_order(_matrix_row_source(a, layer), row_key)
-            X_rows = X_rows.tocsr() if sp.issparse(X_rows) else sp.csr_matrix(X_rows)
         else:
             sub = a[row_key, :]
             X_rows = sub.X if layer is None else sub.layers[layer]
-            X_rows = X_rows.tocsr() if sp.issparse(X_rows) else sp.csr_matrix(X_rows)
+        # Normalize: sparse -> CSR for fast column slicing. A dense source is
+        # kept dense when a dense result is requested, avoiding a wasteful
+        # dense->CSR->dense round trip; otherwise it is densified to CSR.
+        if sp.issparse(X_rows):
+            X_rows = X_rows.tocsr()
+        elif not as_dense:
+            X_rows = sp.csr_matrix(X_rows)
+        else:
+            X_rows = np.asarray(X_rows)
 
         # Map source var positions to the output var order.
         src_var = list(map(str, a.var_names))
@@ -961,6 +1047,10 @@ def _read_source_block(
             else:
                 out = sp.lil_matrix((X_rows.shape[0], n_out), dtype=np.float32)
                 out[:, np.nonzero(present)[0]] = X_rows[:, col_pos[present]]
+        if as_dense:
+            if sp.issparse(out):
+                out = out.toarray()
+            return np.asarray(out, dtype=np.float32)
         if not sp.isspmatrix_csr(out):
             out = out.tocsr()
         return out.astype(np.float32, copy=False)
