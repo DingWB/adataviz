@@ -36,7 +36,7 @@ def _matrix_row_source(a: anndata.AnnData, layer: Optional[str]):
     """
     if layer is None:
         return a.X
-    elem = a.file["layers"][layer]
+    elem = a.file["layers"][layer] #a.file is an h5py.File object
     if isinstance(elem, h5py.Group):
         enc = elem.attrs.get("encoding-type", "")
         if _sparse_dataset is not None and enc == "csr_matrix":
@@ -46,6 +46,32 @@ def _matrix_row_source(a: anndata.AnnData, layer: Optional[str]):
         return a.layers[layer]
     # Dense layer stored as an h5py dataset: fancy row indexing works directly.
     return elem
+
+
+def _close_backed(a: anndata.AnnData) -> None:
+    """Close a backed `AnnData`'s underlying HDF5 handle, across versions."""
+    for attr in ("file", "_file"):
+        try:
+            getattr(a, attr).close()
+            return
+        except Exception:
+            continue
+
+
+def _read_rows_in_order(mat, row_key: np.ndarray):
+    """Read ``mat[row_key, :]`` using sorted disk access, restoring row order.
+
+    Sorting the positions makes the HDF5 reads sequential; the inverse
+    permutation then restores the caller's requested order. Returns whatever
+    type ``mat`` yields (sparse becomes CSR, dense stays dense).
+    """
+    order = np.argsort(row_key)
+    unsort = np.empty_like(order)
+    unsort[order] = np.arange(order.size)
+    X_rows = mat[row_key[order], :]
+    if sp.issparse(X_rows):
+        return X_rows.tocsr()[unsort, :]
+    return X_rows[unsort, :]
 
 
 class AnnDataCollection:
@@ -132,13 +158,7 @@ class AnnDataCollection:
                 source_var_names = list(a.var_names)
                 return i, obs, info, source_var_names
             finally:
-                try:
-                    a.file.close()
-                except Exception:
-                    try:
-                        a._file.close()
-                    except Exception:
-                        pass
+                _close_backed(a)
 
         # First pass: gather obs frames and per-source info.
         # Read in backed mode so we don't load X into memory.
@@ -640,13 +660,7 @@ def is_anndatacollection(path: str) -> bool:
             has_obs_markers = False
         return bool(has_src_uns and has_obs_markers)
     finally:
-        try:
-            ad.file.close()
-        except Exception:
-            try:
-                ad._file.close()
-            except Exception:
-                pass
+        _close_backed(ad)
 
 
 class AnnDataView:
@@ -717,6 +731,12 @@ class AnnDataView:
         src_indices = sel_obs["_source_idx"].values.astype(int)
         paths = ds.adata_paths
 
+        # `_orig_obs_pos` and `_orig_obs_name` are per-cell markers written by
+        # `from_files`: they record where each merged row came from in its
+        # source file. `_orig_obs_pos` is the integer row index (0-based
+        # position) in the source's obs axis, which allows fast positional HDF5
+        # reads. `_orig_obs_name` is the original obs_name (cell ID) string,
+        # used as a slower label-based fallback when positions are unavailable.
         # Check for integer position column (faster HDF5 access)
         has_pos = "_orig_obs_pos" in sel_obs.columns
         has_name = "_orig_obs_name" in sel_obs.columns
@@ -741,7 +761,7 @@ class AnnDataView:
         if not np.any(present_mask):
             return None
         # Positions in the *output* matrix for each extracted gene
-        src_col_pos_in_output = np.nonzero(present_mask)[0]
+        src_col_pos_in_output = np.nonzero(present_mask)[0] # such as array([0, 2, 3])
         # Positions in each *source* file's var axis
         src_gene_pos = src_gene_pos_all[present_mask]
 
@@ -779,13 +799,7 @@ class AnnDataView:
                         f"Available layers: {list(_va.layers.keys())}"
                     )
             finally:
-                try:
-                    _va.file.close()
-                except Exception:
-                    try:
-                        _va._file.close()
-                    except Exception:
-                        pass
+                _close_backed(_va)
 
         def _process_source(item):
             """Read and extract X data from a single source h5ad file."""
@@ -794,19 +808,7 @@ class AnnDataView:
             try:
                 # Read selected rows from disk
                 if np.issubdtype(row_key.dtype, np.integer):
-                    mat = _matrix_row_source(a, layer)
-                    # Sort positions for sequential HDF5 reads, then restore original order
-                    sort_order = np.argsort(row_key)
-                    sorted_pos = row_key[sort_order]
-                    # Inverse permutation directly (O(n) vs a second argsort).
-                    unsort_order = np.empty_like(sort_order)
-                    unsort_order[sort_order] = np.arange(sort_order.size)
-                    X_rows = mat[sorted_pos, :]
-                    # Restore original row order
-                    if sp.issparse(X_rows):
-                        X_rows = X_rows.tocsr()[unsort_order, :]
-                    else:
-                        X_rows = X_rows[unsort_order, :]
+                    X_rows = _read_rows_in_order(_matrix_row_source(a, layer), row_key)
                 else:
                     sub = a[row_key, :]
                     X_rows = sub.X if layer is None else sub.layers[layer]
@@ -830,13 +832,7 @@ class AnnDataView:
 
                 return rows_mapped, cols_mapped, data_arr
             finally:
-                try:
-                    a.file.close()
-                except Exception:
-                    try:
-                        a._file.close()
-                    except Exception:
-                        pass
+                _close_backed(a)
 
         # Process only sources that have selected cells, in parallel
         rows_all: List[np.ndarray] = []
@@ -844,9 +840,9 @@ class AnnDataView:
         data_all: List[np.ndarray] = []
 
         max_workers = min(thread, max(1, len(work_items)))
-        if max_workers == 0:
+        if len(work_items) == 0:
             pass  # no work to do
-        elif max_workers == 1:
+        elif len(work_items) == 1:
             # Skip ThreadPoolExecutor overhead for single source
             res = _process_source(work_items[0])
             if res is not None:
@@ -941,16 +937,8 @@ def _read_source_block(
     try:
         row_key = np.asarray(row_key)
         if np.issubdtype(row_key.dtype, np.integer):
-            mat = _matrix_row_source(a, layer)
-            # Sort positions for sequential HDF5 reads, then restore order.
-            order = np.argsort(row_key)
-            sorted_pos = row_key[order]
-            # Inverse permutation directly (O(n) vs a second argsort).
-            unsort = np.empty_like(order)
-            unsort[order] = np.arange(order.size)
-            X_rows = mat[sorted_pos, :]
+            X_rows = _read_rows_in_order(_matrix_row_source(a, layer), row_key)
             X_rows = X_rows.tocsr() if sp.issparse(X_rows) else sp.csr_matrix(X_rows)
-            X_rows = X_rows[unsort, :]
         else:
             sub = a[row_key, :]
             X_rows = sub.X if layer is None else sub.layers[layer]
@@ -977,13 +965,7 @@ def _read_source_block(
             out = out.tocsr()
         return out.astype(np.float32, copy=False)
     finally:
-        try:
-            a.file.close()
-        except Exception:
-            try:
-                a._file.close()
-            except Exception:
-                pass
+        _close_backed(a)
 
 
 
