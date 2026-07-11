@@ -5,11 +5,47 @@ import anndata
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+import h5py
 import glob
 import json
 from loguru import logger as logger
 # logger.remove()
 # logger.add(sys.stderr, level="DEBUG")
+
+# Resolve anndata's backed sparse-dataset wrapper across versions. It lets us
+# read only the requested rows of an on-disk layer instead of materializing the
+# whole layer into memory (which `AnnData.layers[name]` does in backed mode).
+try:  # anndata >= 0.11
+    from anndata.io import sparse_dataset as _sparse_dataset
+except Exception:  # pragma: no cover - older anndata
+    try:  # anndata 0.8 - 0.10
+        from anndata.experimental import sparse_dataset as _sparse_dataset
+    except Exception:  # pragma: no cover
+        _sparse_dataset = None
+
+
+def _matrix_row_source(a: anndata.AnnData, layer: Optional[str]):
+    """Return an on-disk, row-sliceable matrix for a backed `AnnData`.
+
+    For ``layer is None`` this is the backed ``X``. For a named layer, the
+    underlying HDF5 element is wrapped so that ``src[rows, :]`` reads only the
+    requested rows from disk; accessing ``a.layers[name]`` directly would load
+    the entire layer into memory. Returns a backed sparse dataset, an h5py
+    dataset (dense), or — as a safe fallback for uncommon encodings — an
+    in-memory matrix. All support ``src[sorted_rows, :]``.
+    """
+    if layer is None:
+        return a.X
+    elem = a.file["layers"][layer]
+    if isinstance(elem, h5py.Group):
+        enc = elem.attrs.get("encoding-type", "")
+        if _sparse_dataset is not None and enc == "csr_matrix":
+            return _sparse_dataset(elem)
+        # csc / unknown sparse encoding: fall back to a full in-memory read
+        # (still correct, just not row-streamed).
+        return a.layers[layer]
+    # Dense layer stored as an h5py dataset: fancy row indexing works directly.
+    return elem
 
 
 class AnnDataCollection:
@@ -237,7 +273,9 @@ class AnnDataCollection:
 
         return cls(src_paths, adata=adata, source_info=source_info)
 
-    def write_h5ad(self, path: str, thread: int = 8) -> None:
+    def write_h5ad(
+        self, path: str, thread: int = 8, layer: Optional[str] = None
+    ) -> None:
         """Write this collection's real `X` to a consolidated `.h5ad`.
 
         Memory-efficient: writes the obs/var/uns/obsm metadata skeleton first
@@ -253,6 +291,11 @@ class AnnDataCollection:
         thread : int, optional
             Number of source files read concurrently (bounded prefetch).
             Default 8.
+        layer : str or None, optional
+            Name of the source layer to read from each `.h5ad` file. When
+            `None` (default) the main `X` matrix is used; otherwise the named
+            entry in `layers` is read. The written matrix is always stored as
+            the output file's `X`.
         """
         import h5py
         from collections import deque
@@ -343,7 +386,9 @@ class AnnDataCollection:
             max_workers = max(1, int(thread))
             if max_workers == 1 or len(runs) <= 1:
                 for start, end, s, row_key in runs:
-                    block = _read_source_block(paths[s], row_key, out_var_names)
+                    block = _read_source_block(
+                        paths[s], row_key, out_var_names, layer=layer
+                    )
                     _write_block(start, end, block)
             else:
                 # Bounded prefetch: keep at most `max_workers` blocks in flight,
@@ -354,7 +399,7 @@ class AnnDataCollection:
                     while ri < len(runs) and len(pending) < max_workers:
                         st, en, s, rk = runs[ri]
                         pending.append(
-                            (st, en, exe.submit(_read_source_block, paths[s], rk, out_var_names))
+                            (st, en, exe.submit(_read_source_block, paths[s], rk, out_var_names, layer))
                         )
                         ri += 1
                     while pending:
@@ -363,7 +408,7 @@ class AnnDataCollection:
                         if ri < len(runs):
                             st2, en2, s2, rk2 = runs[ri]
                             pending.append(
-                                (st2, en2, exe.submit(_read_source_block, paths[s2], rk2, out_var_names))
+                                (st2, en2, exe.submit(_read_source_block, paths[s2], rk2, out_var_names, layer))
                             )
                             ri += 1
 
@@ -637,10 +682,20 @@ class AnnDataView:
             list(var_names) if var_names is not None else None
         )  # list(dataset.adata.var_names)
 
-    def to_memory(self, thread=8) -> anndata.AnnData:
+    def to_memory(self, thread=8, layer=None) -> anndata.AnnData:
         """Load selected `X` chunks from underlying files and assemble AnnData.
         Returns a new `anndata.AnnData` with concatenated `X` for the selected
         cells and genes.
+
+        Parameters
+        ----------
+        thread : int, optional
+            Number of source files read concurrently. Default 8.
+        layer : str or None, optional
+            Name of the source layer to read from each `.h5ad` file. When
+            `None` (default) the main `X` matrix is used; otherwise the named
+            entry in `layers` is read. The extracted matrix is always placed in
+            the returned AnnData's `X`.
         """
         ds = self.dataset
         merged = ds.adata
@@ -690,6 +745,13 @@ class AnnDataView:
         # Positions in each *source* file's var axis
         src_gene_pos = src_gene_pos_all[present_mask]
 
+        # Fast path: when every source column is selected in natural order the
+        # CSR column-gather below is a pure (and costly) copy — skip it.
+        n_source_vars = len(merged.var_names)
+        full_cols = src_gene_pos.size == n_source_vars and np.array_equal(
+            src_gene_pos, np.arange(n_source_vars)
+        )
+
         # Pre-compute per-source work items (avoid submitting idle tasks)
         unique_sources = np.unique(src_indices)
         work_items = []  # (src_idx, path, global_rows, row_positions_or_names)
@@ -704,6 +766,27 @@ class AnnDataView:
                 row_key = sel_orig_obs[mask]  # obs names — fallback
             work_items.append((int(src_idx), paths[src_idx], global_rows, row_key))
 
+        # Validate the requested layer once up front. Per-source read errors are
+        # swallowed below (partial-result tolerance), so without this a mistyped
+        # layer name would silently yield an empty matrix.
+        if layer is not None and work_items:
+            _vp = work_items[0][1]
+            _va = anndata.read_h5ad(_vp, backed="r")
+            try:
+                if layer not in _va.layers:
+                    raise ValueError(
+                        f"Layer '{layer}' not found in source file {_vp}. "
+                        f"Available layers: {list(_va.layers.keys())}"
+                    )
+            finally:
+                try:
+                    _va.file.close()
+                except Exception:
+                    try:
+                        _va._file.close()
+                    except Exception:
+                        pass
+
         def _process_source(item):
             """Read and extract X data from a single source h5ad file."""
             src_idx, path, global_rows, row_key = item
@@ -711,20 +794,22 @@ class AnnDataView:
             try:
                 # Read selected rows from disk
                 if np.issubdtype(row_key.dtype, np.integer):
+                    mat = _matrix_row_source(a, layer)
                     # Sort positions for sequential HDF5 reads, then restore original order
                     sort_order = np.argsort(row_key)
                     sorted_pos = row_key[sort_order]
                     # Inverse permutation directly (O(n) vs a second argsort).
                     unsort_order = np.empty_like(sort_order)
                     unsort_order[sort_order] = np.arange(sort_order.size)
-                    X_rows = a.X[sorted_pos, :]
+                    X_rows = mat[sorted_pos, :]
                     # Restore original row order
                     if sp.issparse(X_rows):
                         X_rows = X_rows.tocsr()[unsort_order, :]
                     else:
                         X_rows = X_rows[unsort_order, :]
                 else:
-                    X_rows = a[row_key, :].X
+                    sub = a[row_key, :]
+                    X_rows = sub.X if layer is None else sub.layers[layer]
 
                 # Ensure CSR for fast column slicing
                 if not sp.issparse(X_rows):
@@ -732,8 +817,8 @@ class AnnDataView:
                 elif not sp.isspmatrix_csr(X_rows):
                     X_rows = X_rows.tocsr()
 
-                # Extract only the needed columns
-                X_sub = X_rows[:, src_gene_pos]
+                # Extract only the needed columns (skip the copy for full slices)
+                X_sub = X_rows if full_cols else X_rows[:, src_gene_pos]
                 X_coo = sp.coo_matrix(X_sub)
 
                 if X_coo.nnz == 0:
@@ -827,7 +912,10 @@ def read_h5ad(path: str, **kwargs):
 
 
 def _read_source_block(
-    path: str, row_key: np.ndarray, out_var_names: List[str]
+    path: str,
+    row_key: np.ndarray,
+    out_var_names: List[str],
+    layer: Optional[str] = None,
 ) -> sp.csr_matrix:
     """Read a block of rows from one source `.h5ad` as a CSR matrix.
 
@@ -840,6 +928,9 @@ def _read_source_block(
         (`_orig_obs_name`) selecting rows, in the desired output order.
     out_var_names : list of str
         Target variable order; columns are reordered/selected to match.
+    layer : str or None, optional
+        Name of the source layer to read. When `None` (default) the main `X`
+        matrix is used; otherwise the named entry in `layers` is read.
 
     Returns
     -------
@@ -850,17 +941,19 @@ def _read_source_block(
     try:
         row_key = np.asarray(row_key)
         if np.issubdtype(row_key.dtype, np.integer):
+            mat = _matrix_row_source(a, layer)
             # Sort positions for sequential HDF5 reads, then restore order.
             order = np.argsort(row_key)
             sorted_pos = row_key[order]
             # Inverse permutation directly (O(n) vs a second argsort).
             unsort = np.empty_like(order)
             unsort[order] = np.arange(order.size)
-            X_rows = a.X[sorted_pos, :]
+            X_rows = mat[sorted_pos, :]
             X_rows = X_rows.tocsr() if sp.issparse(X_rows) else sp.csr_matrix(X_rows)
             X_rows = X_rows[unsort, :]
         else:
-            X_rows = a[row_key, :].X
+            sub = a[row_key, :]
+            X_rows = sub.X if layer is None else sub.layers[layer]
             X_rows = X_rows.tocsr() if sp.issparse(X_rows) else sp.csr_matrix(X_rows)
 
         # Map source var positions to the output var order.
