@@ -111,11 +111,24 @@ class AnnDataCollection:
         paths: Sequence[str],
         out_path: Optional[str] = None,
         metadata_path: Optional[str] = None,
+        join: str = "inner",
     ) -> "AnnDataCollection":
         """Create a merged AnnDataCollection from existing `.h5ad` files.
-        This will merge `obs` (stacked) and `var` (union by var_names).
-        `X` is not merged; the saved on-disk AnnData will contain an empty
-        sparse matrix of shape (n_obs_total, n_vars_total).
+        This will merge `obs` (stacked) and `var` across files according to
+        `join`. `X` is not merged; the saved on-disk AnnData contains an empty
+        sparse matrix of shape (n_obs_total, n_vars_total). The merged var order
+        is what a subsequent `write_h5ad` (or `to_memory`) reindexes every
+        source's columns to.
+
+        Parameters
+        ----------
+        join : str, optional
+            How to merge var_names across sources. ``"inner"`` (default) keeps
+            the intersection (columns present in every file); ``"outer"`` keeps
+            the union (columns present in any file, missing ones filled with 0
+            when the matrix is later streamed). Both preserve the first file's
+            var order (outer appends any new vars in first-seen order). Sources
+            with identical vars behave the same under either.
         """
         # `paths` should be an iterable of paths to `.h5ad` files, all .h5ad files must
         # have the same vars. When
@@ -134,6 +147,8 @@ class AnnDataCollection:
 
         if not paths:
             raise FileNotFoundError("No .h5ad files found for given paths")
+        if join not in ("inner", "outer"):
+            raise ValueError(f"join must be 'inner' or 'outer', got {join!r}")
         obs_list = []
         # preserve var order as seen across files for faster subsetting later
         # var_list: List[str] = []
@@ -169,17 +184,35 @@ class AnnDataCollection:
             for i, obs, info, src_vars in exe.map(_read_source_meta, enumerate(paths)):
                 results_by_idx[i] = (obs, info, src_vars)
         # Process results in order to preserve deterministic obs ordering
+        source_var_lists: List[List[str]] = []
         for i in range(len(paths)):
             obs, info, src_vars = results_by_idx[i]
             obs_list.append(obs)
             per_source_info.append(info)
-            if var_names is None:
-                var_names = src_vars
-            elif var_names != src_vars:
+            source_var_lists.append(list(src_vars))
+
+        # Merge var_names across sources according to `join`. Both modes
+        # preserve the first file's var order; the streaming write/read reindex
+        # each source's columns to this order (filling absent ones with 0 for
+        # 'outer'). Identical-var sources give the same result either way.
+        if join == "inner":
+            common = set(source_var_lists[0])
+            for sv in source_var_lists[1:]:
+                common &= set(sv)
+            var_names = [v for v in source_var_lists[0] if v in common]
+            if not var_names:
                 raise ValueError(
-                    f"Var names in file {paths[i]} differ from previous files; "
-                    "all sources must share identical var_names for correct merging."
+                    "join='inner' produced an empty var intersection across the "
+                    "input files; use join='outer' or check the var_names."
                 )
+        else:  # outer: union, first-seen order across files
+            seen = set()
+            var_names = []
+            for sv in source_var_lists:
+                for v in sv:
+                    if v not in seen:
+                        seen.add(v)
+                        var_names.append(v)
 
         # Concatenate obs
         merged_obs = pd.concat(obs_list)
@@ -233,6 +266,7 @@ class AnnDataCollection:
             adata.uns["src_info"] = [str(x) for x in per_source_info]
         if metadata_path is not None:
             adata.uns["metadata_path"] = os.path.abspath(metadata_path)
+        adata.uns["join"] = join
         instance = cls(list(paths), adata=adata, source_info=per_source_info)
         # optionally save to out_path
         if out_path:
@@ -299,22 +333,28 @@ class AnnDataCollection:
         thread: int = 8,
         layer: Optional[str] = None,
         dense: Optional[bool] = None,
+        compression: Optional[str] = "gzip",
+        compression_opts: Optional[int] = None,
+        block_size: Optional[int] = None,
+        max_block_gb: float = 2.0,
     ) -> None:
         """Write this collection's real `X` to a consolidated `.h5ad`.
 
         Memory-efficient: writes the obs/var/uns/obsm metadata skeleton first
-        (with an empty `X`), then rebuilds the CSR `X` group in place by reading
-        one source block at a time from `adata_paths` and appending to resizable
-        HDF5 datasets. Peak memory is bounded to ~`thread` source blocks rather
-        than the full matrix. The result reads back as a plain `AnnData`.
+        (with an empty `X`), then rebuilds the `X` group in place by reading a
+        bounded block of rows at a time from `adata_paths` and appending to
+        (dense in-place or resizable CSR) HDF5 datasets. Each source file is
+        streamed in row blocks (NOT loaded whole), so peak memory is ~`thread`
+        blocks and stays bounded no matter how large a single source file is.
+        The result reads back as a plain `AnnData`.
 
         Parameters
         ----------
         path : str
             Destination `.h5ad` path.
         thread : int, optional
-            Number of source files read concurrently (bounded prefetch).
-            Default 8.
+            Number of row blocks read concurrently (bounded prefetch). Peak
+            memory is ~``thread * max_block_gb``. Default 8.
         layer : str or None, optional
             Name of the source layer to read from each `.h5ad` file. When
             `None` (default) the main `X` matrix is used; otherwise the named
@@ -326,6 +366,25 @@ class AnnDataCollection:
             group. When ``None`` (default) the format is auto-detected from the
             first source file's `X` (or `layer`) encoding, so a dense source
             stays dense and a sparse source stays sparse.
+        compression : str or None, optional
+            HDF5 compression filter applied to both the metadata skeleton and
+            the streamed `X` datasets. One of ``"gzip"`` (default), ``"lzf"``,
+            or ``None`` to disable compression. ``"gzip"`` gives the smallest
+            files (portable), ``"lzf"`` is faster but compresses less.
+        compression_opts : int or None, optional
+            Filter tuning passed to h5py. For ``"gzip"`` this is the level 0-9
+            (defaults to 4 when ``None``); ignored for ``"lzf"``.
+        block_size : int or None, optional
+            Number of rows (cells) read per block from each source. When
+            ``None`` (default) it is derived from ``max_block_gb`` and the
+            matrix width so one dense block stays within the budget; the wider
+            the matrix, the fewer rows per block. Set an explicit value to
+            override.
+        max_block_gb : float, optional
+            Approximate memory budget (in GB) for a single row block when
+            ``block_size`` is None. Peak memory is ~``thread * max_block_gb``.
+            Default 2.0. Lower it (or ``thread``) if memory is tight; raise it
+            for fewer, larger IO passes on narrow matrices.
         """
         import h5py
 
@@ -360,8 +419,19 @@ class AnnDataCollection:
                 "'_orig_obs_name'; cannot locate source rows."
             )
 
-        # Build contiguous same-source runs over the final obs order so each
-        # block of CSR rows is written sequentially.
+        # Rows per block: bound one dense block to ~max_block_gb so a very wide
+        # matrix (e.g. genome-wide 5kb, hundreds of thousands of cols) uses few
+        # rows per read while a narrow one uses many. float32 output -> 4 bytes.
+        if block_size is not None:
+            rows_per_block = max(1, int(block_size))
+        else:
+            budget_bytes = max(1, int(float(max_block_gb) * 1e9))
+            rows_per_block = max(1, budget_bytes // max(1, n_vars * 4))
+
+        # Build contiguous same-source runs over the final obs order, split into
+        # bounded row blocks so each read (and the write_block that follows) only
+        # materializes `rows_per_block` rows, not a whole source file. Kept in
+        # increasing-start order so the CSR append path stays row-ordered.
         runs = []  # (start, end, source_idx, row_key)
         i = 0
         while i < n_obs:
@@ -369,9 +439,33 @@ class AnnDataCollection:
             j = i + 1
             while j < n_obs and src_indices[j] == s:
                 j += 1
-            row_key = orig_pos[i:j] if has_pos else orig_name[i:j]
-            runs.append((i, j, int(s), row_key))
+            for bstart in range(i, j, rows_per_block):
+                bend = min(bstart + rows_per_block, j)
+                row_key = (orig_pos[bstart:bend] if has_pos
+                           else orig_name[bstart:bend])
+                runs.append((bstart, bend, int(s), row_key))
             i = j
+
+        # Precompute each source's column map ONCE (cheap h5py open, ~1 ms)
+        # so the many per-block reads don't re-parse the source's (possibly
+        # huge, e.g. 460k) var index every time via anndata.read_h5ad (~0.5 s).
+        col_maps = {}
+        for s in sorted({r[2] for r in runs}):
+            try:
+                col_maps[s] = _source_col_map(paths[s], out_var_names, layer)
+            except Exception:
+                col_maps[s] = None  # reader falls back to the anndata path
+
+        # Normalize compression settings shared by the metadata skeleton and
+        # the streamed X datasets. gzip takes an int level via compression_opts;
+        # lzf takes none. Build kwargs once for the h5py create_dataset calls.
+        if compression == "gzip" and compression_opts is None:
+            compression_opts = 4
+        ds_comp_kwargs = {}
+        if compression is not None:
+            ds_comp_kwargs["compression"] = compression
+            if compression == "gzip":
+                ds_comp_kwargs["compression_opts"] = compression_opts
 
         # 1) Write metadata skeleton (empty X) via anndata so obs/var/uns/obsm
         #    are encoded correctly. Drop collection-identifying uns keys so the
@@ -380,7 +474,11 @@ class AnnDataCollection:
         meta.X = sp.csr_matrix((n_obs, n_vars), dtype=np.float32)
         for k in ("src_paths", "individual_adata_paths", "src_info", "metadata_path"):
             meta.uns.pop(k, None)
-        meta.write_h5ad(path)
+        if compression is not None:
+            meta.write_h5ad(path, compression=compression,
+                            compression_opts=compression_opts)
+        else:
+            meta.write_h5ad(path)
 
         # 2) Replace the X group/dataset with a streamed matrix. Output density
         #    follows `dense` when given, else the first source's encoding.
@@ -399,7 +497,8 @@ class AnnDataCollection:
                 # place (no resize needed). Peak memory stays bounded to a few
                 # source blocks.
                 X_ds = f.create_dataset(
-                    "X", shape=(n_obs, n_vars), dtype=np.float32, chunks=True
+                    "X", shape=(n_obs, n_vars), dtype=np.float32, chunks=True,
+                    **ds_comp_kwargs
                 )
                 X_ds.attrs["encoding-type"] = "array"
                 X_ds.attrs["encoding-version"] = "0.2.0"
@@ -408,7 +507,8 @@ class AnnDataCollection:
                     X_ds[start:end, :] = block
 
                 _stream_source_blocks(
-                    runs, paths, out_var_names, layer, thread, True, _write_block
+                    runs, paths, out_var_names, layer, thread, True, _write_block,
+                    col_maps=col_maps
                 )
             else:
                 # Sparse output: append each block's data/indices to resizable
@@ -419,10 +519,12 @@ class AnnDataCollection:
                 g.attrs["encoding-version"] = "0.1.0"
                 g.attrs["shape"] = np.array([n_obs, n_vars], dtype=np.int64)
                 data_ds = g.create_dataset(
-                    "data", shape=(0,), maxshape=(None,), dtype=np.float32, chunks=True
+                    "data", shape=(0,), maxshape=(None,), dtype=np.float32,
+                    chunks=True, **ds_comp_kwargs
                 )
                 indices_ds = g.create_dataset(
-                    "indices", shape=(0,), maxshape=(None,), dtype=np.int32, chunks=True
+                    "indices", shape=(0,), maxshape=(None,), dtype=np.int32,
+                    chunks=True, **ds_comp_kwargs
                 )
 
                 nnz = 0
@@ -440,10 +542,12 @@ class AnnDataCollection:
                     nnz += m
 
                 _stream_source_blocks(
-                    runs, paths, out_var_names, layer, thread, False, _write_block
+                    runs, paths, out_var_names, layer, thread, False, _write_block,
+                    col_maps=col_maps
                 )
 
-                g.create_dataset("indptr", data=indptr, dtype=np.int64)
+                g.create_dataset("indptr", data=indptr, dtype=np.int64,
+                                 **ds_comp_kwargs)
 
     def __len__(self) -> int:
         """Return the number of observations (cells) in the collection."""
@@ -934,6 +1038,81 @@ def _detect_x_encoding(path: str, layer: Optional[str] = None) -> str:
         _close_backed(a)
 
 
+def _read_h5_index_names(grp) -> List[str]:
+    """Read the index (row/col names) of an anndata obs/var h5py group cheaply."""
+    idx = grp.attrs.get("_index", "_index")
+    if isinstance(idx, bytes):
+        idx = idx.decode()
+    vals = grp[idx][:]
+    return [v.decode() if isinstance(v, (bytes, bytearray)) else str(v) for v in vals]
+
+
+def _source_col_map(path: str, out_var_names, layer):
+    """Precompute a source file's column mapping to the output var order.
+
+    Opens the file once via ``h5py`` (cheap: ~1 ms, and crucially does NOT parse
+    the whole obs/var DataFrames the way ``anndata.read_h5ad`` does — that costs
+    ~0.5 s per open on a 460k-var file). Returns ``(col_pos, present, identity,
+    is_dense)`` where ``col_pos[k]`` is the source column index for output var
+    ``k`` (or -1 if absent), ``present`` is the bool mask, ``identity`` means the
+    source vars already equal the output order (no gather needed), and
+    ``is_dense`` flags a dense on-disk matrix.
+    """
+    with h5py.File(path, "r") as f:
+        src_var = _read_h5_index_names(f["var"])
+        elem = f["X"] if layer is None else f["layers"][layer]
+        is_dense = isinstance(elem, h5py.Dataset)
+    pos_map = {v: i for i, v in enumerate(src_var)}
+    col_pos = np.array([pos_map.get(v, -1) for v in out_var_names], dtype=np.int64)
+    present = col_pos >= 0
+    identity = src_var == list(out_var_names)
+    return col_pos, present, identity, is_dense
+
+
+def _read_block_fast(path, row_pos, col_map, layer=None, as_dense=False):
+    """Read integer-position ``row_pos`` rows of a source via a cheap h5py open.
+
+    Uses the precomputed ``col_map`` (see :func:`_source_col_map`) so no per-block
+    var-name reparse is needed; opening with h5py is ~1 ms, so streaming a file in
+    many small blocks stays fast. Only one block (``len(row_pos) x n_out``) is
+    held in memory. Returns a dense float32 ndarray when ``as_dense`` else CSR.
+    """
+    col_pos, present, identity, is_dense = col_map
+    row_pos = np.asarray(row_pos)
+    order = np.argsort(row_pos, kind="stable")
+    unsort = np.empty_like(order)
+    unsort[order] = np.arange(order.size)
+    sorted_rows = row_pos[order]
+    with h5py.File(path, "r") as f:
+        elem = f["X"] if layer is None else f["layers"][layer]
+        if is_dense:
+            X = np.asarray(elem[sorted_rows, :])[unsort, :]
+        else:
+            if _sparse_dataset is None:
+                raise RuntimeError("sparse_dataset unavailable; use fallback reader")
+            X = _sparse_dataset(elem)[sorted_rows, :]
+            X = (X.tocsr() if sp.issparse(X) else sp.csr_matrix(X))[unsort, :]
+    n_out = int(col_pos.shape[0])
+    if identity:
+        out = X
+    elif present.all():
+        out = X[:, col_pos]
+    else:
+        cols_in = np.nonzero(present)[0]
+        if sp.issparse(X):
+            out = sp.lil_matrix((X.shape[0], n_out), dtype=np.float32)
+            out[:, cols_in] = X[:, col_pos[present]]
+            out = out.tocsr()
+        else:
+            out = np.zeros((X.shape[0], n_out), dtype=X.dtype)
+            out[:, cols_in] = X[:, col_pos[present]]
+    if as_dense:
+        return np.asarray(out.toarray() if sp.issparse(out) else out, dtype=np.float32)
+    if not sp.issparse(out):
+        out = sp.csr_matrix(out)
+    return out.astype(np.float32, copy=False)
+
+
 def _stream_source_blocks(
     runs,
     paths,
@@ -942,23 +1121,40 @@ def _stream_source_blocks(
     thread,
     as_dense,
     write_block,
+    col_maps=None,
 ) -> None:
     """Read source blocks in run order and hand each to ``write_block``.
 
     Uses bounded prefetch (at most ``thread`` blocks in flight) so blocks are
     consumed sequentially while reads overlap. Each block passed to
     ``write_block(start, end, block)`` is a CSR matrix when ``as_dense`` is
-    False, otherwise a dense float32 ndarray.
+    False, otherwise a dense float32 ndarray. When ``col_maps`` (a
+    ``{source_idx: col_map}`` dict from :func:`_source_col_map`) is given and the
+    row key is integer positions, the fast h5py reader is used (no per-block
+    var-name reparse); otherwise it falls back to the robust anndata reader.
     """
     from collections import deque
+
+    def _read(s, rk):
+        rk = np.asarray(rk)
+        if (
+            col_maps is not None
+            and col_maps.get(s) is not None
+            and np.issubdtype(rk.dtype, np.integer)
+        ):
+            try:
+                return _read_block_fast(paths[s], rk, col_maps[s], layer=layer,
+                                        as_dense=as_dense)
+            except Exception:
+                pass  # fall back to the robust reader on any fast-path issue
+        return _read_source_block(
+            paths[s], rk, out_var_names, layer=layer, as_dense=as_dense
+        )
 
     max_workers = max(1, int(thread))
     if max_workers == 1 or len(runs) <= 1:
         for start, end, s, row_key in runs:
-            block = _read_source_block(
-                paths[s], row_key, out_var_names, layer=layer, as_dense=as_dense
-            )
-            write_block(start, end, block)
+            write_block(start, end, _read(s, row_key))
         return
 
     with ThreadPoolExecutor(max_workers=max_workers) as exe:
@@ -966,19 +1162,16 @@ def _stream_source_blocks(
         ri = 0
         while ri < len(runs) and len(pending) < max_workers:
             st, en, s, rk = runs[ri]
-            pending.append(
-                (st, en, exe.submit(_read_source_block, paths[s], rk, out_var_names, layer, as_dense))
-            )
+            pending.append((st, en, exe.submit(_read, s, rk)))
             ri += 1
         while pending:
             st, en, fut = pending.popleft()
             write_block(st, en, fut.result())
             if ri < len(runs):
                 st2, en2, s2, rk2 = runs[ri]
-                pending.append(
-                    (st2, en2, exe.submit(_read_source_block, paths[s2], rk2, out_var_names, layer, as_dense))
-                )
+                pending.append((st2, en2, exe.submit(_read, s2, rk2)))
                 ri += 1
+
 
 
 def _read_source_block(
