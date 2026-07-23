@@ -112,6 +112,7 @@ class AnnDataCollection:
         out_path: Optional[str] = None,
         metadata_path: Optional[str] = None,
         join: str = "inner",
+        var_agg: Optional[Any] = "sum",
     ) -> "AnnDataCollection":
         """Create a merged AnnDataCollection from existing `.h5ad` files.
         This will merge `obs` (stacked) and `var` across files according to
@@ -129,6 +130,18 @@ class AnnDataCollection:
             when the matrix is later streamed). Both preserve the first file's
             var order (outer appends any new vars in first-seen order). Sources
             with identical vars behave the same under either.
+        var_agg : str, dict or None, optional
+            How to aggregate the per-source ``var`` columns (e.g. per-feature
+            stats like ``n_cov``/``s``/``ss``) into the merged ``var`` frame.
+            Columns are grouped by feature name across all sources and reduced.
+            A single method name (default ``"sum"``; also ``"mean"``, ``"median"``,
+            ``"min"``, ``"max"``, ``"first"`` ...) is applied to every numeric
+            column, while non-numeric columns fall back to ``"first"`` so string
+            annotations (e.g. ``gene_type``) survive. Pass a ``{column: method}``
+            dict for per-column control (only the listed columns are kept).
+            ``None`` disables aggregation, leaving the merged ``var`` with only
+            the feature-name index (original behaviour). Features absent from a
+            source are skipped (NaN) by the reduction.
         """
         # `paths` should be an iterable of paths to `.h5ad` files, all .h5ad files must
         # have the same vars. When
@@ -171,7 +184,10 @@ class AnnDataCollection:
                     "n_vars": a.n_vars,
                 }
                 source_var_names = list(a.var_names)
-                return i, obs, info, source_var_names
+                # Optionally grab the full var frame so its columns can be
+                # aggregated across sources (see `var_agg`).
+                src_var_frame = a.var.copy() if var_agg is not None else None
+                return i, obs, info, source_var_names, src_var_frame
             finally:
                 _close_backed(a)
 
@@ -181,15 +197,20 @@ class AnnDataCollection:
         n_workers = min(8, max(1, len(paths)))
         results_by_idx: Dict[int, Any] = {}
         with ThreadPoolExecutor(max_workers=n_workers) as exe:
-            for i, obs, info, src_vars in exe.map(_read_source_meta, enumerate(paths)):
-                results_by_idx[i] = (obs, info, src_vars)
+            for i, obs, info, src_vars, src_vframe in exe.map(
+                _read_source_meta, enumerate(paths)
+            ):
+                results_by_idx[i] = (obs, info, src_vars, src_vframe)
         # Process results in order to preserve deterministic obs ordering
         source_var_lists: List[List[str]] = []
+        source_var_frames: List[pd.DataFrame] = []
         for i in range(len(paths)):
-            obs, info, src_vars = results_by_idx[i]
+            obs, info, src_vars, src_vframe = results_by_idx[i]
             obs_list.append(obs)
             per_source_info.append(info)
             source_var_lists.append(list(src_vars))
+            if src_vframe is not None:
+                source_var_frames.append(src_vframe)
 
         # Merge var_names across sources according to `join`. Both modes
         # preserve the first file's var order; the streaming write/read reindex
@@ -246,6 +267,39 @@ class AnnDataCollection:
 
         # Build merged var DataFrame (union of var names)
         merged_var = pd.DataFrame(index=pd.Index(var_names))  # var_list
+        # Optionally aggregate the per-source var columns (e.g. per-feature
+        # stats) into the merged var frame. Columns are grouped by feature name
+        # across all sources and reduced with `var_agg` (a single method for all
+        # columns, or a {column: method} dict). With a single method, numeric
+        # columns use it while non-numeric columns fall back to 'first' so string
+        # annotations (e.g. gene_type) survive. Features absent from a source are
+        # skipped (NaN) by the groupby reduction.
+        if var_agg is not None and source_var_frames:
+            var_str_names = [str(v) for v in var_names]
+            keep_set = set(var_str_names)
+            frames = []
+            for vf in source_var_frames:
+                if vf.shape[1] == 0:
+                    continue
+                vf = vf.copy()
+                vf.index = vf.index.astype(str)
+                frames.append(vf.loc[vf.index.isin(keep_set)])
+            if frames:
+                all_var = pd.concat(frames)
+                if isinstance(var_agg, dict):
+                    agg_map = {c: f for c, f in var_agg.items()
+                               if c in all_var.columns}
+                else:
+                    agg_map = {
+                        c: (var_agg if pd.api.types.is_numeric_dtype(all_var[c])
+                            else "first")
+                        for c in all_var.columns
+                    }
+                if agg_map:
+                    grouped = all_var.groupby(level=0).agg(agg_map)
+                    grouped = grouped.reindex(var_str_names)
+                    for c in grouped.columns:
+                        merged_var[c] = grouped[c].values
         # recompute total observations after optional metadata filtering
         # Create an empty sparse X with proper shape (we don't merge expression matrices here)
         X_empty = sp.csr_matrix(
