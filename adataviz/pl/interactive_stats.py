@@ -2300,3 +2300,260 @@ __all__ += [
     "interactive_complex_heatmap",
     "interactive_complex_dotplot",
 ]
+
+
+# ---------------------------------------------------------------------------
+# Ridgeline (joyplot)
+# ---------------------------------------------------------------------------
+
+
+def _gene_values_by_group(adata, gene, groupby, layer=None, use_raw=False, query=None):
+    """Return an ordered ``{category: np.ndarray}`` of a gene's values.
+
+    Reads the single gene from a (possibly backed) AnnData, handling
+    ``layer`` / ``use_raw`` selection and an optional ``obs.query`` subset,
+    and groups the per-cell values by ``groupby``.
+    """
+    import anndata
+
+    if isinstance(adata, str):
+        adata = anndata.read_h5ad(adata, backed="r")
+    if not isinstance(adata, anndata.AnnData):
+        raise TypeError("interactive_ridgeline requires an AnnData or .h5ad path.")
+
+    rows = adata.obs.query(query).index if query is not None else None
+    use_raw = use_raw and adata.raw is not None
+    src_names = list(adata.raw.var_names if use_raw else adata.var_names)
+    if gene not in src_names:
+        raise KeyError(f"gene {gene!r} not in var_names.")
+
+    # Read only the requested rows/gene so backed AnnData does not
+    # materialise the full matrix. ``layer`` / ``use_raw`` need the gene
+    # column resolved against the right var space.
+    row_sel = rows if rows is not None else slice(None)
+    if use_raw:
+        # Raw lives on the parent object; subset rows first, then read raw.
+        sub = adata[row_sel].to_memory() if adata.isbacked else adata[row_sel]
+        col = list(sub.raw.var_names).index(gene)
+        X = sub.raw.X[:, col]
+        groups = sub.obs[groupby].astype(str).to_numpy()
+    else:
+        if adata.isbacked:
+            sub = adata[row_sel].to_memory()[:, gene]
+        else:
+            sub = adata[row_sel, gene]
+        if layer is not None and layer in sub.layers:
+            X = sub.layers[layer][:, 0]
+        else:
+            X = sub.X[:, 0]
+        groups = sub.obs[groupby].astype(str).to_numpy()
+    if hasattr(X, "toarray"):
+        X = X.toarray()
+    values = np.asarray(X).ravel().astype(float)
+    if adata.isbacked:
+        try:
+            adata.file.close()
+        except Exception:
+            pass
+    out = {}
+    for g in pd.unique(groups):
+        out[g] = values[groups == g]
+    return out
+
+
+def interactive_ridgeline(
+    adata,
+    gene: str,
+    groupby: str,
+    layer: Optional[str] = None,
+    use_raw: bool = False,
+    order: Optional[Sequence] = None,
+    palette: Union[None, Mapping[str, str], str] = None,
+    overlap: float = 0.7,
+    bw_method: Union[None, str, float] = None,
+    n_points: int = 256,
+    clip: Optional[tuple] = None,
+    fill_alpha: float = 0.85,
+    linecolor: str = "white",
+    linewidth: float = 1.0,
+    title: Optional[str] = None,
+    xaxis_title: Optional[str] = None,
+    yaxis_title: Optional[str] = None,
+    save: Optional[str] = None,
+    height: Optional[int] = None,
+    width: int = 420,
+    query: Optional[str] = None,
+):
+    """Interactive ridgeline (joyplot) of a gene's expression per group.
+
+    Plotly mirror of :func:`adataviz.pl.ridgeline`. Draws one smoothed KDE
+    curve per category of ``groupby`` as a filled area, stacked vertically
+    with a controllable overlap, so the distribution of ``gene`` can be
+    compared across groups and inspected interactively (hover shows the
+    group, expression value and density). Returns a
+    :class:`plotly.graph_objects.Figure`.
+
+    Parameters
+    ----------
+    adata : anndata.AnnData or str
+        Annotated data matrix, or path to an ``.h5ad`` file (opened
+        backed). Expression for ``gene`` is read from ``X`` /
+        ``raw.X`` / ``layers[layer]``.
+    gene : str
+        Single gene to plot; must exist in the resolved var space.
+    groupby : str
+        Column in ``adata.obs`` used as the categorical grouping; each
+        category becomes one ridge (row).
+    layer : str, optional
+        ``adata.layers`` entry to read expression from. Takes precedence
+        over ``X`` when present.
+    use_raw : bool, default False
+        Read expression / gene names from ``adata.raw`` when available.
+        Ignored when ``layer`` is given.
+    order : sequence, optional
+        Explicit ordering of ``groupby`` categories from bottom to top.
+        Categories not listed are dropped. None uses the natural order.
+    palette : dict, str or None, optional
+        Colour mapping for the categories. Accepts a ``{category: colour}``
+        mapping, an ``.xlsx`` palette path, or ``None`` to fall back to
+        colours from ``adata.uns`` or a default.
+    overlap : float, default 0.7
+        Fraction of vertical overlap between adjacent ridges. ``0`` draws
+        non-overlapping curves; larger values push each curve further into
+        its neighbours (peak height equals ``1 + overlap`` rows).
+    bw_method : str, float or None, optional
+        Bandwidth selector forwarded to
+        :class:`scipy.stats.gaussian_kde`.
+    n_points : int, default 256
+        Number of points on the shared x-grid where each density is
+        evaluated.
+    clip : tuple of float, optional
+        ``(low, high)`` limits for the x-grid. None spans the observed
+        min/max (with a small margin).
+    fill_alpha : float, default 0.85
+        Opacity of the filled area under each curve.
+    linecolor : str, default "white"
+        Colour of the density outline.
+    linewidth : float, default 1.0
+        Width of the density outline.
+    title : str, optional
+        Figure title. None uses ``"{gene} Expression"``.
+    xaxis_title : str, optional
+        X axis label. Defaults to ``"Normalized expression"``.
+    yaxis_title : str, optional
+        Y axis label. Defaults to ``groupby``.
+    save : str, optional
+        Output path. ``.html`` writes standalone HTML; any other extension
+        writes a static image. None disables saving.
+    height : int, optional
+        Figure height in pixels. None derives it from the group count.
+    width : int, default 420
+        Figure width in pixels.
+    query : str, optional
+        Pandas-style query string applied to ``adata.obs`` to subset cells
+        before plotting (efficient for backed AnnData).
+
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        The interactive ridgeline figure.
+    """
+    import plotly.graph_objects as go
+    from scipy.stats import gaussian_kde
+
+    by_group = _gene_values_by_group(
+        adata, gene, groupby, layer=layer, use_raw=use_raw, query=query
+    )
+    present = pd.Series(list(by_group.keys()))
+    cats = categorical_order(present, order)
+    cats = [c for c in cats if c in by_group]
+
+    _obs, ad = resolve_adata_obs(adata) if not isinstance(adata, str) else (None, None)
+    colors = resolve_palette(
+        palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
+    )
+
+    all_vals = np.concatenate([by_group[c] for c in cats]) if cats else np.array([0.0])
+    all_vals = all_vals[np.isfinite(all_vals)]
+    if clip is None:
+        lo, hi = float(np.min(all_vals)), float(np.max(all_vals))
+        margin = 0.05 * (hi - lo or 1.0)
+        clip = (lo - margin, hi + margin)
+    grid = np.linspace(clip[0], clip[1], n_points)
+
+    def _density(v):
+        v = np.asarray(v, dtype=float)
+        v = v[np.isfinite(v)]
+        if v.size < 2 or np.allclose(v, v[0]):
+            hist, edges = np.histogram(
+                v, bins=max(10, n_points // 8), density=True
+            )
+            centers = 0.5 * (edges[:-1] + edges[1:])
+            return np.interp(grid, centers, hist, left=0.0, right=0.0)
+        return gaussian_kde(v, bw_method=bw_method)(grid)
+
+    densities = {c: _density(by_group[c]) for c in cats}
+    dmax = max((float(np.max(d)) for d in densities.values() if d.size), default=1.0)
+    step = 1.0
+    amp = (1.0 + max(0.0, overlap)) * step
+    scale = amp / dmax if dmax > 0 else 1.0
+
+    def _hex_to_rgba(color: str, alpha: float) -> str:
+        if not isinstance(color, str) or not color.startswith("#"):
+            return color
+        h = color.lstrip("#")
+        r, g, b = (int(h[i : i + 2], 16) for i in (0, 2, 4))
+        return f"rgba({r},{g},{b},{alpha})"
+
+    n = len(cats)
+    fig = go.Figure()
+    # Draw top-to-bottom so lower ridges render in front of the ones above.
+    for i, c in enumerate(reversed(cats)):
+        idx = n - 1 - i  # actual row index (0 = bottom)
+        base = idx * step
+        d = densities[c]
+        y = base + d * scale
+        fig.add_trace(
+            go.Scatter(
+                x=np.concatenate([grid, grid[::-1]]),
+                y=np.concatenate([y, np.full_like(grid, base)]),
+                fill="toself",
+                mode="lines",
+                line=dict(color=linecolor, width=linewidth),
+                fillcolor=_hex_to_rgba(colors[c], fill_alpha),
+                name=str(c),
+                hovertemplate=(
+                    f"{groupby}: {c}<br>value: %{{x:.3g}}"
+                    "<br>density: %{customdata:.3g}<extra></extra>"
+                ),
+                customdata=np.concatenate([d, d[::-1]]),
+                showlegend=False,
+            )
+        )
+
+    fig.update_layout(
+        title=title if title is not None else f"{gene} Expression",
+        template="plotly_white",
+        width=width,
+        height=height if height is not None else int(max(320, 42 * n + 120)),
+        margin=dict(l=70, r=30, t=50, b=50),
+    )
+    fig.update_xaxes(
+        title=xaxis_title if xaxis_title is not None else "Normalized expression",
+        range=[clip[0], clip[1]],
+        zeroline=False,
+    )
+    fig.update_yaxes(
+        title=yaxis_title if yaxis_title is not None else groupby,
+        tickmode="array",
+        tickvals=[i * step for i in range(n)],
+        ticktext=cats,
+        range=[-0.5 * step, (n - 1) * step + amp + 0.3 * step],
+        showgrid=False,
+        zeroline=False,
+    )
+    _maybe_save(fig, save)
+    return fig
+
+
+__all__ += ["interactive_ridgeline"]

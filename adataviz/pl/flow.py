@@ -341,6 +341,7 @@ def chord_plot(
     space: int = 2,
     adjust_text: bool = True,
     min_flow_frac: float = 0.0,
+    label_kws: Optional[Mapping[str, Any]] = None,
 ):
     """Circular chord diagram of ``left`` × ``right`` co-occurrence.
 
@@ -397,6 +398,12 @@ def chord_plot(
         fraction; fully empty rows and columns are removed afterwards so
         zero-size sectors do not appear. Raises ``ValueError`` if the
         threshold removes every flow.
+    label_kws : dict, optional
+        Extra keyword arguments for the sector labels (pycirclize path),
+        merged over the defaults ``dict(size=7, r=108,
+        orientation="vertical")``. For example pass
+        ``dict(orientation="horizontal")`` to restore horizontal labels,
+        or a larger ``r`` to push labels further from the ring.
 
     Returns
     -------
@@ -455,15 +462,24 @@ def chord_plot(
             adjust_text=adjust_text,
         )
 
+    # Draw sector names radially (orientation="vertical") just outside the
+    # ring: horizontal labels collide tangentially wherever many small
+    # sectors sit close together (e.g. the crowded bottom of the ring).
+    final_label_kws = dict(size=7, r=108, orientation="vertical")
+    if label_kws:
+        final_label_kws.update(label_kws)
     circos = Circos.initialize_from_matrix(
         matrix,
         space=space,
         cmap={k: colors[k] for k in all_labels},
         ticks_interval=None,
-        label_kws=dict(size=8, r=105),
+        label_kws=final_label_kws,
     )
     fig = circos.plotfig(figsize=figsize)
-    if adjust_text:
+    # adjustText only helps horizontal labels; radial labels already avoid
+    # tangential collisions and nudging them would pull them off their
+    # sectors, so skip it when labels are drawn vertically.
+    if adjust_text and final_label_kws.get("orientation") != "vertical":
         # Collect the sector-name Text artists pycirclize placed around the
         # ring and nudge them apart with adjustText.
         from ._utils import maybe_adjust_texts

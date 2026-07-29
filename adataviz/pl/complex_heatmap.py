@@ -302,6 +302,11 @@ def complex_heatmap(
     fig = plt.figure(figsize=figsize)
     plot_kws = dict(plot_kws or {})
     plot_kws.update(kwargs)
+    # Right-side row labels (row_names_side="right") extend past the heatmap
+    # into the legend column; widen the legend gap for long group names so
+    # the colour legend does not overlap the y tick labels.
+    _maxlen = max((len(str(c)) for c in cats), default=0)
+    _auto_hpad = max(4, round(0.75 * _maxlen))
     base = dict(
         data=mean_df,
         cmap=cmap,
@@ -314,7 +319,7 @@ def complex_heatmap(
         row_names_side="right",
         xticklabels_kws=dict(labelrotation=-45, labelsize=8, bottom=True),
         yticklabels_kws=dict(labelsize=8, right=True),
-        legend_hpad=4,
+        legend_hpad=_auto_hpad,
         legend_side="right",
         legend_anchor="ax_heatmap",
         verbose=0,
@@ -490,6 +495,11 @@ def complex_dotplot(
     fig = plt.figure(figsize=figsize)
     plot_kws = dict(plot_kws or {})
     plot_kws.update(kwargs)
+    # Right-side row labels (row_names_side="right") extend past the heatmap
+    # into the legend column; widen the legend gap for long group names so
+    # the colour legend does not overlap the y tick labels.
+    _maxlen = max((len(str(c)) for c in cats), default=0)
+    _auto_hpad = max(4, round(0.75 * _maxlen))
     base = dict(
         data=long,
         x="gene",
@@ -509,7 +519,7 @@ def complex_dotplot(
         row_names_side="right",
         xticklabels_kws=dict(labelrotation=-45, labelsize=8, bottom=True),
         yticklabels_kws=dict(labelsize=8, right=True),
-        legend_hpad=4,
+        legend_hpad=_auto_hpad,
         legend_side="right",
         legend_anchor="ax_heatmap",
         spines=False,

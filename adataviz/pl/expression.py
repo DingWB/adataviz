@@ -34,6 +34,7 @@ __all__ = [
     "stacked_violinplot",
     "gene_dotplot",
     "get_genes_mean_frac",
+    "ridgeline",
 ]
 
 
@@ -1109,3 +1110,201 @@ def gene_dotplot(
         fig.suptitle(title, y=1.02)
     save_or_show(fig, save, show=show)
     return cm
+
+
+# ---------------------------------------------------------------------------
+# Ridgeline (joyplot)
+# ---------------------------------------------------------------------------
+
+
+def _kde_curve(values, grid, bw_method=None):
+    """Return a gaussian-KDE density of *values* evaluated on *grid*.
+
+    Falls back to a normalised histogram when the values are constant (or
+    too few to build a KDE), so degenerate groups still draw something.
+    """
+    v = np.asarray(values, dtype=float)
+    v = v[np.isfinite(v)]
+    if v.size < 2 or np.allclose(v, v[0]):
+        hist, edges = np.histogram(v, bins=max(10, grid.size // 8), density=True)
+        centers = 0.5 * (edges[:-1] + edges[1:])
+        return np.interp(grid, centers, hist, left=0.0, right=0.0)
+    from scipy.stats import gaussian_kde
+
+    kde = gaussian_kde(v, bw_method=bw_method)
+    return kde(grid)
+
+
+def ridgeline(
+    adata,
+    gene: str,
+    groupby: str,
+    layer: Optional[str] = None,
+    use_raw: bool = False,
+    order: Optional[Sequence] = None,
+    palette: Union[None, Mapping[str, str], str] = None,
+    overlap: float = 0.7,
+    bw_method: Union[None, str, float] = None,
+    n_points: int = 256,
+    clip: Optional[tuple] = None,
+    linewidth: float = 0.8,
+    linecolor: str = "white",
+    fill_alpha: float = 1.0,
+    label_colors: Optional[Mapping[str, str]] = None,
+    figsize=None,
+    ax=None,
+    title: Optional[str] = None,
+    xlabel: Optional[str] = None,
+    ylabel: Optional[str] = None,
+    save: Optional[str] = None,
+    show: bool = False,
+):
+    """Ridgeline plot (a.k.a. joyplot) of a gene's expression per group.
+
+    Draws one smoothed density curve per category of ``groupby``, stacked
+    vertically with a controllable amount of vertical overlap so the
+    distribution of ``gene`` expression can be compared across groups at a
+    glance. Densities are estimated with a gaussian KDE (falling back to a
+    normalised histogram for degenerate groups) from the per-cell
+    expression pulled out of ``adata`` (see ``layer`` / ``use_raw``).
+
+    Parameters
+    ----------
+    adata : AnnData
+        Source data. Expression for ``gene`` is read from ``adata.X``
+        (or ``adata.raw.X`` / ``adata.layers[layer]``).
+    gene : str
+        Single gene to plot. Must exist in the resolved var space
+        (``adata.raw.var_names`` when ``use_raw=True``, else
+        ``adata.var_names``).
+    groupby : str
+        Column in ``adata.obs`` used as the categorical grouping; each
+        category becomes one ridge (row).
+    layer : str, optional
+        Name of an ``adata.layers`` entry to read expression from. When
+        given and present it takes precedence over ``adata.X``.
+    use_raw : bool, default False
+        If True and ``adata.raw`` exists, read expression and gene names
+        from ``adata.raw``. Ignored when ``layer`` is provided.
+    order : sequence, optional
+        Explicit ordering of ``groupby`` categories from bottom to top.
+        Categories not listed are dropped. When None the natural
+        categorical order of the data is used.
+    palette : dict, str, or None, optional
+        Colour mapping for the ``groupby`` categories. A dict maps
+        category -> colour; a string names a palette sheet resolved via
+        :func:`resolve_palette`. When None, colours are resolved from
+        ``adata`` (e.g. stored ``*_colors``) or a default palette.
+    overlap : float, default 0.7
+        Fraction of vertical overlap between adjacent ridges. ``0`` draws
+        non-overlapping curves; larger values push each curve further up
+        into its neighbours (the peak height equals ``1 + overlap`` rows).
+    bw_method : str, float, or None, optional
+        Bandwidth selector forwarded to :class:`scipy.stats.gaussian_kde`
+        (e.g. ``"scott"``, ``"silverman"``, or a scalar factor). None uses
+        SciPy's default.
+    n_points : int, default 256
+        Number of points on the shared x-grid where each density is
+        evaluated.
+    clip : tuple of float, optional
+        ``(low, high)`` limits for the x-grid. When None the range spans
+        the observed min/max of the expression (with a small margin).
+    linewidth : float, default 0.8
+        Width of the outline drawn on top of each filled density.
+    linecolor : str, default "white"
+        Colour of the density outline.
+    fill_alpha : float, default 1.0
+        Opacity of the filled area under each curve.
+    label_colors : dict, optional
+        Optional ``{category: colour}`` mapping used to colour individual
+        y tick labels (e.g. to highlight one group). Categories not listed
+        keep the default label colour.
+    figsize : tuple of float, optional
+        Figure size in inches. When None it is derived from the number of
+        categories (taller for more groups).
+    ax : matplotlib.axes.Axes, optional
+        Existing Axes to draw into. When None a new figure and Axes are
+        created.
+    title : str, optional
+        Axes title. When None a ``"{gene} Expression"`` title is used.
+    xlabel : str, optional
+        X axis label. Defaults to ``"Normalized expression"``.
+    ylabel : str, optional
+        Y axis label. Defaults to ``groupby``.
+    save : str, optional
+        Path to write the figure to (via :func:`save_or_show`).
+    show : bool, default False
+        Whether to display the figure (``plt.show``) via
+        :func:`save_or_show`.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The Axes containing the ridgeline plot.
+    """
+    if not isinstance(gene, str):
+        raise TypeError("ridgeline plots a single gene; pass a str.")
+    long = _gene_long_df(adata, [gene], groupby, layer=layer, use_raw=use_raw)
+    cats = categorical_order(long[groupby], order)
+    long = long[long[groupby].isin(cats)]
+
+    _obs, ad = resolve_adata_obs(adata)
+    colors = resolve_palette(
+        palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
+    )
+
+    vals = long["value"].to_numpy(dtype=float)
+    vals = vals[np.isfinite(vals)]
+    if clip is None:
+        lo, hi = float(np.min(vals)), float(np.max(vals))
+        margin = 0.05 * (hi - lo or 1.0)
+        clip = (lo - margin, hi + margin)
+    grid = np.linspace(clip[0], clip[1], n_points)
+
+    n = len(cats)
+    if figsize is None:
+        figsize = (3.2, max(3.0, 0.42 * n + 1.0))
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+    else:
+        fig = ax.figure
+
+    step = 1.0
+    amp = (1.0 + max(0.0, overlap)) * step
+    densities = {}
+    dmax = 0.0
+    for c in cats:
+        d = _kde_curve(long.loc[long[groupby] == c, "value"], grid, bw_method)
+        densities[c] = d
+        dmax = max(dmax, float(np.max(d)) if d.size else 0.0)
+    scale = amp / dmax if dmax > 0 else 1.0
+
+    # Draw from top to bottom so lower ridges overlap (sit in front of) the
+    # ridges above them, matching the classic joyplot look.
+    for i, c in enumerate(cats):
+        base = i * step
+        y = base + densities[c] * scale
+        z = n - i  # bottom rows in front
+        ax.fill_between(
+            grid, base, y, color=colors[c], alpha=fill_alpha, zorder=z, lw=0
+        )
+        ax.plot(grid, y, color=linecolor, lw=linewidth, zorder=z + 0.5)
+        ax.hlines(base, grid[0], grid[-1], color="0.3", lw=0.5, zorder=z - 0.5)
+
+    ax.set_yticks([i * step for i in range(n)])
+    ax.set_yticklabels(cats)
+    if label_colors:
+        for tick, c in zip(ax.get_yticklabels(), cats):
+            if str(c) in {str(k) for k in label_colors}:
+                tick.set_color(label_colors[c] if c in label_colors else label_colors[str(c)])
+    ax.set_ylim(-0.5 * step, (n - 1) * step + amp + 0.2 * step)
+    ax.set_xlim(clip[0], clip[1])
+    ax.set_xlabel(xlabel if xlabel is not None else "Normalized expression")
+    ax.set_ylabel(ylabel if ylabel is not None else groupby)
+    ax.set_title(title if title is not None else f"{gene} Expression")
+    for side in ("top", "right", "left"):
+        ax.spines[side].set_visible(False)
+    ax.tick_params(axis="y", length=0)
+    fig.tight_layout()
+    save_or_show(fig, save, show=show)
+    return ax

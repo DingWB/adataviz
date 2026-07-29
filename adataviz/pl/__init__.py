@@ -25,6 +25,7 @@ from .expression import (
     stacked_violinplot,
     gene_dotplot,
     get_genes_mean_frac,
+    ridgeline,
 )
 from .pseudotime import plot_pseudotime
 from .composition import (
@@ -58,6 +59,7 @@ from .interactive_stats import (
     interactive_upset,
     interactive_complex_heatmap,
     interactive_complex_dotplot,
+    interactive_ridgeline,
 )
 
 __all__ = [
@@ -70,6 +72,7 @@ __all__ = [
     "stacked_violinplot",
     "gene_dotplot",
     "get_genes_mean_frac",
+    "ridgeline",
     "plot_pseudotime",
     "rose_plot",
     "ring_plot",
@@ -102,4 +105,5 @@ __all__ = [
     "interactive_upset",
     "interactive_complex_heatmap",
     "interactive_complex_dotplot",
+    "interactive_ridgeline",
 ]
