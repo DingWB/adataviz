@@ -741,6 +741,7 @@ def gene_dotplot(
     title: Optional[str] = None,
     save: Optional[str] = None,
     show: bool = False,
+    outline=True,outline_kws: Optional[Mapping[str, Any]] = None
 ):
     """Rich PyComplexHeatmap dot heatmap with hierarchical annotations.
 
@@ -858,7 +859,13 @@ def gene_dotplot(
     missing = [g for g in genes if g not in keep]
     if missing:
         print(f"genes not found in adata: {missing}")
-    use = raw[:, keep].to_memory()
+    # Reading from a backed h5ad requires positional indices in increasing
+    # order (h5py limitation); select genes in var order, then restore the
+    # requested order in memory.
+    keep_set = set(keep)
+    keep_sorted = [g for g in raw.var_names if g in keep_set]
+    use = raw[:, keep_sorted].to_memory()
+    use = use[:, keep].copy()
     if use_raw and use.raw is not None:
         rraw = use.raw[:, use.var_names].to_adata()
         use.X = rraw[use.obs_names, use.var_names].X.copy()
@@ -1079,7 +1086,9 @@ def gene_dotplot(
     )
     for k, v in defaults.items():
         plot_kws.setdefault(k, v)
-
+    if title:
+        plot_kws.setdefault("xlabel", title)
+        plot_kws.setdefault("xlabel_side", 'top')
     fig = plt.figure(figsize=figsize)
     cm = DotClustermapPlotter(
         data=plot_data,
@@ -1105,9 +1114,13 @@ def gene_dotplot(
             alpha=0.6,
             zorder=0,
         )
-    _strip_cbar_white_lines(cm)
-    if title:
-        fig.suptitle(title, y=1.02)
+    # _strip_cbar_white_lines(cm)
+    if outline:
+        cm.ax_heatmap.set_axis_on()
+        for side in ["top", "right", "left", "bottom"]:
+            cm.ax_heatmap.spines[side].set_visible(True)
+            cm.ax_heatmap.spines[side].set_color(outline_kws.get("color", "black") if outline_kws else "black")
+            cm.ax_heatmap.spines[side].set_linewidth(outline_kws.get("linewidth", 1) if outline_kws else 1)
     save_or_show(fig, save, show=show)
     return cm
 
