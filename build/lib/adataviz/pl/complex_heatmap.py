@@ -70,22 +70,15 @@ def _aggregate(adata, groupby, genes, layer=None, use_raw=False, expression_cuto
     if not isinstance(adata, _ad.AnnData):
         raise TypeError("complex_heatmap/complex_dotplot require AnnData input.")
     src = adata.raw if use_raw and adata.raw is not None else adata
-    # Column positions must come from the matrix we are about to slice: with
-    # use_raw=True, adata.raw.var_names and adata.var_names can differ in both
-    # order and length, so indices built from one silently select the wrong
-    # genes out of the other.
-    if layer is not None and layer in adata.layers:
-        mat = adata.layers[layer]
-        var_names = list(adata.var_names)
-    else:
-        mat = src.X
-        var_names = list(src.var_names)
+    var_names = list(src.var_names)
     missing = [g for g in genes if g not in var_names]
     if missing:
         raise KeyError(f"genes not in adata.var_names: {missing[:5]}")
-    pos = {g: i for i, g in enumerate(var_names)}
-    idx = [pos[g] for g in genes]
-    X = mat[:, idx]
+    idx = [var_names.index(g) for g in genes]
+    if layer is not None and layer in adata.layers:
+        X = adata.layers[layer][:, idx]
+    else:
+        X = src.X[:, idx]
     if hasattr(X, "toarray"):
         X = X.toarray()
     X = np.asarray(X)

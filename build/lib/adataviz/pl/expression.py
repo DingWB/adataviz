@@ -48,21 +48,15 @@ def _gene_long_df(adata, genes, groupby, layer=None, use_raw=False):
     if not isinstance(adata, anndata.AnnData):
         raise TypeError("boxplot/stacked_violinplot require an AnnData.")
     src = adata.raw if use_raw and adata.raw is not None else adata
-    # Column positions must come from the matrix we are about to slice: with
-    # use_raw=True, adata.raw.var_names and adata.var_names can differ in both
-    # order and length, so indices built from one silently select the wrong
-    # genes out of the other.
-    if layer is not None and layer in adata.layers:
-        mat = adata.layers[layer]
-        var = list(adata.var_names)
-    else:
-        mat = src.X
-        var = list(src.var_names)
+    var = list(src.var_names)
     missing = [g for g in genes if g not in var]
     if missing:
         raise KeyError(f"genes not in adata.var_names: {missing[:5]}")
-    pos = {g: i for i, g in enumerate(var)}
-    X = mat[:, [pos[g] for g in genes]]
+    idx = [var.index(g) for g in genes]
+    if layer is not None and layer in adata.layers:
+        X = adata.layers[layer][:, idx]
+    else:
+        X = src.X[:, idx]
     if hasattr(X, "toarray"):
         X = X.toarray()
     df = pd.DataFrame(np.asarray(X), index=adata.obs_names, columns=list(genes))
@@ -648,7 +642,7 @@ def get_genes_mean_frac(
         raw = use.raw[:, use.var_names].to_adata()
         use.X = raw[use.obs_names, use.var_names].X.copy()
     obs = _resolve_obs_arg(use, obs)
-    overlap = use.obs_names[use.obs_names.isin(obs.index)]
+    overlap = list(set(use.obs_names) & set(obs.index))
     obs = obs.loc[overlap]
     use = use[overlap, :]
 
@@ -881,7 +875,7 @@ def gene_dotplot(
     obs = _resolve_obs_arg(use, obs)
     if query_str is not None:
         obs = obs.query(query_str)
-    overlap = use.obs_names[use.obs_names.isin(obs.index)]
+    overlap = list(set(use.obs_names) & set(obs.index))
     obs = obs.loc[overlap]
     # ``.copy()`` materialises the view so subsequent ``use.obs[...] = ...``
     # assignments don't emit ``ImplicitModificationWarning``.

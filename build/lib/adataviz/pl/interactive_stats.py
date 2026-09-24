@@ -1438,21 +1438,15 @@ def interactive_violin(
     if not isinstance(adata, _ad.AnnData):
         raise TypeError("interactive_violin requires AnnData input.")
     src = adata.raw if use_raw and adata.raw is not None else adata
-    # Column positions must come from the matrix we are about to slice: with
-    # use_raw=True, adata.raw.var_names and adata.var_names can differ in both
-    # order and length, so indices built from one silently select the wrong
-    # genes out of the other.
-    if layer is not None and layer in adata.layers:
-        mat = adata.layers[layer]
-        var = list(adata.var_names)
-    else:
-        mat = src.X
-        var = list(src.var_names)
+    var = list(src.var_names)
     missing = [g for g in genes if g not in var]
     if missing:
         raise KeyError(f"genes not in adata.var_names: {missing[:5]}")
-    pos = {g: i for i, g in enumerate(var)}
-    X = mat[:, [pos[g] for g in genes]]
+    idx = [var.index(g) for g in genes]
+    if layer is not None and layer in adata.layers:
+        X = adata.layers[layer][:, idx]
+    else:
+        X = src.X[:, idx]
     if hasattr(X, "toarray"):
         X = X.toarray()
     df = pd.DataFrame(np.asarray(X), index=adata.obs_names, columns=list(genes))

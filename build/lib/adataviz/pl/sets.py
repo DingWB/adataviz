@@ -6,7 +6,7 @@ groups defined by another column (``groupby``) in cell metadata.
 
 from __future__ import annotations
 
-from typing import Mapping, Optional, Sequence, Union
+from typing import Any, Mapping, Optional, Sequence, Union
 
 import matplotlib.pyplot as plt
 

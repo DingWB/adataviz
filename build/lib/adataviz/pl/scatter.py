@@ -466,7 +466,7 @@ def plot_gene(
     if obsm is not None:
         if isinstance(obsm, str):
             obsm = anndata.read_h5ad(os.path.expanduser(obsm), backed="r")
-        keep = use.obs_names[use.obs_names.isin(obsm.obs_names)]
+        keep = list(set(use.obs_names) & set(obsm.obs_names))
         use = use[keep, :]
         use.obsm = obsm[keep].obsm
         for col in obsm.obs.columns:
@@ -484,7 +484,7 @@ def plot_gene(
         obs = use.obs.copy()
     if query_str is not None:
         obs = obs.query(query_str)
-    overlap = use.obs_names[use.obs_names.isin(obs.index)]
+    overlap = list(set(use.obs_names) & set(obs.index))
     use = use[overlap, :]
     use.obs = obs.loc[use.obs_names]
     use.obs[gene] = use.to_df().loc[use.obs_names, gene].tolist()

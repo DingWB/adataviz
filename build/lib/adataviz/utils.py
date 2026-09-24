@@ -796,9 +796,7 @@ def _text_anno_scatter(
             text_kws["bbox"][key] = bbox[key]
     # plot each text
     text_list = []
-    # observed=True: an unused category would give an empty group whose median is
-    # NaN, placing a text artist at (nan, nan).
-    for text, sub_df in data.groupby(anno_col, observed=True):
+    for text, sub_df in data.groupby(anno_col):
         if text_transform is None:
             text = str(text)
         else:
@@ -965,7 +963,7 @@ def density_contour(
     if isinstance(linestyles, tuple):
         linestyles = [linestyles]
 
-    for group, sub_data in _data[[x, y, "groupby"]].groupby("groupby", observed=True):
+    for group, sub_data in _data[[x, y, "groupby"]].groupby("groupby"):
         coords = sub_data.iloc[:, :2].values
         if len(coords) < 5:
             continue
@@ -1223,26 +1221,24 @@ class TextWithCircleHandler(HandlerBase):
         Additional keyword arguments passed to ``HandlerBase``.
     """
 
-    def __init__(self, marker_text="", label_text="", text_kws=None, **kwargs):
+    def __init__(self, marker_text="", label_text="", text_kws={}, **kwargs):
         """Initialize with marker text, label, and text styling kwargs."""
         HandlerBase.__init__(self, **kwargs)
         self.marker_text = marker_text
-        self.label_text = label_text
-        # Copied: a shared default dict would carry one legend's fontsize into
-        # every later legend created without an explicit text_kws.
-        self.text_kws = dict(text_kws) if text_kws else {}
+        self.text_kws = text_kws
 
     def create_artists(
         self, legend, orig_handle, xdescent, ydescent, width, height, fontsize, trans
     ):
         """Create a Text artist with circle bbox as the legend marker."""
-        text_kws = {"fontsize": fontsize, **self.text_kws}
-        shift = 2 * text_kws["fontsize"] * 0.65 / 72 / mm2inch
+        self.text_kws.setdefault("fontsize", fontsize)
+        # print(self.text_kws)
+        shift = 2 * self.text_kws["fontsize"] * 0.65 / 72 / mm2inch
         circ_text = Text(
             xdescent + legend.borderaxespad + shift,
             height / 2,
             self.marker_text,
-            **text_kws,
+            **self.text_kws,
         )
         return [circ_text]
 

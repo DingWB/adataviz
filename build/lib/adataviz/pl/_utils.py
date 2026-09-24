@@ -12,6 +12,7 @@ import os
 from typing import Any, Mapping, Optional, Sequence, Union
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 __all__ = [
@@ -91,7 +92,7 @@ def palette_from_uns(adata, groupby: str, categories: Sequence[str]) -> dict:
     if adata is None:
         return {}
     key = f"{groupby}_colors"
-    if key not in adata.uns or groupby not in adata.obs:
+    if key not in adata.uns:
         return {}
     cats = list(adata.obs[groupby].cat.categories) if hasattr(
         adata.obs[groupby], "cat"
