@@ -24,8 +24,14 @@ import numpy as np
 import pandas as pd
 
 from ._utils import (
+    apply_layout,
     categorical_order,
-    merge_legend_kws,
+    categorical_series,
+    gene_positions,
+    import_pch,
+    label_extent,
+    outside_legend,
+    quiet_pch,
     resolve_adata_obs,
     resolve_palette,
     save_or_show,
@@ -41,6 +47,57 @@ __all__ = [
     "ridgeline",
 ]
 
+# See complex_heatmap._DOT_LEGEND_KWS: keep the large reference dots of the
+# size legend from overlapping their labels.
+_DOT_LEGEND_KWS = dict(handlelength=3.0, handletextpad=0.8, labelspacing=0.9)
+
+
+def _resolve_cutoff(df: pd.DataFrame, expression_cutoff):
+    """Turn ``"p5"`` / ``"median"`` / ``"mean"`` into a numeric cutoff.
+
+    Works on the flattened matrix without materialising a stacked Series
+    (``df.stack()`` copies the data and is slow for many cells).
+    """
+    if not isinstance(expression_cutoff, str):
+        return expression_cutoff
+    values = df.to_numpy(dtype=float).ravel()
+    values = values[~np.isnan(values)]
+    if expression_cutoff == "median":
+        return float(np.median(values))
+    if expression_cutoff == "mean":
+        return float(values.mean())
+    return float(np.percentile(values, float(expression_cutoff.replace("p", ""))))
+
+
+def _mean_frac_long(df: pd.DataFrame, groups, groupby: str, frac_matrix=None,
+                    expression_cutoff=None, hypo: bool = False) -> pd.DataFrame:
+    """Per-group mean and expressing fraction as a tidy ``[groupby, Gene, Mean, frac]``.
+
+    ``frac_matrix`` (a cells x genes DataFrame already holding fractions, e.g. a
+    pseudobulk ``frac`` layer) takes precedence; otherwise the fraction is the
+    share of cells above ``expression_cutoff`` (or below 1 when ``hypo`` is set,
+    for methylation-like data). Everything is a vectorised ``groupby().mean()``
+    -- no per-group python lambdas and no tuple-keyed dict lookups.
+    """
+    mean_df = df.groupby(groups, observed=True).mean()
+    if frac_matrix is not None:
+        frac_df = frac_matrix.groupby(groups, observed=True).mean()
+    elif hypo:
+        frac_df = (df < 1).groupby(groups, observed=True).mean()
+    else:
+        frac_df = (df > expression_cutoff).groupby(groups, observed=True).mean()
+    frac_df = frac_df.reindex(index=mean_df.index, columns=mean_df.columns)
+    genes = list(mean_df.columns)
+    cats = list(mean_df.index)
+    return pd.DataFrame(
+        {
+            groupby: np.repeat(np.asarray(cats, dtype=object), len(genes)),
+            "Gene": np.tile(np.asarray(genes, dtype=object), len(cats)),
+            "Mean": mean_df.to_numpy(dtype=float).ravel(),
+            "frac": frac_df.to_numpy(dtype=float).ravel(),
+        }
+    )
+
 
 # ---------------------------------------------------------------------------
 # Multi-gene / multi-group boxplot (or violin / strip)
@@ -48,7 +105,12 @@ __all__ = [
 
 
 def _gene_long_df(adata, genes, groupby, layer=None, use_raw=False):
-    """Return a tidy ``[groupby, gene, value]`` DataFrame."""
+    """Return a tidy ``[groupby, gene, value]`` DataFrame.
+
+    ``groupby`` keeps the categorical order of ``adata.obs[groupby]`` (as an
+    ordered ``Categorical`` of strings) so downstream plots follow the
+    user's category order rather than alphabetical order.
+    """
     if not isinstance(adata, anndata.AnnData):
         raise TypeError("boxplot/stacked_violinplot require an AnnData.")
     src = adata.raw if use_raw and adata.raw is not None else adata
@@ -58,19 +120,15 @@ def _gene_long_df(adata, genes, groupby, layer=None, use_raw=False):
     # genes out of the other.
     if layer is not None and layer in adata.layers:
         mat = adata.layers[layer]
-        var = list(adata.var_names)
+        var = adata.var_names
     else:
         mat = src.X
-        var = list(src.var_names)
-    missing = [g for g in genes if g not in var]
-    if missing:
-        raise KeyError(f"genes not in adata.var_names: {missing[:5]}")
-    pos = {g: i for i, g in enumerate(var)}
-    X = mat[:, [pos[g] for g in genes]]
+        var = src.var_names
+    X = mat[:, gene_positions(var, genes)]
     if hasattr(X, "toarray"):
         X = X.toarray()
     df = pd.DataFrame(np.asarray(X), index=adata.obs_names, columns=list(genes))
-    df[groupby] = adata.obs[groupby].astype(str).values
+    df[groupby] = categorical_series(adata.obs[groupby]).values
     long = df.melt(id_vars=[groupby], var_name="gene", value_name="value")
     return long
 
@@ -194,21 +252,25 @@ def boxplot(
         genes = [genes]
     long = _gene_long_df(adata, genes, groupby, layer=layer, use_raw=use_raw)
     cats = categorical_order(long[groupby], order)
-    long = long[long[groupby].isin(cats)]
+    long = long[long[groupby].isin(cats)].copy()
     long[groupby] = pd.Categorical(long[groupby], categories=cats, ordered=True)
 
     _obs, ad = resolve_adata_obs(adata)
     colors = resolve_palette(
         palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
     )
-    pal = [colors[c] for c in cats]
 
     if gene_order is None:
         gene_order = list(genes)
 
     n_genes = len(gene_order)
     if figsize is None:
-        figsize = (max(5, len(cats) * 0.5), 2.5 * n_genes if n_genes > 1 else 3.5)
+        # Width grows with the number of groups; add room for rotated labels.
+        figsize = (
+            max(5, len(cats) * 0.5) + 0.4 * label_extent(cats, 8, rotation),
+            2.5 * n_genes if n_genes > 1 else 3.5,
+        )
+    own_fig = ax is None
     if ax is None:
         if n_genes == 1:
             fig, axes = plt.subplots(1, 1, figsize=figsize)
@@ -223,46 +285,33 @@ def boxplot(
             raise ValueError("Pass a single Axes only with one gene.")
         axes = [ax]
         fig = ax.figure
+    # Constrained layout keeps the stacked panels tight while still making
+    # room for the outside legend and the rotated labels of the last panel.
+    apply_layout(fig, own=own_fig, h_pad=0.02, hspace=0.03)
 
+    # seaborn >= 0.13 deprecates ``palette`` without ``hue``; colour by the
+    # x variable itself (no dodging, no automatic duplicate legend).
+    common = dict(
+        x=groupby, y="value", order=cats, hue=groupby, hue_order=cats,
+        palette=colors, legend=False, dodge=False,
+    )
     for i, g in enumerate(gene_order):
         sub = long[long["gene"] == g]
         a = axes[i]
         if kind == "violin":
             sns.violinplot(
-                data=sub,
-                x=groupby,
-                y="value",
-                order=cats,
-                palette=pal,
-                ax=a,
-                cut=0,
-                density_norm="width",
-                linewidth=0.6,
-                inner="quart",
+                data=sub, ax=a, cut=0, density_norm="width", linewidth=0.6,
+                inner="quart", **common,
             )
         elif kind == "box":
             sns.boxplot(
-                data=sub,
-                x=groupby,
-                y="value",
-                order=cats,
-                palette=pal,
-                ax=a,
-                showfliers=False,
-                linewidth=0.6,
-                saturation=0.85,
+                data=sub, ax=a, showfliers=False, linewidth=0.6, saturation=0.85,
+                **common,
             )
         elif kind == "strip":
             sns.stripplot(
-                data=sub,
-                x=groupby,
-                y="value",
-                order=cats,
-                palette=pal,
-                ax=a,
-                size=strip_size,
-                edgecolor="white",
-                linewidth=0,
+                data=sub, ax=a, size=strip_size, edgecolor="white", linewidth=0,
+                **common,
             )
         else:
             raise ValueError(f"kind must be 'violin', 'box', or 'strip'; got {kind!r}")
@@ -279,6 +328,7 @@ def boxplot(
                 jitter=0.3,
             )
         a.set_ylabel(g)
+        a.spines[["top", "right"]].set_visible(False)
         if i < n_genes - 1:
             a.set_xlabel("")
             a.tick_params(labelbottom=False)
@@ -287,16 +337,19 @@ def boxplot(
             plt.setp(
                 a.get_xticklabels(),
                 rotation=rotation,
-                ha="left" if rotation < 0 else "right",
+                rotation_mode="anchor",
+                ha="left" if rotation < 0 else ("right" if rotation else "center"),
+                va="center" if rotation else "top",
             )
         if show_legend and i == 0 and legend_kws is not None:
             from matplotlib.patches import Patch
 
             handles = [Patch(color=colors[c], label=c) for c in cats]
-            a.legend(handles=handles, **merge_legend_kws(legend_kws, title=groupby))
+            # Figure-level "outside" legend: a legend taller than one panel
+            # would otherwise force that panel's row to grow around it.
+            outside_legend(fig, a, handles, legend_kws=legend_kws, title=groupby)
     if title:
         fig.suptitle(title)
-    fig.tight_layout()
     save_or_show(fig, save, show=show)
     return axes if n_genes > 1 else axes[0]
 
@@ -320,7 +373,7 @@ def stacked_violinplot(
     save: Optional[str] = None,
     show: bool = False,
     swap_axes: bool = False,
-    rotation: float = -45,
+    rotation: Optional[float] = None,
     inner: Optional[str] = "quart",
 ):
     """Compact stacked violin plot.
@@ -370,9 +423,11 @@ def stacked_violinplot(
     swap_axes : bool, default False
         When True, lay genes out as columns with horizontal violins
         instead of the default rows with vertical violins.
-    rotation : float, default -45
-        Rotation (degrees) of the gene/group tick labels along the
-        outer axis.
+    rotation : float, optional
+        Rotation (degrees) of the labels along the outer axis: the group
+        tick labels (default ``-45``) or, with ``swap_axes=True``, the gene
+        names under each narrow column (default ``90``, i.e. vertical, so
+        neighbouring names cannot collide).
     inner : str, optional, default ``"quart"``
         ``inner`` argument forwarded to :func:`seaborn.violinplot`
         controlling the inner representation (e.g. ``"quart"`` for
@@ -387,92 +442,85 @@ def stacked_violinplot(
 
     long = _gene_long_df(adata, genes, groupby, layer=layer, use_raw=use_raw)
     cats = categorical_order(long[groupby], order)
-    long = long[long[groupby].isin(cats)]
+    long = long[long[groupby].isin(cats)].copy()
     long[groupby] = pd.Categorical(long[groupby], categories=cats, ordered=True)
 
-    if standardize == "gene":
-
-        def _norm(v):
-            mn, mx = v.min(), v.max()
-            return (v - mn) / (mx - mn) if mx > mn else v * 0
-
-        long["value"] = long.groupby("gene", observed=True)["value"].transform(_norm)
-    elif standardize == "group":
-
-        def _norm(v):
-            mn, mx = v.min(), v.max()
-            return (v - mn) / (mx - mn) if mx > mn else v * 0
-
-        long["value"] = long.groupby([groupby, "gene"], observed=True)[
-            "value"
-        ].transform(_norm)
+    if standardize in ("gene", "group"):
+        keys = "gene" if standardize == "gene" else [groupby, "gene"]
+        grp = long.groupby(keys, observed=True)["value"]
+        mn, mx = grp.transform("min"), grp.transform("max")
+        rng = mx - mn
+        # Constant groups (zero range) map to 0 instead of NaN.
+        long["value"] = np.where(rng > 0, (long["value"] - mn) / rng.where(rng > 0, 1), 0.0)
+    elif standardize is not None:
+        raise ValueError("standardize must be 'gene', 'group' or None.")
 
     _obs, ad = resolve_adata_obs(adata)
     colors = resolve_palette(
         palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
     )
-    pal = [colors[c] for c in cats]
+    common = dict(
+        order=cats, hue=groupby, hue_order=cats, palette=colors, legend=False,
+        dodge=False, cut=0, density_norm="width", linewidth=0.5, inner=inner,
+    )
 
     n_genes = len(genes)
+    if rotation is None:
+        rotation = 90 if swap_axes else -45
     if swap_axes:
         if figsize is None:
-            figsize = (max(4, len(cats) * 0.4), max(3, n_genes * 0.4))
+            figsize = (
+                max(4, n_genes * 0.5) + 0.5 * label_extent(cats, 8),
+                # Vertical projection of the rotated gene names.
+                max(3, len(cats) * 0.3) + 0.6 * label_extent(genes, 8, 90 - rotation),
+            )
         fig, axes = plt.subplots(1, n_genes, figsize=figsize, sharey=True)
+        apply_layout(fig, w_pad=0.02, wspace=0.03)
         axes = list(np.atleast_1d(axes).ravel())
         for i, g in enumerate(genes):
             sub = long[long["gene"] == g]
-            sns.violinplot(
-                data=sub,
-                y=groupby,
-                x="value",
-                order=cats,
-                palette=pal,
-                ax=axes[i],
-                cut=0,
-                density_norm="width",
-                linewidth=0.5,
-                inner=inner,
-                orient="h",
+            sns.violinplot(data=sub, y=groupby, x="value", ax=axes[i], orient="h", **common)
+            # Gene names hang below their column; anchored like rotated tick
+            # labels (vertical by default) so neighbours don't collide.
+            axes[i].set_xlabel(
+                g, rotation=rotation, rotation_mode="anchor",
+                ha=("left" if rotation < 0 else "right") if rotation % 180 else "center",
+                va="center" if rotation % 180 else "top",
             )
-            axes[i].set_xlabel(g, rotation=rotation, ha="right")
             axes[i].set_ylabel("")
             axes[i].set_xticks([])
-            axes[i].spines["bottom"].set_visible(False)
+            axes[i].spines[["bottom", "top", "right"]].set_visible(False)
+            axes[i].tick_params(axis="y", length=0)
+        axes[0].set_ylabel(groupby)
     else:
         if figsize is None:
-            figsize = (max(4, len(cats) * 0.4), max(2.5, n_genes * 0.6))
+            figsize = (
+                max(4, len(cats) * 0.4) + 0.5 * label_extent(genes, 8),
+                max(2.5, n_genes * 0.5) + 0.4 * label_extent(cats, 8, rotation),
+            )
         fig, axes = plt.subplots(n_genes, 1, figsize=figsize, sharex=True)
+        apply_layout(fig, h_pad=0.02, hspace=0.03)
         axes = list(np.atleast_1d(axes).ravel())
         for i, g in enumerate(genes):
             sub = long[long["gene"] == g]
-            sns.violinplot(
-                data=sub,
-                x=groupby,
-                y="value",
-                order=cats,
-                palette=pal,
-                ax=axes[i],
-                cut=0,
-                density_norm="width",
-                linewidth=0.5,
-                inner=inner,
-            )
-            axes[i].set_ylabel(g, rotation=0, ha="right", va="center", labelpad=15)
+            sns.violinplot(data=sub, x=groupby, y="value", ax=axes[i], **common)
+            axes[i].set_ylabel(g, rotation=0, ha="right", va="center", labelpad=8)
             axes[i].set_yticks([])
-            axes[i].spines["left"].set_visible(False)
+            axes[i].spines[["left", "top", "right"]].set_visible(False)
             if i < n_genes - 1:
                 axes[i].set_xlabel("")
-                axes[i].tick_params(labelbottom=False)
+                axes[i].tick_params(labelbottom=False, length=0)
             else:
                 axes[i].set_xlabel(groupby)
                 plt.setp(
                     axes[i].get_xticklabels(),
                     rotation=rotation,
-                    ha="left" if rotation < 0 else "right",
+                    rotation_mode="anchor",
+                    ha="left" if rotation < 0 else ("right" if rotation else "center"),
+                    va="center" if rotation else "top",
                 )
     if title:
         fig.suptitle(title)
-    fig.tight_layout()
     save_or_show(fig, save, show=show)
     return axes
 
@@ -627,19 +675,24 @@ def get_genes_mean_frac(
     if is_pseudobulk or "mean" in use.layers:
         # Pseudobulk path. ``use.obs_names`` IS the list of group labels
         # (no need to consult ``use.obs`` for a groupby column — it
-        # doesn't carry one). Use ``stack(dropna=False)`` so genes whose
-        # mean is NaN for a queried single group don't silently drop the
-        # entire row.
+        # doesn't carry one). Build the long table straight from the two
+        # aligned matrices so genes whose mean is NaN for a queried single
+        # group are kept (``stack()`` would drop them, and
+        # ``stack(dropna=False)`` is rejected by pandas >= 3).
         mean_df = use.to_df(layer=layer)
-        frac_df = use.to_df(layer="frac")
-
-        plot_data = mean_df.stack(dropna=False).reset_index()
-        plot_data.columns = [groupby, "Gene", "Mean"]
-
-        frac_long = frac_df.stack(dropna=False).reset_index()
-        frac_long.columns = [groupby, "Gene", "frac"]
-
-        plot_data = plot_data.merge(frac_long, on=[groupby, "Gene"], how="left")
+        frac_df = use.to_df(layer="frac").reindex(
+            index=mean_df.index, columns=mean_df.columns
+        )
+        labels = list(mean_df.index.astype(str))
+        gene_names = list(mean_df.columns)
+        plot_data = pd.DataFrame(
+            {
+                groupby: np.repeat(np.asarray(labels, dtype=object), len(gene_names)),
+                "Gene": np.tile(np.asarray(gene_names, dtype=object), len(labels)),
+                "Mean": mean_df.to_numpy(dtype=float).ravel(),
+                "frac": frac_df.to_numpy(dtype=float).ravel(),
+            }
+        )
         if plot_data.empty:
             raise ValueError(
                 "Pseudobulk plot_data is empty — check that `keep` "
@@ -665,33 +718,16 @@ def get_genes_mean_frac(
         )
 
     df = use.to_df()
-    if modality in ("RNA", "ATAC") and isinstance(expression_cutoff, str):
-        if expression_cutoff == "median":
-            cutoff = df.stack().median()
-        elif expression_cutoff == "mean":
-            cutoff = df.stack().mean()
-        else:
-            cutoff = df.stack().quantile(
-                float(expression_cutoff.replace("p", "")) / 100
-            )
-        expression_cutoff = cutoff
-    df[groupby] = obs.loc[df.index, groupby].tolist()
-    plot_data = df.groupby(groupby, observed=True).mean().stack().reset_index()
-    plot_data.columns = [groupby, "Gene", "Mean"]
-    if "frac" in use.layers:
-        D = use.to_df(layer="frac").stack().to_dict()
-    elif modality in ("RNA", "ATAC"):
-        frac = df.groupby(groupby, observed=True).agg(
-            lambda x: (x > expression_cutoff).sum() / len(x)
-        )
-        D = frac.stack().to_dict()
-    else:
-        hypo = df.groupby(groupby, observed=True).agg(lambda x: (x < 1).sum() / len(x))
-        D = hypo.stack().to_dict()
-    plot_data["frac"] = (
-        plot_data.loc[:, [groupby, "Gene"]]
-        .apply(lambda x: tuple(x.tolist()), axis=1)
-        .map(D)
+    if modality in ("RNA", "ATAC"):
+        expression_cutoff = _resolve_cutoff(df, expression_cutoff)
+    groups = categorical_series(obs.loc[df.index, groupby])
+    plot_data = _mean_frac_long(
+        df,
+        groups,
+        groupby,
+        frac_matrix=use.to_df(layer="frac") if "frac" in use.layers else None,
+        expression_cutoff=expression_cutoff,
+        hypo=modality not in ("RNA", "ATAC"),
     )
     return plot_data
 
@@ -850,10 +886,11 @@ def gene_dotplot(
         The fitted clustermap plotter object (its axes are accessible via
         ``.heatmap_axes`` etc.).
     """
-    from PyComplexHeatmap import (
-        HeatmapAnnotation,
-        anno_simple,
-        DotClustermapPlotter,
+    pch = import_pch()
+    HeatmapAnnotation, anno_simple, DotClustermapPlotter = (
+        pch.HeatmapAnnotation,
+        pch.anno_simple,
+        pch.DotClustermapPlotter,
     )
 
     plot_kws = dict(plot_kws or {})
@@ -964,50 +1001,42 @@ def gene_dotplot(
         return {c: have[c] for c in cats}
 
     df = use.to_df()
-    if modality in ("RNA", "ATAC") and isinstance(expression_cutoff, str):
-        if expression_cutoff == "median":
-            cutoff = df.stack().median()
-        elif expression_cutoff == "mean":
-            cutoff = df.stack().mean()
-        else:
-            cutoff = df.stack().quantile(
-                float(expression_cutoff.replace("p", "")) / 100
-            )
-        expression_cutoff = cutoff
-    df[groupby] = use.obs.loc[df.index, groupby].tolist()
+    if modality in ("RNA", "ATAC"):
+        expression_cutoff = _resolve_cutoff(df, expression_cutoff)
+    # Groups follow the categorical order of the obs column when it has one
+    # (falling back to sorted labels), both for the aggregation and for the
+    # column order of the plot.
+    obs_groups = obs.loc[use.obs_names, groupby]
+    group_order = categorical_order(obs_groups)
+    groups = categorical_series(obs_groups, group_order)
+    groups.index = df.index
+    plot_data = _mean_frac_long(
+        df,
+        groups,
+        groupby,
+        frac_matrix=use.to_df(layer="frac") if "frac" in use.layers else None,
+        expression_cutoff=expression_cutoff,
+        hypo=modality not in ("RNA", "ATAC"),
+    )
+
+    df_cols = pd.DataFrame({groupby: group_order}, index=group_order)
     if parent_col is not None:
         group2parent = (
             use.obs.loc[:, [groupby, parent_col]]
-            .drop_duplicates()
+            .astype(str)
+            .drop_duplicates(groupby)
             .set_index(groupby)[parent_col]
-            .to_dict()
         )
-    plot_data = df.groupby(groupby, observed=True).mean().stack().reset_index()
-    plot_data.columns = [groupby, "Gene", "Mean"]
-    if "frac" in use.layers:
-        D = use.to_df(layer="frac").stack().to_dict()
-    elif modality in ("RNA", "ATAC"):
-        frac = df.groupby(groupby, observed=True).agg(
-            lambda x: (x > expression_cutoff).sum() / len(x)
-        )
-        D = frac.stack().to_dict()
-    else:
-        hypo = df.groupby(groupby, observed=True).agg(lambda x: (x < 1).sum() / len(x))
-        D = hypo.stack().to_dict()
-    plot_data["frac"] = (
-        plot_data.loc[:, [groupby, "Gene"]]
-        .apply(lambda x: tuple(x.tolist()), axis=1)
-        .map(D)
-    )
-
-    df_cols = pd.DataFrame(sorted(use.obs[groupby].unique()), columns=[groupby])
-    if parent_col is not None:
+        parent_src = obs if parent_col in obs.columns else use.obs
+        parent_order = categorical_order(parent_src.loc[use.obs_names, parent_col])
         df_cols[parent_col] = df_cols[groupby].map(group2parent)
-        df_cols.sort_values([parent_col, groupby], inplace=True)
-    df_cols.index = df_cols[groupby].tolist()
+        df_cols = df_cols[df_cols[parent_col].isin(parent_order)]
+        # Stable sort keeps the group order inside each parent block.
+        rank = {p: i for i, p in enumerate(parent_order)}
+        df_cols = df_cols.iloc[np.argsort(df_cols[parent_col].map(rank).values, kind="stable")]
     if cell_type_order is not None:
         df_cols = df_cols.loc[[c for c in cell_type_order if c in df_cols.index]]
-    df_cols.dropna(inplace=True)
+    df_cols = df_cols.dropna()
 
     axis = 1 if not transpose else 0
 
@@ -1060,7 +1089,7 @@ def gene_dotplot(
                 height=3,
                 label=parent_col,
             )
-        col_ha = HeatmapAnnotation(**kw)
+        col_ha = HeatmapAnnotation(**kw, verbose=0)
 
     # Always show tick labels; pick a side that does not collide with col_ha.
     # When col_ha is on top (axis=1, default) we keep group names at the
@@ -1093,6 +1122,7 @@ def gene_dotplot(
         grid=None,
         dot_legend_marker=marker,
         cmap_legend_kws=legend_kws,
+        dot_legend_kws=dict(_DOT_LEGEND_KWS, title="Fraction"),
         row_cluster=row_cluster,
         col_cluster=col_cluster,
         row_cluster_method="ward",
@@ -1117,21 +1147,31 @@ def gene_dotplot(
         plot_kws.setdefault("xlabel", title)
         plot_kws.setdefault("xlabel_side", 'top')
     fig = plt.figure(figsize=figsize)
-    cm = DotClustermapPlotter(
-        data=plot_data,
-        top_annotation=top_anno,
-        left_annotation=left_anno,
-        x_order=x_order,
-        y_order=y_order,
-        x=x,
-        y=y,
-        value="Mean",
-        c="Mean",
-        s="frac",
-        cmap=cmap,
-        verbose=0,
-        **plot_kws,
-    )
+    with quiet_pch(fig):
+        cm = DotClustermapPlotter(
+            data=plot_data,
+            top_annotation=top_anno,
+            left_annotation=left_anno,
+            # Explicit orders only apply to un-clustered axes.
+            x_order=None if plot_kws["col_cluster"] else x_order,
+            y_order=None if plot_kws["row_cluster"] else y_order,
+            x=x,
+            y=y,
+            value="Mean",
+            c="Mean",
+            s="frac",
+            cmap=cmap,
+            verbose=0,
+            **plot_kws,
+        )
+    _style_dot_axes(cm, outline, outline_kws)
+    with quiet_pch(fig):
+        save_or_show(fig, save, show=show)
+    return cm
+
+
+def _style_dot_axes(cm, outline: bool, outline_kws: Optional[Mapping[str, Any]]):
+    """Dashed minor grid behind the dots plus an optional frame around the heatmap."""
     for ax in cm.heatmap_axes.ravel():
         ax.grid(
             axis="both",
@@ -1141,15 +1181,14 @@ def gene_dotplot(
             alpha=0.6,
             zorder=0,
         )
-    # _strip_cbar_white_lines(cm)
     if outline:
+        kws = dict(outline_kws or {})
         cm.ax_heatmap.set_axis_on()
-        for side in ["top", "right", "left", "bottom"]:
-            cm.ax_heatmap.spines[side].set_visible(True)
-            cm.ax_heatmap.spines[side].set_color(outline_kws.get("color", "black") if outline_kws else "black")
-            cm.ax_heatmap.spines[side].set_linewidth(outline_kws.get("linewidth", 1) if outline_kws else 1)
-    save_or_show(fig, save, show=show)
-    return cm
+        for side in ("top", "right", "left", "bottom"):
+            sp = cm.ax_heatmap.spines[side]
+            sp.set_visible(True)
+            sp.set_color(kws.get("color", "black"))
+            sp.set_linewidth(kws.get("linewidth", 1))
 
 
 # ---------------------------------------------------------------------------
@@ -1299,10 +1338,11 @@ def gene_dotplot2D(
     -------
     PyComplexHeatmap.DotClustermapPlotter
     """
-    from PyComplexHeatmap import (
-        HeatmapAnnotation,
-        anno_simple,
-        DotClustermapPlotter,
+    pch = import_pch()
+    HeatmapAnnotation, anno_simple, DotClustermapPlotter = (
+        pch.HeatmapAnnotation,
+        pch.anno_simple,
+        pch.DotClustermapPlotter,
     )
     from ..tools import load_obs, pseudobulk
 
@@ -1506,6 +1546,7 @@ def gene_dotplot2D(
         grid=None,
         dot_legend_marker=marker,
         cmap_legend_kws=legend_kws,
+        dot_legend_kws=dict(_DOT_LEGEND_KWS, title="Fraction"),
         row_cluster=row_cluster,
         col_cluster=col_cluster,
         row_cluster_method="ward",
@@ -1535,37 +1576,25 @@ def gene_dotplot2D(
         plot_kws.setdefault("xlabel_side", "top")
 
     fig = plt.figure(figsize=figsize)
-    cm = DotClustermapPlotter(
-        data=plot_data,
-        top_annotation=top_ha,
-        left_annotation=left_ha,
-        x_order=None if col_cluster else cols,
-        y_order=None if row_cluster else rows,
-        x=col,
-        y=row,
-        value="Value",
-        c="Value",
-        s="frac",
-        cmap=cmap,
-        verbose=0,
-        **plot_kws,
-    )
-    for ax in cm.heatmap_axes.ravel():
-        ax.grid(
-            axis="both",
-            which="minor",
-            color="grey",
-            linestyle="--",
-            alpha=0.6,
-            zorder=0,
+    with quiet_pch(fig):
+        cm = DotClustermapPlotter(
+            data=plot_data,
+            top_annotation=top_ha,
+            left_annotation=left_ha,
+            x_order=None if col_cluster else cols,
+            y_order=None if row_cluster else rows,
+            x=col,
+            y=row,
+            value="Value",
+            c="Value",
+            s="frac",
+            cmap=cmap,
+            verbose=0,
+            **plot_kws,
         )
-    if outline:
-        cm.ax_heatmap.set_axis_on()
-        for side in ["top", "right", "left", "bottom"]:
-            cm.ax_heatmap.spines[side].set_visible(True)
-            cm.ax_heatmap.spines[side].set_color(outline_kws.get("color", "black"))
-            cm.ax_heatmap.spines[side].set_linewidth(outline_kws.get("linewidth", 1))
-    save_or_show(fig, save, show=show)
+    _style_dot_axes(cm, outline, outline_kws)
+    with quiet_pch(fig):
+        save_or_show(fig, save, show=show)
     return cm
 
 
@@ -1719,8 +1748,11 @@ def ridgeline(
     grid = np.linspace(clip[0], clip[1], n_points)
 
     n = len(cats)
+    own_fig = ax is None
     if figsize is None:
-        figsize = (3.2, max(3.0, 0.42 * n + 1.0))
+        # Reserve room for the category labels so long names don't squeeze
+        # the ridges into a sliver.
+        figsize = (3.2 + label_extent(cats, 8), max(3.0, 0.42 * n + 1.0))
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
     else:
@@ -1762,6 +1794,6 @@ def ridgeline(
     for side in ("top", "right", "left"):
         ax.spines[side].set_visible(False)
     ax.tick_params(axis="y", length=0)
-    fig.tight_layout()
+    apply_layout(fig, own=own_fig)
     save_or_show(fig, save, show=show)
     return ax

@@ -21,50 +21,36 @@ sometimes leaves at the bottom of colorbars.
 
 from __future__ import annotations
 
-import contextlib
-import warnings
 from typing import Any, Mapping, Optional, Sequence, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from ._utils import resolve_palette, save_or_show
+from ._utils import (
+    categorical_series,
+    gene_positions,
+    import_pch,
+    quiet_pch as _quiet_pch,
+    resolve_palette,
+    save_or_show,
+)
 
 __all__ = ["complex_heatmap", "complex_dotplot"]
 
-
-@contextlib.contextmanager
-def _quiet_pch(fig):
-    """Silence upstream PyComplexHeatmap warnings while it draws ``fig``.
-
-    - Disables ``figure.autolayout`` on the target figure so that
-      PyComplexHeatmap's manual GridSpec layout does not trigger the
-      "Axes are not compatible with tight_layout" warning on canvas draw.
-    - Filters the pandas ``FutureWarning`` about callable ``mean`` /
-      ``DataFrame.applymap`` that comes from ``PyComplexHeatmap.dotHeatmap``.
-    """
-    # Force this figure off any auto-layout engine (tight/constrained) that
-    # ``figure.autolayout=True`` in our rcParams would otherwise install.
-    try:
-        fig.set_layout_engine("none")
-    except Exception:
-        pass
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore",
-            category=FutureWarning,
-            module=r"PyComplexHeatmap\..*",
-        )
-        warnings.filterwarnings(
-            "ignore",
-            message=r".*not compatible with tight_layout.*",
-            category=UserWarning,
-        )
-        yield
+# PyComplexHeatmap's dot-size legend uses ``handlelength=1`` (one em), but the
+# reference dots are as large as a heatmap cell (~20 pt) and overflow onto
+# their labels; give the handles room and space the rows out.
+_DOT_LEGEND_KWS = dict(handlelength=3.0, handletextpad=0.8, labelspacing=0.9)
 
 
 def _aggregate(adata, groupby, genes, layer=None, use_raw=False, expression_cutoff=0):
+    """Return ``(mean_df, frac_df)`` of ``genes`` per ``groupby`` category.
+
+    Groups keep the categorical order of ``adata.obs[groupby]`` (or first
+    appearance order otherwise) so that un-clustered heatmaps follow the
+    user's category ordering instead of being sorted alphabetically.
+    """
     import anndata as _ad
 
     if not isinstance(adata, _ad.AnnData):
@@ -76,23 +62,16 @@ def _aggregate(adata, groupby, genes, layer=None, use_raw=False, expression_cuto
     # genes out of the other.
     if layer is not None and layer in adata.layers:
         mat = adata.layers[layer]
-        var_names = list(adata.var_names)
+        var_names = adata.var_names
     else:
         mat = src.X
-        var_names = list(src.var_names)
-    missing = [g for g in genes if g not in var_names]
-    if missing:
-        raise KeyError(f"genes not in adata.var_names: {missing[:5]}")
-    pos = {g: i for i, g in enumerate(var_names)}
-    idx = [pos[g] for g in genes]
-    X = mat[:, idx]
+        var_names = src.var_names
+    X = mat[:, gene_positions(var_names, genes)]
     if hasattr(X, "toarray"):
         X = X.toarray()
     X = np.asarray(X)
-    obs = adata.obs[[groupby]].copy()
-    obs[groupby] = obs[groupby].astype(str)
-    df = pd.DataFrame(X, index=obs.index, columns=list(genes))
-    g = obs[groupby]
+    g = categorical_series(adata.obs[groupby])
+    df = pd.DataFrame(X, index=adata.obs_names, columns=list(genes))
     mean_df = df.groupby(g, observed=True).mean()
     frac_df = (df > expression_cutoff).groupby(g, observed=True).mean()
     return mean_df, frac_df
@@ -119,7 +98,7 @@ def _strip_cbar_white_lines(cm):
 def _row_annotation(
     adata, cats, groupby, palette, annotate, annotate_palettes, annot_kws
 ):
-    import PyComplexHeatmap as pch
+    pch = import_pch()
 
     primary_colors = resolve_palette(
         palette, cats, sheet_name=groupby, adata=adata, groupby=groupby
@@ -134,17 +113,24 @@ def _row_annotation(
     }
     if annotate:
         annotate_palettes = dict(annotate_palettes or {})
-        sub = adata.obs[[groupby] + list(annotate)].copy()
-        sub[groupby] = sub[groupby].astype(str)
-        per_group = (
-            sub.groupby(groupby, observed=True)
-            .agg(lambda v: v.mode().iloc[0] if not v.mode().empty else v.iloc[0])
-            .reindex(cats)
-        )
+        g = categorical_series(adata.obs[groupby])
         for col in annotate:
-            if col not in per_group.columns:
+            if col not in adata.obs.columns:
                 continue
-            ann_cats = per_group[col].astype(str).tolist()
+            # Dominant (modal) value of ``col`` per group, without a python
+            # lambda per group: count (group, value) pairs once and keep the
+            # most frequent value for each group.
+            pairs = pd.DataFrame({"g": g, "v": adata.obs[col].astype(str).values})
+            modal = (
+                pairs.groupby(["g", "v"], observed=True)
+                .size()
+                .reset_index(name="n")
+                .sort_values(["g", "n"], ascending=[True, False])
+                .drop_duplicates("g")
+                .set_index("g")["v"]
+                .reindex(cats)
+            )
+            ann_cats = modal.astype(str).tolist()
             uniq = list(dict.fromkeys(ann_cats))
             cpal = resolve_palette(
                 annotate_palettes.get(col),
@@ -163,6 +149,36 @@ def _row_annotation(
     annot_kws.setdefault("axis", 0)
     annot_kws.setdefault("verbose", 0)
     return pch.HeatmapAnnotation(**annos, **annot_kws), primary_colors
+
+
+def _auto_figsize(n_col: int, n_row: int, cell: float = 0.28, extra_w: float = 2.5):
+    """Figure size that grows with the grid so cells stay roughly square."""
+    return (max(4.0, cell * n_col + extra_w), max(3.0, cell * n_row + 1.8))
+
+
+def _set_title(fig, cm, title: Optional[str]):
+    """Put ``title`` centred above the heatmap/annotation block.
+
+    ``fig.suptitle`` centres on the whole figure (which includes the legend
+    column) so it ends up off-centre; align it with the heatmap axes instead
+    and sit it just above the topmost axes of the plotter.
+    """
+    if not title:
+        return
+    try:
+        fig.canvas.draw()
+        hm = cm.ax_heatmap.get_position()
+        top = max(a.get_position().y1 for a in fig.axes if a.get_visible())
+        fig.text(
+            (hm.x0 + hm.x1) / 2,
+            top + 0.02,
+            title,
+            ha="center",
+            va="bottom",
+            fontsize=plt.rcParams["figure.titlesize"],
+        )
+    except Exception:
+        fig.suptitle(title, y=1.02)
 
 
 def complex_heatmap(
@@ -280,7 +296,7 @@ def complex_heatmap(
         The fitted plotter object holding the drawn heatmap (its ``fig`` /
         axes can be used for further customisation).
     """
-    import PyComplexHeatmap as pch
+    pch = import_pch()
 
     mean_df, _ = _aggregate(adata, groupby, list(genes), layer=layer, use_raw=use_raw)
     if z_score == "row":
@@ -303,20 +319,18 @@ def complex_heatmap(
     # Scale the figure with the number of genes (columns) and groups (rows)
     # so tick labels stay readable instead of overlapping on large panels.
     if figsize is None:
-        n_col, n_row = len(mean_df.columns), len(mean_df.index)
-        figsize = (max(4.0, 0.28 * n_col + 2.5), max(3.0, 0.28 * n_row + 1.8))
+        figsize = _auto_figsize(len(mean_df.columns), len(mean_df.index))
 
     fig = plt.figure(figsize=figsize)
     plot_kws = dict(plot_kws or {})
     plot_kws.update(kwargs)
-    # Right-side row labels (row_names_side="right") extend past the heatmap
-    # into the legend column; widen the legend gap for long group names so
-    # the colour legend does not overlap the y tick labels.
-    _maxlen = max((len(str(c)) for c in cats), default=0)
-    _auto_hpad = max(4, round(0.75 * _maxlen))
     base = dict(
         data=mean_df,
         cmap=cmap,
+        # Colorbar title: say what the colours mean instead of PCH's "heatmap".
+        label={"row": "z-score (row)", "col": "z-score (col)"}.get(
+            z_score, "Mean expression"
+        ),
         row_cluster=row_cluster,
         col_cluster=col_cluster,
         show_rownames=show_rownames,
@@ -326,20 +340,20 @@ def complex_heatmap(
         row_names_side="right",
         xticklabels_kws=dict(labelrotation=-45, labelsize=8, bottom=True),
         yticklabels_kws=dict(labelsize=8, right=True),
-        legend_hpad=_auto_hpad,
+        # PCH already reserves the row-label width when row names sit on the
+        # right; only a small extra gap is needed before the legends.
+        legend_hpad=3,
         legend_side="right",
         legend_anchor="ax_heatmap",
         verbose=0,
     )
-    for k, v in plot_kws.items():
-        base[k] = v
+    base.update(plot_kws)
     if legend_kws:
         base["legend_kws"] = dict(legend_kws)
     with _quiet_pch(fig):
         cm = pch.ClusterMapPlotter(**base)
     _strip_cbar_white_lines(cm)
-    if title:
-        fig.suptitle(title, y=1.02)
+    _set_title(fig, cm, title)
     with _quiet_pch(fig):
         save_or_show(fig, save, show=show)
     return cm
@@ -463,7 +477,7 @@ def complex_dotplot(
         The fitted plotter object holding the drawn dot heatmap (its ``fig`` /
         axes can be used for further customisation).
     """
-    import PyComplexHeatmap as pch
+    pch = import_pch()
 
     mean_df, frac_df = _aggregate(
         adata,
@@ -474,20 +488,17 @@ def complex_dotplot(
         expression_cutoff=expression_cutoff,
     )
     cats = list(mean_df.index)
-    long = (
-        mean_df.stack()
-        .rename("value")
-        .reset_index()
-        .rename(columns={mean_df.index.name or "level_0": groupby, "level_1": "gene"})
+    gene_list = list(mean_df.columns)
+    # Long table straight from the aligned matrices (same index/columns), so
+    # no reliance on two independent ``stack()`` calls lining up row-by-row.
+    long = pd.DataFrame(
+        {
+            groupby: np.repeat(np.asarray(cats, dtype=object), len(gene_list)),
+            "gene": np.tile(np.asarray(gene_list, dtype=object), len(cats)),
+            "Mean": mean_df.to_numpy(dtype=float).ravel(),
+            "Fraction": frac_df.to_numpy(dtype=float).ravel(),
+        }
     )
-    long["value"] = long["value"].astype(float)
-    fl = (
-        frac_df.stack()
-        .rename("size")
-        .reset_index()
-        .rename(columns={frac_df.index.name or "level_0": groupby, "level_1": "gene"})
-    )
-    long["size"] = fl["size"].astype(float).values
 
     row_anno, _ = _row_annotation(
         adata, cats, groupby, palette, annotate, annotate_palettes, annot_kws
@@ -496,28 +507,31 @@ def complex_dotplot(
     # Scale with gene (column) and group (row) counts so dots and tick
     # labels stay readable instead of overlapping on large panels.
     if figsize is None:
-        n_col, n_row = len(mean_df.columns), len(mean_df.index)
-        figsize = (max(4.0, 0.30 * n_col + 2.5), max(3.0, 0.28 * n_row + 1.8))
+        figsize = _auto_figsize(len(gene_list), len(cats), cell=0.30)
 
     fig = plt.figure(figsize=figsize)
     plot_kws = dict(plot_kws or {})
     plot_kws.update(kwargs)
-    # Right-side row labels (row_names_side="right") extend past the heatmap
-    # into the legend column; widen the legend gap for long group names so
-    # the colour legend does not overlap the y tick labels.
-    _maxlen = max((len(str(c)) for c in cats), default=0)
-    _auto_hpad = max(4, round(0.75 * _maxlen))
+    cmap_legend_kws = dict(label="Mean expression", extend="both", extendfrac=0.1)
+    if legend_kws:
+        cmap_legend_kws.update(legend_kws)
     base = dict(
         data=long,
         x="gene",
         y=groupby,
-        value="value",
-        c="value",
-        s="size",
+        value="Mean",
+        c="Mean",
+        s="Fraction",
         cmap=cmap,
         marker=marker,
+        dot_legend_marker=marker,
+        cmap_legend_kws=cmap_legend_kws,
+        dot_legend_kws=dict(_DOT_LEGEND_KWS),
         row_cluster=row_cluster,
         col_cluster=col_cluster,
+        # Honour the categorical / requested order when not clustering.
+        x_order=None if col_cluster else gene_list,
+        y_order=None if row_cluster else cats,
         left_annotation=row_anno,
         verbose=0,
         show_rownames=show_rownames,
@@ -526,20 +540,16 @@ def complex_dotplot(
         row_names_side="right",
         xticklabels_kws=dict(labelrotation=-45, labelsize=8, bottom=True),
         yticklabels_kws=dict(labelsize=8, right=True),
-        legend_hpad=_auto_hpad,
+        legend_hpad=3,
         legend_side="right",
         legend_anchor="ax_heatmap",
         spines=False,
     )
-    for k, v in plot_kws.items():
-        base[k] = v
-    if legend_kws:
-        base["cmap_legend_kws"] = dict(legend_kws)
+    base.update(plot_kws)
     with _quiet_pch(fig):
         cm = pch.DotClustermapPlotter(**base)
     _strip_cbar_white_lines(cm)
-    if title:
-        fig.suptitle(title, y=1.02)
+    _set_title(fig, cm, title)
     with _quiet_pch(fig):
         save_or_show(fig, save, show=show)
     return cm

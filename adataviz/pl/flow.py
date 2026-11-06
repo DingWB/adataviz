@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 
 from ._utils import (
+    apply_layout,
     categorical_order,
     merge_legend_kws,
     resolve_adata_obs,
@@ -196,10 +197,12 @@ def sankey_plot(
         None, right_cats, sheet_name=right, adata=ad, groupby=right
     )
 
+    own_fig = ax is None
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
     else:
         fig = ax.figure
+    apply_layout(fig, own=own_fig)
 
     # Auto-shrink label fontsize when there are many nodes so labels don't overlap.
     fig_h_in = fig.get_size_inches()[1]
@@ -318,7 +321,7 @@ def sankey_plot(
     ax.axis("off")
     if title:
         ax.set_title(title)
-    save_or_show(fig, save)
+    save_or_show(fig, save, show=show)
     return ax
 
 
@@ -490,30 +493,35 @@ def chord_plot(
             maybe_adjust_texts(texts, ax=fig.axes[0])
     if title:
         fig.suptitle(title, y=0.98)
-    fig.tight_layout()
-    save_or_show(fig, save)
+    save_or_show(fig, save, show=show)
     return fig
 
 
 def _chord_fallback(matrix, colors, figsize, save, show, title, adjust_text=True):
-    """Minimal matplotlib chord fallback when pycirclize is unavailable."""
+    """Minimal matplotlib chord fallback when pycirclize is unavailable.
+
+    Sectors are arcs sized by their row totals; each unordered pair of
+    sectors is connected by a single ribbon whose edges are quadratic Bezier
+    curves pulled through the centre of the circle (the classic chord look).
+    """
+    from matplotlib.patches import PathPatch
+    from matplotlib.path import Path
+
     from ._utils import maybe_adjust_texts
 
     fig, ax = plt.subplots(figsize=figsize, subplot_kw=dict(aspect="equal"))
+    apply_layout(fig)
     labels = list(matrix.index)
     n = len(labels)
-    totals = matrix.sum(axis=1).values
+    totals = matrix.sum(axis=1).values.astype(float)
     grand = totals.sum()
     if grand <= 0:
         raise ValueError("Empty matrix.")
 
     gap = np.deg2rad(2)
-    spans = (totals / grand) * (2 * np.pi - n * gap)
-    starts = np.zeros(n)
-    cur = 0.0
-    for i in range(n):
-        starts[i] = cur
-        cur += spans[i] + gap
+    unit = (2 * np.pi - n * gap) / grand  # radians per count
+    spans = totals * unit
+    starts = np.concatenate([[0.0], np.cumsum(spans + gap)[:-1]])
     ends = starts + spans
 
     R = 1.0
@@ -525,40 +533,53 @@ def _chord_fallback(matrix, colors, figsize, save, show, title, adjust_text=True
         ys = np.concatenate([R * np.sin(theta), R_outer * np.sin(theta[::-1])])
         ax.fill(xs, ys, color=colors[lab], edgecolor="white", linewidth=0.5)
         mid = (starts[i] + ends[i]) / 2
+        deg = np.rad2deg(mid) % 360
+        # Radial labels reading outwards; flip the left half so no label is
+        # upside down.
+        if deg <= 90 or deg >= 270:
+            rot, ha = deg, "left"
+        else:
+            rot, ha = deg - 180, "right"
         t = ax.text(
-            1.12 * np.cos(mid),
-            1.12 * np.sin(mid),
+            1.1 * np.cos(mid),
+            1.1 * np.sin(mid),
             lab,
-            ha="center",
+            ha=ha,
             va="center",
+            rotation=rot,
+            rotation_mode="anchor",
             fontsize=8,
-            rotation=np.rad2deg(mid) - 90 if np.cos(mid) > 0 else np.rad2deg(mid) + 90,
         )
         label_artists.append(t)
 
-    cursor_out = starts.copy()
-    cursor_in = ends.copy()
+    def _ribbon(a0, a1, b0, b1, color):
+        """Filled chord between arc [a0, a1] and arc [b0, b1]."""
+        ta = np.linspace(a0, a1, 20)
+        tb = np.linspace(b0, b1, 20)
+        pa = np.column_stack([R * np.cos(ta), R * np.sin(ta)])
+        pb = np.column_stack([R * np.cos(tb), R * np.sin(tb)])
+        verts = [pa[0]] + list(pa[1:]) + [(0.0, 0.0), pb[0]] + list(pb[1:]) + [(0.0, 0.0), pa[0]]
+        codes = (
+            [Path.MOVETO] + [Path.LINETO] * (len(pa) - 1)
+            + [Path.CURVE3, Path.CURVE3] + [Path.LINETO] * (len(pb) - 1)
+            + [Path.CURVE3, Path.CURVE3]
+        )
+        ax.add_patch(PathPatch(Path(verts, codes), facecolor=color, alpha=0.4, edgecolor="none"))
+
+    # One cursor per sector; every unordered pair is drawn exactly once so the
+    # ribbons tile each sector without overflowing it.
+    cursor = starts.copy()
     for i in range(n):
-        for j in range(n):
-            v = matrix.iat[i, j]
-            if v <= 0 or i == j:
+        for j in range(i + 1, n):
+            v = float(matrix.iat[i, j])
+            if v <= 0:
                 continue
-            frac_i = v / grand * (2 * np.pi - n * gap)
-            a0 = cursor_out[i]
-            a1 = cursor_out[i] + frac_i
-            cursor_out[i] = a1
-            b1 = cursor_in[j]
-            b0 = b1 - frac_i
-            cursor_in[j] = b0
-            theta_a = np.linspace(a0, a1, 25)
-            theta_b = np.linspace(b1, b0, 25)
-            xs = np.concatenate(
-                [R * np.cos(theta_a), [0.0], R * np.cos(theta_b), [0.0]]
-            )
-            ys = np.concatenate(
-                [R * np.sin(theta_a), [0.0], R * np.sin(theta_b), [0.0]]
-            )
-            ax.fill(xs, ys, color=colors[labels[i]], alpha=0.35, edgecolor="none")
+            w = v * unit
+            a0, a1 = cursor[i], cursor[i] + w
+            b0, b1 = cursor[j], cursor[j] + w
+            cursor[i], cursor[j] = a1, b1
+            # Colour by the first (``left``) sector, like the Sankey ribbons.
+            _ribbon(a0, a1, b0, b1, colors[labels[i]])
     ax.set_xlim(-1.3, 1.3)
     ax.set_ylim(-1.3, 1.3)
     ax.axis("off")
@@ -566,5 +587,5 @@ def _chord_fallback(matrix, colors, figsize, save, show, title, adjust_text=True
         maybe_adjust_texts(label_artists, ax=ax)
     if title:
         ax.set_title(title)
-    save_or_show(fig, save)
+    save_or_show(fig, save, show=show)
     return fig

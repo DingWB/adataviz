@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from ._utils import categorical_order, merge_legend_kws, save_or_show
+from ._utils import apply_layout, categorical_order, outside_legend, save_or_show
 
 __all__ = ["plot_pseudotime"]
 
@@ -132,9 +132,16 @@ def plot_pseudotime(
         figsize = (max(5.0, 0.45 * len(order) + 1.5), 3.5)
 
     fig, ax = plt.subplots(figsize=figsize)
+    apply_layout(fig)
+    # When ``hue`` is a coarser label of ``groupby`` (one hue level per
+    # group) there is nothing to dodge: keep full-width violins instead of
+    # the thin, offset ones seaborn draws for a nested hue.
+    nested = hue is not None and (
+        data.groupby(groupby, observed=True)[hue].nunique().max() <= 1
+    )
     sns.violinplot(
         data=data, x=groupby, y=y,
-        order=order, hue=hue, hue_order=hue_order,
+        order=order, hue=hue, hue_order=hue_order, dodge=not nested,
         palette=color_palette, density_norm="count", bw_adjust=0.5,
         inner=None, saturation=0.8, ax=ax, cut=0, linewidth=0.6,
     )
@@ -152,7 +159,14 @@ def plot_pseudotime(
             ha="left" if rotation < 0 else "right",
         )
     if hue is not None:
-        ax.legend(**merge_legend_kws(legend_kws, title=hue))
+        # Re-home seaborn's in-axes legend outside the plot.
+        lg = ax.get_legend()
+        handles = labels = None
+        if lg is not None:
+            handles = getattr(lg, "legend_handles", None) or getattr(lg, "legendHandles", None)
+            labels = [t.get_text() for t in lg.get_texts()]
+            lg.remove()
+        outside_legend(fig, ax, handles, labels, legend_kws=legend_kws, title=hue)
     if title:
         ax.set_title(title)
     save_or_show(fig, save, show=show)

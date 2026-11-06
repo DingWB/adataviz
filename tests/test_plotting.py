@@ -3,6 +3,7 @@ import matplotlib
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -189,3 +190,93 @@ class TestPlotCategorical:
         plot_categorical(adata_with_colors, ax=ax, groupby="cell_type", show=False)
         # Should not raise; ax is still a valid Axes object
         assert ax is not None
+
+
+# ---------------------------------------------------------------------------
+# Expression / heatmap plots (regressions for pandas>=3, category order, ...)
+# ---------------------------------------------------------------------------
+
+pch = pytest.importorskip("PyComplexHeatmap", reason="PyComplexHeatmap not installed")
+
+
+@pytest.fixture
+def adata_ordered(adata):
+    """adata whose categorical order is deliberately *not* alphabetical."""
+    cats = ["TypeE", "TypeC", "TypeA", "TypeD", "TypeB"]
+    adata.obs["cell_type"] = adata.obs["cell_type"].cat.reorder_categories(cats)
+    return adata
+
+
+class TestExpressionPlots:
+    genes = ["gene_0", "gene_1", "gene_2", "gene_3"]
+
+    def test_complex_dotplot_runs_on_new_pandas(self, adata_ordered):
+        # PyComplexHeatmap calls DataFrame.applymap, removed in pandas 3.
+        from adataviz.pl import complex_dotplot
+
+        cm = complex_dotplot(adata_ordered, self.genes, "cell_type", annotate=["condition"])
+        assert cm.ax_heatmap is not None
+
+    def test_gene_dotplot_runs(self, adata_ordered):
+        from adataviz.pl import gene_dotplot
+
+        cm = gene_dotplot(adata_ordered, self.genes, groupby="cell_type",
+                          parent_col="condition", use_raw=False, title="t")
+        assert cm.ax_heatmap is not None
+
+    def test_complex_heatmap_keeps_category_order(self, adata_ordered):
+        from adataviz.pl import complex_heatmap
+
+        cm = complex_heatmap(adata_ordered, self.genes, "cell_type", row_cluster=False)
+        assert list(cm.data2d.index) == list(adata_ordered.obs["cell_type"].cat.categories)
+
+    def test_boxplot_keeps_category_order(self, adata_ordered):
+        from adataviz.pl import boxplot
+
+        ax = boxplot(adata_ordered, "gene_0", "cell_type", kind="box")
+        labels = [t.get_text() for t in ax.get_xticklabels()]
+        assert labels == list(adata_ordered.obs["cell_type"].cat.categories)
+
+    def test_stacked_violin_both_orientations(self, adata_ordered):
+        from adataviz.pl import stacked_violinplot
+
+        axes = stacked_violinplot(adata_ordered, self.genes, "cell_type")
+        assert len(axes) == len(self.genes)
+        axes = stacked_violinplot(adata_ordered, self.genes, "cell_type", swap_axes=True)
+        assert len(axes) == len(self.genes)
+
+    def test_get_genes_mean_frac_matches_reference(self, adata_ordered):
+        from adataviz.pl import get_genes_mean_frac
+
+        out = get_genes_mean_frac(adata_ordered, self.genes, groupby="cell_type",
+                                  use_raw=False, expression_cutoff=10)
+        df = adata_ordered[:, self.genes].to_df()
+        grp = adata_ordered.obs["cell_type"].astype(str)
+        ref_mean = df.groupby(grp).mean()
+        ref_frac = (df > 10).groupby(grp).mean()
+        for _, row in out.iterrows():
+            assert np.isclose(row["Mean"], ref_mean.loc[row["cell_type"], row["Gene"]])
+            assert np.isclose(row["frac"], ref_frac.loc[row["cell_type"], row["Gene"]])
+        # groups come back in categorical order, not alphabetically
+        assert list(dict.fromkeys(out["cell_type"])) == list(
+            adata_ordered.obs["cell_type"].cat.categories
+        )
+
+    def test_ridgeline_runs(self, adata_ordered):
+        from adataviz.pl import ridgeline
+
+        ax = ridgeline(adata_ordered, "gene_0", "cell_type")
+        assert ax.figure is not None
+
+
+class TestCompositionShow:
+    def test_show_is_forwarded(self, adata_with_colors, monkeypatch):
+        from adataviz.pl import area_plot, pie_plot, rose_plot, sankey_plot
+
+        calls = []
+        monkeypatch.setattr(plt, "show", lambda *a, **k: calls.append(1))
+        rose_plot(adata_with_colors, "cell_type", show=True)
+        pie_plot(adata_with_colors, "cell_type", split_by="condition", show=True)
+        area_plot(adata_with_colors, "cell_type", "condition", show=True)
+        sankey_plot(adata_with_colors, "cell_type", "condition", show=True)
+        assert len(calls) == 4

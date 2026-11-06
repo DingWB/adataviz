@@ -19,9 +19,11 @@ import numpy as np
 import pandas as pd
 
 from ._utils import (
+    apply_layout,
     categorical_order,
+    label_extent,
     maybe_adjust_texts,
-    merge_legend_kws,
+    outside_legend,
     resolve_adata_obs,
     resolve_palette,
     save_or_show,
@@ -36,6 +38,22 @@ __all__ = [
     "trend_plot",
     "bar_plot",
 ]
+
+
+def _legend_aware_figsize(base, cats, show_legend: bool, fontsize: float = 8):
+    """Grow ``base`` (w, h) so an outside legend for ``cats`` fits next to the axes.
+
+    The legend column needs roughly the longest label width plus a handle,
+    and the figure must be at least as tall as the stacked legend entries;
+    otherwise matplotlib squeezes the axes to a sliver (or lets the legend
+    collide with the tick labels).
+    """
+    w, h = base
+    if not show_legend:
+        return (w, h)
+    w += label_extent(cats, fontsize) + 0.4
+    h = max(h, 0.19 * len(cats) + 0.8)
+    return (w, h)
 
 
 # ---------------------------------------------------------------------------
@@ -137,11 +155,15 @@ def rose_plot(
     angles = np.linspace(0.0, 2 * np.pi, n, endpoint=False)
     width = 2 * np.pi / max(n, 1) * 0.95
 
+    own_fig = ax is None
     if ax is None:
         fig = plt.figure(figsize=figsize)
         ax = fig.add_subplot(111, projection="polar")
     else:
         fig = ax.figure
+    # Constrained layout shrinks the polar axes so that the category labels
+    # placed outside the ring (and the legend / title) all fit the figure.
+    apply_layout(fig, own=own_fig)
 
     if split_by is None:
         colors = resolve_palette(
@@ -178,7 +200,9 @@ def rose_plot(
             )
             bottom += vals
         if show_legend:
-            ax.legend(**merge_legend_kws(legend_kws, title=split_by))
+            # Figure-level legend: an axes-anchored one would sit on top of
+            # the labels that stick out past the polar axes on the right.
+            outside_legend(fig, ax, legend_kws=legend_kws, title=split_by)
 
     ax.set_xticks(angles)
     if label_orientation == "none":
@@ -204,14 +228,22 @@ def rose_plot(
             )
     else:  # vertical / upright
         ax.set_xticklabels(cats, fontsize=8)
+        # Push upright labels outward on the side they sit on so they do
+        # not overlap the outer ring of wedges.
+        for lab, ang in zip(ax.get_xticklabels(), angles):
+            c = np.cos(ang)
+            lab.set_ha("left" if c > 0.1 else "right" if c < -0.1 else "center")
     ax.set_yticklabels([])
     ax.spines["polar"].set_visible(False)
     ax.grid(color="lightgrey", linewidth=0.4, alpha=0.7)
-    # Reserve enough margin so labels don't collide with the title.
     if title:
-        ax.set_title(title, pad=24)
-    fig.subplots_adjust(top=0.86, left=0.05, right=0.95, bottom=0.05)
-    save_or_show(fig, save)
+        # suptitle sits above the outward-pointing labels; an axes title
+        # would be drawn right across the labels at the top of the ring.
+        if own_fig:
+            fig.suptitle(title)
+        else:
+            ax.set_title(title, pad=24)
+    save_or_show(fig, save, show=show)
     return ax
 
 
@@ -226,7 +258,7 @@ def ring_plot(
     order: Optional[Sequence] = None,
     palette: Union[None, Mapping[str, str], str] = None,
     width: float = 0.35,
-    figsize=(4.5, 4.5),
+    figsize=None,
     ax=None,
     save: Optional[str] = None,
     show: bool = False,
@@ -266,9 +298,10 @@ def ring_plot(
     width : float, default 0.35
         Radial width of the ring as a fraction of the radius (smaller values
         yield a thinner donut with a larger hole).
-    figsize : tuple of float, default (4.5, 4.5)
+    figsize : tuple of float, optional
         Figure size in inches, used only when a new figure is created
-        (``ax`` is ``None``).
+        (``ax`` is ``None``). When ``None`` (default) a 4.5 inch square is
+        widened / heightened as needed for an outside legend.
     ax : matplotlib.axes.Axes, optional
         Existing axes to draw into. If ``None`` (default) a new figure and
         axes are created.
@@ -318,11 +351,17 @@ def ring_plot(
 
     if show_labels is None:
         show_labels = len(cats) <= 12 and legend_loc != "center"
+    if figsize is None:
+        figsize = _legend_aware_figsize(
+            (4.5, 4.5), cats, show_legend and legend_loc != "center"
+        )
 
+    own_fig = ax is None
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
     else:
         fig = ax.figure
+    apply_layout(fig, own=own_fig)
 
     total = float(counts.sum()) or 1.0
     fracs = counts.values / total
@@ -346,8 +385,6 @@ def ring_plot(
             if f < 0.02:
                 t.set_text("")
         if label_orientation == "radial":
-            import numpy as _np
-
             for t, w in zip(texts, wedges):
                 if not t.get_text():
                     continue
@@ -360,7 +397,7 @@ def ring_plot(
                 # Position just outside the donut.
                 r = 1.05
                 t.set_position(
-                    (r * _np.cos(_np.deg2rad(ang)), r * _np.sin(_np.deg2rad(ang)))
+                    (r * np.cos(np.deg2rad(ang)), r * np.sin(np.deg2rad(ang)))
                 )
                 t.set_rotation(rot)
                 t.set_rotation_mode("anchor")
@@ -386,11 +423,10 @@ def ring_plot(
                 lkws.update(legend_kws)
             ax.legend(wedges, cats, **lkws)
         else:
-            ax.legend(wedges, cats, **merge_legend_kws(legend_kws, title=groupby))
+            outside_legend(fig, ax, wedges, cats, legend_kws=legend_kws, title=groupby)
     if title:
         ax.set_title(title, pad=10)
-    fig.tight_layout()
-    save_or_show(fig, save)
+    save_or_show(fig, save, show=show)
     return ax
 
 
@@ -449,8 +485,8 @@ def pie_plot(
         from the AnnData ``uns`` colours or a generated default.
     figsize : tuple of float, optional
         Figure size in inches. When ``None`` (default) a sensible size is
-        chosen automatically: ``(4.5, 4.5)`` for a single pie, or a size
-        scaled by the facet grid dimensions.
+        chosen automatically: ``(4.5, 4.5)`` for a single pie (widened for
+        an outside legend), or a size scaled by the facet grid dimensions.
     ncols : int, optional
         Number of columns in the facet grid. Only used when ``split_by`` is
         set; defaults to ``min(n_facets, 4)``.
@@ -462,7 +498,7 @@ def pie_plot(
         Overall title. Used as the axes title for a single pie or the figure
         suptitle for a facet grid.
     autopct : str or None, default "%.1f%%"
-        Percentage format string for slice labels. Slices below 3%% are left
+        Percentage format string for slice labels. Slices below 4%% are left
         unlabelled; pass ``None`` to disable percentage labels entirely.
     show_legend : bool, optional
         Whether to draw a shared legend. When ``None`` (default) it is
@@ -473,8 +509,10 @@ def pie_plot(
         defaults).
     show_labels : bool, optional
         Whether to draw slice labels. When ``None`` (default) labels are
-        enabled only if there are <=10 categories. Labels on slices below
-        2%% are dropped to declutter.
+        enabled only for a single pie with <=10 categories; facet grids
+        (``split_by``) rely on the shared legend instead of repeating every
+        label on every pie. Labels on slices below 2%% are dropped to
+        declutter.
     adjust_text : bool, default False
         If ``True``, nudge overlapping labels apart with :mod:`adjustText`.
 
@@ -490,20 +528,24 @@ def pie_plot(
         palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
     )
     if show_labels is None:
-        show_labels = len(cats) <= 10
+        # Facet grids repeat every label on every pie: one shared legend is
+        # much cleaner there, so labels default to off when ``split_by`` is set.
+        show_labels = split_by is None and len(cats) <= 10
     if show_legend is None:
         show_legend = not show_labels
 
+    def _autopct(p):
+        # Hide percentages on thin slices so they can't pile onto each other.
+        return (autopct % p) if autopct and p >= 4 else ""
+
     if split_by is None:
         if figsize is None:
-            figsize = (4.5, 4.5)
+            figsize = _legend_aware_figsize((4.5, 4.5), cats, show_legend)
         fig, ax = plt.subplots(figsize=figsize)
+        apply_layout(fig)
         counts = obs[groupby].astype(str).value_counts().reindex(cats, fill_value=0)
         total = float(counts.sum()) or 1.0
         fracs = counts.values / total
-
-        def _autopct(p):
-            return (autopct % p) if autopct and p >= 3 else ""
 
         wedges, texts, _autotexts = ax.pie(
             counts.values,
@@ -520,11 +562,11 @@ def pie_plot(
             if adjust_text:
                 maybe_adjust_texts([t for t in texts if t.get_text()], ax=ax)
         if show_legend:
-            ax.legend(wedges, cats, **merge_legend_kws(legend_kws, title=groupby))
+            outside_legend(fig, ax, wedges, cats, legend_kws=legend_kws, title=groupby)
         ax.set(aspect="equal")
         if title:
             ax.set_title(title)
-        save_or_show(fig, save)
+        save_or_show(fig, save, show=show)
         return ax
 
     splits = categorical_order(obs[split_by], split_order)
@@ -535,6 +577,7 @@ def pie_plot(
     if figsize is None:
         figsize = (3.2 * ncols, 3.2 * nrows)
     fig, axes = plt.subplots(nrows, ncols, figsize=figsize)
+    apply_layout(fig)
     axes = np.atleast_1d(axes).ravel()
     for i, sp in enumerate(splits):
         sub = obs[obs[split_by].astype(str) == sp]
@@ -543,14 +586,11 @@ def pie_plot(
         total = float(counts.sum()) or 1.0
         fracs = counts.values / total
 
-        def _autopct_facet(p):
-            return (autopct % p) if autopct and p >= 3 else ""
-
         wedges, texts, _ap = ax.pie(
             counts.values,
             labels=cats if show_labels else None,
             colors=[colors[c] for c in cats],
-            autopct=_autopct_facet if autopct else None,
+            autopct=_autopct if autopct else None,
             textprops=dict(fontsize=7),
             wedgeprops=dict(edgecolor="white", linewidth=0.5),
         )
@@ -560,7 +600,7 @@ def pie_plot(
                     t.set_text("")
             if adjust_text:
                 maybe_adjust_texts([t for t in texts if t.get_text()], ax=ax)
-        ax.set_title(str(sp), fontsize=9)
+        ax.set_title(f"{sp} (n={int(total):,})", fontsize=9)
         ax.set(aspect="equal")
     for j in range(n, len(axes)):
         axes[j].axis("off")
@@ -568,19 +608,10 @@ def pie_plot(
         from matplotlib.patches import Patch
 
         handles = [Patch(color=colors[c], label=c) for c in cats]
-        fig.legend(
-            handles=handles,
-            **merge_legend_kws(
-                legend_kws,
-                loc="center left",
-                bbox_to_anchor=(1.0, 0.5),
-                title=groupby,
-            ),
-        )
+        outside_legend(fig, axes[0], handles, legend_kws=legend_kws, title=groupby)
     if title:
         fig.suptitle(title)
-    fig.tight_layout()
-    save_or_show(fig, save)
+    save_or_show(fig, save, show=show)
     return axes
 
 
@@ -597,7 +628,7 @@ def area_plot(
     split_order: Optional[Sequence] = None,
     normalize: bool = True,
     palette: Union[None, Mapping[str, str], str] = None,
-    figsize=(6, 4),
+    figsize=None,
     ax=None,
     save: Optional[str] = None,
     show: bool = False,
@@ -639,9 +670,11 @@ def area_plot(
         category -> colour; a str is treated as a path to a palette
         workbook/sheet; ``None`` (default) resolves colours from the AnnData
         ``uns`` colours or a generated default.
-    figsize : tuple of float, default (6, 4)
+    figsize : tuple of float, optional
         Figure size in inches, used only when a new figure is created
-        (``ax`` is ``None``).
+        (``ax`` is ``None``). When ``None`` (default) a 6 x 4 inch panel is
+        widened for the outside legend and made tall enough to hold all of
+        its entries.
     ax : matplotlib.axes.Axes, optional
         Existing axes to draw into. If ``None`` (default) a new figure and
         axes are created.
@@ -676,10 +709,14 @@ def area_plot(
     colors = resolve_palette(
         palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
     )
+    if figsize is None:
+        figsize = _legend_aware_figsize((6, 4), cats, show_legend)
+    own_fig = ax is None
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
     else:
         fig = ax.figure
+    apply_layout(fig, own=own_fig)
 
     x = np.arange(len(splits))
     ax.stackplot(
@@ -701,11 +738,10 @@ def area_plot(
     ax.set_xlabel(split_by)
     ax.spines[["top", "right"]].set_visible(False)
     if show_legend:
-        ax.legend(**merge_legend_kws(legend_kws, title=groupby))
+        outside_legend(fig, ax, legend_kws=legend_kws, title=groupby)
     if title:
         ax.set_title(title)
-    fig.tight_layout()
-    save_or_show(fig, save)
+    save_or_show(fig, save, show=show)
     return ax
 
 
@@ -761,7 +797,8 @@ def dot_plot(
         used to colour the dots.
     cmap : str, default "viridis"
         Matplotlib colormap name used to encode the within-column fraction
-        (mapped over the range 0-1).
+        (mapped from 0 to the largest fraction in the table). A size legend
+        with reference cell counts is drawn under the colour bar.
     size_max : float, default 250.0
         Marker area (in points squared) assigned to the largest count; all
         other dots are scaled linearly relative to it.
@@ -795,15 +832,23 @@ def dot_plot(
     counts = ct.values
 
     if figsize is None:
-        figsize = (max(4, 0.5 * len(splits) + 2), max(3, 0.35 * len(cats) + 1.5))
+        figsize = (
+            max(4, 0.5 * len(splits) + 2) + 0.6 * label_extent(cats, 8),
+            max(3, 0.35 * len(cats) + 1.5),
+        )
+    own_fig = ax is None
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
     else:
         fig = ax.figure
+    apply_layout(fig, own=own_fig)
 
     yy, xx = np.meshgrid(np.arange(len(cats)), np.arange(len(splits)), indexing="ij")
     max_count = max(counts.max(), 1)
     sizes = (counts / max_count) * size_max
+    # Colour range follows the data: with many groups every fraction is
+    # small and a fixed 0-1 range renders every dot in the same dark colour.
+    vmax = float(frac.max()) if frac.size and frac.max() > 0 else 1.0
     sc = ax.scatter(
         xx.ravel(),
         yy.ravel(),
@@ -813,7 +858,7 @@ def dot_plot(
         edgecolor="black",
         linewidth=0.3,
         vmin=0,
-        vmax=1,
+        vmax=vmax,
     )
     ax.set_xticks(np.arange(len(splits)))
     ax.set_xticklabels(
@@ -828,14 +873,24 @@ def dot_plot(
     ax.set_ylabel(groupby)
     ax.grid(True, linestyle=":", linewidth=0.4, alpha=0.6)
     ax.spines[["top", "right"]].set_visible(False)
-    cbar = fig.colorbar(sc, ax=ax, fraction=0.04, pad=0.04)
+    cbar = fig.colorbar(sc, ax=ax, fraction=0.04, pad=0.04, shrink=0.5, anchor=(0, 1))
     cbar.set_label(cbar_label or f"Fraction within {split_by}", fontsize=8)
     cbar.outline.set_visible(False)
     cbar.ax.tick_params(length=2, width=0.5, labelsize=7)
+    # Size legend (cell counts) under the colorbar, outside the axes.
+    handles, labels = sc.legend_elements(
+        prop="sizes", num=4, func=lambda s: s / size_max * max_count,
+        fmt="{x:,.0f}", color="grey", markeredgecolor="black", markeredgewidth=0.3,
+    )
+    if handles:
+        ax.legend(
+            handles, labels, title="Cells", loc="upper left",
+            bbox_to_anchor=(1.02, 0.45), frameon=False, fontsize=7,
+            title_fontsize=8, labelspacing=1.2, handletextpad=0.8, borderpad=0.6,
+        )
     if title:
         ax.set_title(title)
-    fig.tight_layout()
-    save_or_show(fig, save)
+    save_or_show(fig, save, show=show)
     return ax
 
 
@@ -852,7 +907,7 @@ def trend_plot(
     split_order: Optional[Sequence] = None,
     normalize: bool = True,
     palette: Union[None, Mapping[str, str], str] = None,
-    figsize=(6, 4),
+    figsize=None,
     ax=None,
     save: Optional[str] = None,
     show: bool = False,
@@ -893,9 +948,10 @@ def trend_plot(
         is treated as a path to a palette workbook/sheet; ``None`` (default)
         resolves colours from the AnnData ``uns`` colours or a generated
         default.
-    figsize : tuple of float, default (6, 4)
+    figsize : tuple of float, optional
         Figure size in inches, used only when a new figure is created
-        (``ax`` is ``None``).
+        (``ax`` is ``None``). When ``None`` (default) a 6 x 4 inch panel is
+        widened for the outside legend and made tall enough for its entries.
     ax : matplotlib.axes.Axes, optional
         Existing axes to draw into. If ``None`` (default) a new figure and
         axes are created.
@@ -930,10 +986,14 @@ def trend_plot(
     colors = resolve_palette(
         palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
     )
+    if figsize is None:
+        figsize = _legend_aware_figsize((6, 4), cats, show_legend)
+    own_fig = ax is None
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
     else:
         fig = ax.figure
+    apply_layout(fig, own=own_fig)
 
     x = np.arange(len(splits))
     for c in cats:
@@ -956,11 +1016,10 @@ def trend_plot(
     ax.spines[["top", "right"]].set_visible(False)
     ax.grid(axis="y", linewidth=0.4, alpha=0.5)
     if show_legend:
-        ax.legend(**merge_legend_kws(legend_kws, title=groupby))
+        outside_legend(fig, ax, legend_kws=legend_kws, title=groupby)
     if title:
         ax.set_title(title)
-    fig.tight_layout()
-    save_or_show(fig, save)
+    save_or_show(fig, save, show=show)
     return ax
 
 
@@ -1026,7 +1085,8 @@ def bar_plot(
         ``uns`` colours or a generated default.
     figsize : tuple of float, optional
         Figure size in inches. When ``None`` (default) a size is derived
-        from the number of bars and categories.
+        from the number of bars and categories, plus room for the outside
+        legend and the rotated bar labels.
     ax : matplotlib.axes.Axes, optional
         Existing axes to draw into. If ``None`` (default) a new figure and
         axes are created.
@@ -1077,11 +1137,19 @@ def bar_plot(
         palette, cats, sheet_name=groupby, adata=ad, groupby=groupby
     )
     if figsize is None:
-        figsize = (max(2.5, len(splits) * 0.45), max(3.5, min(len(cats) * 0.5, 8)))
+        # Bars get a fixed width each; the legend column (longest label) and
+        # the rotated x labels are added on top so they can't squeeze the
+        # bars into slivers.
+        width = max(2.5, len(splits) * 0.45) + 0.4 * label_extent(splits, 8, rotation)
+        if show_legend:
+            width += label_extent(cats, 8) + 0.4
+        figsize = (width, max(3.5, min(len(cats) * 0.25 + 1.0, 8)))
+    own_fig = ax is None
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
     else:
         fig = ax.figure
+    apply_layout(fig, own=own_fig)
     n = len(splits)
     bottom = np.zeros(n, dtype=float)
     x = np.arange(n, dtype=float)  # left edges
@@ -1109,8 +1177,8 @@ def bar_plot(
         splits,
         rotation=rotation,
         rotation_mode="anchor",
-        ha="left" if rotation < 0 else "right",
-        va="center",
+        ha="left" if rotation < 0 else ("right" if rotation else "center"),
+        va="center" if rotation else "top",
     )
     ax.tick_params(
         axis="y",
@@ -1145,6 +1213,5 @@ def bar_plot(
         ax.legend(**lkws)
     if title:
         ax.set_title(title)
-    fig.tight_layout()
     save_or_show(fig, save, show=show)
     return ax

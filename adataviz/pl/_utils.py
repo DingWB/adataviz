@@ -8,10 +8,13 @@ deprecated ``is_categorical_dtype``, no removed positional kwargs).
 
 from __future__ import annotations
 
+import contextlib
 import os
+import warnings
 from typing import Any, Mapping, Optional, Sequence, Union
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 __all__ = [
@@ -21,12 +24,152 @@ __all__ = [
     "to_hex",
     "save_or_show",
     "categorical_order",
+    "categorical_series",
+    "gene_positions",
     "merge_legend_kws",
     "maybe_adjust_texts",
     "palette_from_uns",
     "use_scientific_style",
     "show_fig",
+    "import_pch",
+    "quiet_pch",
+    "apply_layout",
+    "label_extent",
+    "outside_legend",
 ]
+
+
+def gene_positions(var_names, genes: Sequence[str]) -> list:
+    """Column positions of ``genes`` in ``var_names`` (``KeyError`` if absent).
+
+    Uses the fast ``Index.get_indexer`` path and falls back to a dict lookup
+    (last occurrence wins, matching the previous behaviour) when
+    ``var_names`` is not unique, which ``get_indexer`` refuses.
+    """
+    var = pd.Index(var_names)
+    if var.is_unique:
+        idx = var.get_indexer(list(genes))
+    else:
+        pos = {g: i for i, g in enumerate(var)}
+        idx = np.array([pos.get(g, -1) for g in genes], dtype=int)
+    if (idx < 0).any():
+        missing = [g for g, i in zip(genes, idx) if i < 0]
+        raise KeyError(f"genes not in adata.var_names: {missing[:5]}")
+    return idx.tolist()
+
+
+def import_pch():
+    """Import :mod:`PyComplexHeatmap` with pandas>=3 compatibility shims.
+
+    pandas 3 removed ``DataFrame.applymap`` (renamed ``DataFrame.map`` in
+    2.1), but PyComplexHeatmap <= 1.8.x still calls it inside
+    ``DotClustermapPlotter``. Alias it back so the dot plots keep working
+    on new pandas without pinning the upstream package.
+    """
+    if not hasattr(pd.DataFrame, "applymap") and hasattr(pd.DataFrame, "map"):
+        pd.DataFrame.applymap = pd.DataFrame.map  # type: ignore[attr-defined]
+    import PyComplexHeatmap as pch
+
+    return pch
+
+
+@contextlib.contextmanager
+def quiet_pch(fig):
+    """Silence upstream PyComplexHeatmap warnings while it draws ``fig``.
+
+    - Disables any auto layout engine on the target figure so that
+      PyComplexHeatmap's manual GridSpec layout does not trigger the
+      "Axes are not compatible with tight_layout" warning on canvas draw.
+    - Filters the pandas ``FutureWarning`` about callable ``mean`` that
+      comes from ``PyComplexHeatmap.dotHeatmap``.
+    """
+    # Force this figure off any auto-layout engine (tight/constrained) a user
+    # rcParams ``figure.autolayout=True`` would otherwise install: PCH lays
+    # its GridSpec out by hand.
+    try:
+        fig.set_layout_engine("none")
+    except Exception:
+        pass
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            category=FutureWarning,
+            module=r"PyComplexHeatmap\..*",
+        )
+        warnings.filterwarnings(
+            "ignore",
+            message=r".*not compatible with tight_layout.*",
+            category=UserWarning,
+        )
+        yield
+
+
+def apply_layout(fig, own: bool = True, **engine_kws):
+    """Make ``fig`` lay itself out at draw time with the constrained engine.
+
+    Constrained layout (unlike ``tight_layout``) accounts for legends placed
+    outside their axes via ``bbox_to_anchor`` as well as rotated tick labels
+    and figure titles, so panels never overlap their decorations. Only
+    applied when ``own`` is true (the figure was created by us); a figure the
+    caller handed in through ``ax=`` is left untouched. Extra keyword
+    arguments (``h_pad``, ``w_pad``, ``hspace``, ``wspace``) are forwarded to
+    the engine. Falls back to a one-off ``tight_layout`` on very old
+    matplotlib.
+    """
+    if not own:
+        return
+    try:
+        fig.set_layout_engine("constrained")
+        if engine_kws:
+            fig.get_layout_engine().set(**engine_kws)
+    except Exception:  # pragma: no cover - matplotlib < 3.6
+        try:
+            fig.tight_layout()
+        except Exception:
+            pass
+
+
+def label_extent(labels: Sequence, fontsize: float = 8, rotation: float = 0) -> float:
+    """Rough inch-extent of the longest label (for auto figure sizing).
+
+    Uses an average glyph width of ~0.6 em; ``rotation`` (degrees) projects
+    the text onto the horizontal axis so a -45 degree tick label reserves
+    about 70 % of its unrotated width.
+    """
+    import math
+
+    maxlen = max((len(str(x)) for x in labels), default=0)
+    width_in = maxlen * 0.6 * fontsize / 72.0
+    return width_in * abs(math.cos(math.radians(rotation))) + 0.1
+
+
+def outside_legend(fig, ax, handles=None, labels=None, legend_kws=None, **defaults):
+    """Draw a legend that constrained layout keeps clear of *all* axes content.
+
+    When the caller did not pin a location (``loc`` / ``bbox_to_anchor`` in
+    ``legend_kws``) and matplotlib supports it, the legend is attached to the
+    figure with ``loc="outside center right"`` so it never collides with
+    labels that stick out of the axes (polar tick labels, rotated x labels,
+    ...). Otherwise it is a regular ``ax.legend`` with the usual
+    right-of-axes defaults.
+    """
+    kws = merge_legend_kws(legend_kws, **defaults)
+    user_pinned = bool(legend_kws) and (
+        "loc" in legend_kws or "bbox_to_anchor" in legend_kws
+    )
+    if handles is not None:
+        kws["handles"] = handles
+    if labels is not None:
+        kws["labels"] = labels
+    if not user_pinned and fig.get_layout_engine() is not None:
+        kws.pop("bbox_to_anchor", None)
+        kws["loc"] = "outside center right"
+        try:
+            return fig.legend(**kws)
+        except (ValueError, TypeError):  # matplotlib < 3.7: no "outside" locs
+            kws["loc"] = "center left"
+            kws["bbox_to_anchor"] = (1.02, 0.5)
+    return ax.legend(**kws)
 
 
 def resolve_obs(obs: Any) -> pd.DataFrame:
@@ -175,6 +318,24 @@ def categorical_order(values: pd.Series, order: Optional[Sequence] = None) -> li
     return sorted(present)
 
 
+def categorical_series(values: pd.Series, order: Optional[Sequence] = None) -> pd.Series:
+    """Return *values* as an ordered ``Categorical`` of ``str`` labels.
+
+    Keeps the categorical order of the input (or ``order`` when given, or the
+    sorted unique values for plain object/numeric columns) while making the
+    labels plain strings, so downstream ``groupby`` results come back in a
+    meaningful order instead of alphabetically. Rows whose category is not in
+    the final order become ``NaN`` and are dropped by ``observed=True``
+    group-bys.
+    """
+    cats = categorical_order(values, order)
+    return pd.Series(
+        pd.Categorical(values.astype(str), categories=cats, ordered=True),
+        index=values.index,
+        name=values.name,
+    )
+
+
 _DEFAULT_LEGEND_KWS = dict(
     loc="center left",
     bbox_to_anchor=(1.02, 0.5),
@@ -252,7 +413,11 @@ def use_scientific_style():
             "figure.dpi": 300,
             "savefig.dpi": 300,
             "figure.figsize": (6.5, 4.5),
-            "figure.autolayout": True,
+            # NOTE: ``figure.autolayout`` is deliberately *not* enabled: a
+            # global tight_layout at draw time fights PyComplexHeatmap's
+            # manual GridSpec and squeezes axes under legends anchored outside
+            # them. Every adataviz plot manages its own layout instead.
+            "figure.autolayout": False,
             "savefig.transparent": True,
             "savefig.bbox": "tight",
             "savefig.pad_inches": 0,

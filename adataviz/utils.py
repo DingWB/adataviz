@@ -2257,8 +2257,10 @@ def continuous_scatter(
         # cnorm is the normalizer for color
         cnorm = matplotlib.colors.Normalize(vmin=hue_norm[0], vmax=hue_norm[1])
         if isinstance(cmap, str):
+            from . import palettes as _palettes
+
             # from here, cmap become colormap object
-            cmap = copy.copy(get_cmap(cmap))
+            cmap = copy.copy(_palettes.get_cmap(cmap))
             cmap.set_bad(color=(0.5, 0.5, 0.5, 0.5))
         else:
             if not isinstance(cmap, ScalarMappable):
