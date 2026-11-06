@@ -1027,7 +1027,13 @@ class AnnDataView:
                     try:
                         res = fut.result()
                     except Exception:
-                        logger.error("Error processing source %s", futures[fut][1])
+                        # loguru formats with str.format, not %, so the old
+                        # "%s" placeholder dropped the path silently; and the
+                        # traceback was lost entirely even though skipping a
+                        # source leaves its rows empty in the result.
+                        logger.exception(
+                            f"Error processing source {futures[fut][1]}"
+                        )
                         continue
                     if res is not None:
                         rows_all.append(res[0])

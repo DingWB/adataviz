@@ -328,9 +328,11 @@ def pseudobulk(
             obs = pd.read_csv(os.path.expanduser(obs_path), sep="\t", index_col=0)
         else:
             obs = obs_path.copy()
-        overlapped_cells = list(
-            set(raw_adata.obs_names.tolist()) & set(obs.index.tolist())
-        )
+        # Keep adata's order: a set intersection orders cells by string hash, so
+        # the same inputs could produce differently ordered pseudobulk columns.
+        overlapped_cells = raw_adata.obs_names[
+            raw_adata.obs_names.isin(obs.index)
+        ]
         obs = obs.loc[overlapped_cells]
     else:
         obs = raw_adata.obs.copy()
@@ -339,7 +341,7 @@ def pseudobulk(
     obs = obs.loc[obs[groupby].notna()]
     if downsample is not None:
         all_cells = (
-            obs.groupby(groupby)
+            obs.groupby(groupby, observed=True)
             .apply(
                 lambda x: x.sample(downsample).index.tolist()
                 if x.shape[0] > downsample
@@ -498,9 +500,11 @@ def pseudobulk_stats(
             obs = pd.read_csv(os.path.expanduser(obs_path), sep="\t", index_col=0)
         else:
             obs = obs_path.copy()
-        overlapped_cells = list(
-            set(raw_adata.obs_names.tolist()) & set(obs.index.tolist())
-        )
+        # Keep adata's order: a set intersection orders cells by string hash, so
+        # the same inputs could produce differently ordered pseudobulk columns.
+        overlapped_cells = raw_adata.obs_names[
+            raw_adata.obs_names.isin(obs.index)
+        ]
         obs = obs.loc[overlapped_cells]
     else:
         obs = raw_adata.obs.copy()
@@ -509,7 +513,7 @@ def pseudobulk_stats(
     obs = obs.loc[obs[groupby].notna()]
     if downsample is not None:
         all_cells = (
-            obs.groupby(groupby)
+            obs.groupby(groupby, observed=True)
             .apply(
                 lambda x: x.sample(downsample).index.tolist()
                 if x.shape[0] > downsample
@@ -803,7 +807,7 @@ def load_obs(obs):
         return obs.copy()
 
 
-def load_color_palette(palette=None, adata=None, groups=[]):
+def load_color_palette(palette=None, adata=None, groups=None):
     """Load a colour palette from an Excel file or from ``adata.uns``.
 
     Parameters
@@ -826,6 +830,8 @@ def load_color_palette(palette=None, adata=None, groups=[]):
             Returns ``None`` if no colours are found.
     """
     # read color palette
+    if groups is None:
+        groups = []
     if isinstance(groups, str):
         groups = [groups]
     assert isinstance(groups, list)
@@ -846,17 +852,20 @@ def load_color_palette(palette=None, adata=None, groups=[]):
             return None
         # assert not adata is None, "If palette not provided, adata is required to extract color information from adata.obs"
         for group_col in groups:
-            if f"{group_col}_colors" in adata.uns:
+            if f"{group_col}_colors" in adata.uns and group_col in adata.obs:
                 group_series = adata.obs[group_col]
-                if not pd.api.types.is_categorical_dtype(group_series):
+                if not isinstance(group_series.dtype, pd.CategoricalDtype):
                     group_series = group_series.astype("category")
-                color_palette[group_col] = {
-                    cluster: color
-                    for cluster, color in zip(
-                        group_series.cat.categories.tolist(),
-                        adata.uns[f"{group_col}_colors"],
+                cats = group_series.cat.categories.tolist()
+                colors = list(adata.uns[f"{group_col}_colors"])
+                if len(colors) < len(cats):
+                    # zip() would silently drop the trailing categories, which
+                    # then resurface as a KeyError inside whichever plot uses it
+                    logger.warning(
+                        f"adata.uns['{group_col}_colors'] has {len(colors)} colors "
+                        f"for {len(cats)} categories; the rest stay unassigned."
                     )
-                }
+                color_palette[group_col] = dict(zip(cats, colors))
     if len(color_palette) == 0:
         return None
     if len(groups) == 1:
@@ -945,13 +954,15 @@ def downsample_adata(
             obs = pd.read_csv(os.path.expanduser(obs_path), sep="\t", index_col=0)
         else:
             obs = obs_path.copy()
-        overlapped_cells = list(set(adata.obs_names.tolist()) & set(obs.index.tolist()))
+        # Keep adata's order: set intersection would make the row order depend on
+        # string hashing, so repeated runs could differ.
+        overlapped_cells = adata.obs_names[adata.obs_names.isin(obs.index)]
         obs = obs.loc[overlapped_cells]
     else:
         obs = adata.obs.copy()
     keep_cells = (
         obs.loc[obs[groupby].notna()]
-        .groupby(groupby)
+        .groupby(groupby, observed=True)
         .apply(
             lambda x: x.sample(downsample).index.tolist()
             if x.shape[0] > downsample
@@ -1079,16 +1090,19 @@ def composition(
     else:
         stratify_order = []
     for stratify in ["All"] + stratify_order:
+        # observed=False is pinned, not inherited: it keeps absent categories as
+        # all-NaN rows, which is what the current sheets contain. pandas is about
+        # to flip this default, which would silently drop those rows.
         if stratify == "All":
             df = (
-                obs.groupby(groupby)[composition_col]
+                obs.groupby(groupby, observed=False)[composition_col]
                 .value_counts(normalize=True)
                 .unstack()
             )
         else:
             df = (
                 obs.loc[obs[stratify_col] == stratify]
-                .groupby(groupby)[composition_col]
+                .groupby(groupby, observed=False)[composition_col]
                 .value_counts(normalize=True)
                 .unstack()
             )
@@ -1098,7 +1112,7 @@ def composition(
             df.reset_index(inplace=True)
             df.insert(0, parent_col, df[groupby].map(group2parent))
             df.set_index([parent_col, groupby], inplace=True)
-        df = df.applymap(lambda x: 100 * x)  # type: ignore
+        df = df * 100
         df.to_excel(writer, sheet_name=stratify)
         workbook = writer.book
         worksheet = writer.sheets[stratify]
@@ -1185,7 +1199,7 @@ def taxonomy(
     obs = load_obs(obs)
     level = levels[-1]
     D = (
-        obs.groupby(level)
+        obs.groupby(level, observed=True)
         .apply(lambda x: str(x[groupby].value_counts().to_dict()))
         .to_dict()
     )
@@ -1233,7 +1247,7 @@ def get_markers_worker(adata1, obs, level, df_gene, key, outdir, topn, downsampl
 
     if not os.path.exists(os.path.join(outdir, f"{key}.tsv")):
         use_cells = (
-            adata1.obs.groupby(level)
+            adata1.obs.groupby(level, observed=True)
             .apply(
                 lambda x: x.sample(downsample).index.tolist()
                 if x.shape[0] > downsample
@@ -1272,7 +1286,7 @@ def get_markers_worker(adata1, obs, level, df_gene, key, outdir, topn, downsampl
     markers.names = markers.names.apply(lambda x: x.split(".")[0])
     markers = (
         markers.loc[markers.names.isin(df_gene["gene_name"].tolist())]
-        .groupby("group")
+        .groupby("group", observed=True)
         .apply(lambda x: x.head(topn).names.tolist())
         .to_dict()
     )
@@ -1311,7 +1325,7 @@ def get_markers(
     adata = load_adata(adata_path)
     if obs is not None:
         obs = load_obs(obs)
-        overlapped_cells = list(set(adata.obs_names.tolist()) & set(obs.index.tolist()))
+        overlapped_cells = adata.obs_names[adata.obs_names.isin(obs.index)]
         obs = obs.loc[overlapped_cells]
         for level in levels:
             adata.obs[level] = adata.obs.index.to_series().map(obs[level].to_dict())

@@ -7,6 +7,7 @@ Module                          Plots
 ==============================  =========================================
 ``scatter``                     plot_categorical / plot_gene
 ``expression``                  boxplot / stacked_violinplot / gene_dotplot
+                                / gene_dotplot2D
 ``pseudotime``                  plot_pseudotime
 ``composition``                 rose / ring / pie / area / dot / trend / bar
 ``flow``                        sankey / chord
@@ -24,6 +25,7 @@ from .expression import (
     boxplot,
     stacked_violinplot,
     gene_dotplot,
+    gene_dotplot2D,
     get_genes_mean_frac,
     ridgeline,
 )
@@ -71,6 +73,7 @@ __all__ = [
     "boxplot",
     "stacked_violinplot",
     "gene_dotplot",
+    "gene_dotplot2D",
     "get_genes_mean_frac",
     "ridgeline",
     "plot_pseudotime",

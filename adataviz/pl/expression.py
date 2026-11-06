@@ -6,6 +6,8 @@
   (one row per gene, one column-block per group).
 - :func:`gene_dotplot` -- the rich PyComplexHeatmap dot heatmap that used
   to live as ``plot_genes`` (supports ``parent_col``, ``query_str``, etc.).
+- :func:`gene_dotplot2D` -- one gene across two grouping variables
+  (e.g. Subclass x Age), computed from a pseudobulk AnnData.
 - :func:`get_genes_mean_frac` -- helper used by both ``gene_dotplot`` and
   the interactive variant.
 """
@@ -13,6 +15,7 @@
 from __future__ import annotations
 
 import os
+import re
 from typing import Any, Mapping, Optional, Sequence, Union
 
 import anndata
@@ -33,6 +36,7 @@ __all__ = [
     "boxplot",
     "stacked_violinplot",
     "gene_dotplot",
+    "gene_dotplot2D",
     "get_genes_mean_frac",
     "ridgeline",
 ]
@@ -1144,6 +1148,423 @@ def gene_dotplot(
             cm.ax_heatmap.spines[side].set_visible(True)
             cm.ax_heatmap.spines[side].set_color(outline_kws.get("color", "black") if outline_kws else "black")
             cm.ax_heatmap.spines[side].set_linewidth(outline_kws.get("linewidth", 1) if outline_kws else 1)
+    save_or_show(fig, save, show=show)
+    return cm
+
+
+# ---------------------------------------------------------------------------
+# gene_dotplot2D (one gene across two grouping variables)
+# ---------------------------------------------------------------------------
+
+
+def _natural_sort_key(s):
+    """Sort key that orders embedded numbers numerically (``E15.5 < E16 < P0 < P2 < P11``)."""
+    parts = re.split(r"(\d+(?:\.\d+)?)", str(s))
+    return tuple(
+        (0, float(p), "") if i % 2 else (1, 0.0, p.lower()) for i, p in enumerate(parts)
+    )
+
+
+def _resolve_gene(var_names, gene: str) -> str:
+    """Return ``gene`` as present in ``var_names``, falling back to a case-insensitive match."""
+    if gene in var_names:
+        return gene
+    idx = pd.Index(var_names)
+    hits = idx[idx.str.lower() == str(gene).lower()]
+    if len(hits) == 0:
+        raise KeyError(f"gene {gene!r} not found in adata.var_names.")
+    print(f"gene {gene!r} not found; using case-insensitive match {hits[0]!r}.")
+    return hits[0]
+
+
+def gene_dotplot2D(
+    adata,
+    gene: str,
+    row: str = "Subclass",
+    col: str = "Age",
+    obs=None,
+    sep: str = "+",
+    pseudobulk_kws: Optional[Mapping[str, Any]] = None,
+    pseudobulk_adata: Optional[str] = None,
+    overwrite: bool = False,
+    layer: Optional[str] = None,
+    min_cells: Optional[int] = 10,
+    standard_scale: Optional[str] = None,
+    row_order: Optional[Sequence] = None,
+    col_order: Optional[Sequence] = None,
+    row_cluster: bool = False,
+    col_cluster: bool = False,
+    cmap: str = "Reds",
+    palette=None,
+    legend_kws: Optional[Mapping[str, Any]] = None,
+    figsize=None,
+    marker: str = "o",
+    plot_kws: Optional[Mapping[str, Any]] = None,
+    title: Optional[str] = None,
+    save: Optional[str] = None,
+    show: bool = False,
+    outline: bool = True,
+    outline_kws: Optional[Mapping[str, Any]] = None,
+):
+    """Dot heatmap of a single gene across two grouping variables.
+
+    Where :func:`gene_dotplot` shows many genes across one grouping, this
+    shows one gene (e.g. ``Mecp2``) across the combinations of two obs
+    variables (e.g. ``Subclass`` x ``Age``): rows are the categories of
+    ``row``, columns the categories of ``col``, dot colour encodes the
+    expression level and dot size the fraction of expressing cells.
+
+    Single-cell input is first aggregated with
+    :func:`adataviz.tools.pseudobulk` using the composite grouping
+    ``f"{row}{sep}{col}"`` (an existing ``f"{col}{sep}{row}"`` column is
+    reused as well). If that column is missing from ``adata.obs`` / ``obs``
+    it is built from ``row`` and ``col``. The pseudobulk AnnData is written
+    to ``pseudobulk_adata`` (default ``save + ".h5ad"``); if that file
+    already exists it is loaded instead and :func:`pseudobulk` is skipped
+    (unless ``overwrite``), so plotting other genes is cheap.
+
+    Parameters
+    ----------
+    adata : AnnData or str
+        Single-cell ``.h5ad`` path (or backed AnnData), or a pseudobulk
+        AnnData/path as produced by :func:`adataviz.tools.pseudobulk`
+        (detected by its ``"mean"`` and ``"frac"`` layers) whose
+        ``obs_names`` are ``"<row><sep><col>"`` labels.
+    gene : str
+        Gene to plot. Falls back to a case-insensitive match
+        (``"MECP2"`` -> ``"Mecp2"``).
+    row, col : str, default ``"Subclass"``, ``"Age"``
+        Obs variables shown on the heatmap rows / columns. Swap them to
+        transpose the plot.
+    obs : DataFrame, str, or None, optional
+        Alternative cell metadata (DataFrame, or TSV/CSV/``.h5ad`` path);
+        None uses ``adata.obs``. Ignored for pseudobulk input.
+    sep : str, default ``"+"``
+        Separator joining ``row`` and ``col`` in the composite group label.
+        Category names must not contain it.
+    pseudobulk_kws : dict, optional
+        Extra arguments for :func:`adataviz.tools.pseudobulk`. Defaults:
+        ``dict(downsample=2000, use_raw=True, normalization="CPM",
+        expression_cutoff=0, n_jobs=1)``.
+    pseudobulk_adata : str, optional
+        Path of the pseudobulk ``.h5ad`` for single-cell input. If it
+        exists it is loaded and :func:`pseudobulk` is not run; otherwise
+        the pseudobulk is computed and written there. Defaults to
+        ``save + ".h5ad"`` (in memory only when ``save`` is also None).
+        Ignored when ``adata`` is already a pseudobulk.
+    overwrite : bool, default False
+        Recompute the pseudobulk even if ``pseudobulk_adata`` already exists.
+    layer : str, optional
+        Pseudobulk matrix used for dot colour: ``"X"`` or a layer name.
+        By default ``"X"`` when the pseudobulk was normalised (e.g.
+        log(CPM), recorded in ``uns["Normalization"]``), else ``"mean"``.
+    min_cells : int or None, default 10
+        Hide groups (row/col combinations) with fewer cells than this.
+    standard_scale : {None, "row", "col"}, optional
+        Min-max scale the values within each row or column (e.g.
+        ``"row"`` to compare ages within each subclass).
+    row_order, col_order : sequence, optional
+        Explicit category order (and subset) for rows / columns. Defaults
+        to natural sort order (``E15.5 < E16 < P0 < P2 < P11``).
+    row_cluster, col_cluster : bool, default False
+        Whether to hierarchically cluster rows / columns.
+    cmap : str, default ``"Reds"``
+        Colormap for the dot colour.
+    palette : str, dict, or None, optional
+        Annotation colours: an ``.xlsx`` path with one sheet per variable
+        (``Hex`` column), or a dict ``{row: {cat: color}, col: {...}}``;
+        missing colours fall back to defaults.
+    legend_kws : dict, optional
+        Colorbar options (``cmap_legend_kws``) for ``DotClustermapPlotter``.
+    figsize : tuple of float, optional
+        Figure size; auto-sized from the grid when None.
+    marker : str, default ``"o"``
+        Dot marker.
+    plot_kws : dict, optional
+        Extra kwargs for :class:`PyComplexHeatmap.DotClustermapPlotter`
+        (override the defaults set here).
+    title : str, optional
+        Figure title; defaults to the gene name.
+    save : str, optional
+        Figure output path; also the default pseudobulk path
+        (``save + ".h5ad"``) when ``pseudobulk_adata`` is None.
+    show : bool, default False
+        Whether to display the figure.
+    outline : bool, default True
+        Draw a frame around the heatmap.
+    outline_kws : dict, optional
+        ``color`` / ``linewidth`` of the frame.
+
+    Returns
+    -------
+    PyComplexHeatmap.DotClustermapPlotter
+    """
+    from PyComplexHeatmap import (
+        HeatmapAnnotation,
+        anno_simple,
+        DotClustermapPlotter,
+    )
+    from ..tools import load_obs, pseudobulk
+
+    if row == col:
+        raise ValueError("`row` and `col` must be different variables.")
+    if standard_scale not in (None, "row", "col"):
+        raise ValueError("standard_scale must be None, 'row' or 'col'.")
+    plot_kws = dict(plot_kws or {})
+    outline_kws = dict(outline_kws or {})
+
+    raw = (
+        anndata.read_h5ad(os.path.expanduser(adata), backed="r")
+        if isinstance(adata, str)
+        else adata
+    )
+    is_pseudobulk = {"mean", "frac"} <= set(raw.layers.keys())
+    if pseudobulk_adata is not None:
+        pb_path = os.path.expanduser(pseudobulk_adata)
+    elif save:
+        pb_path = os.path.expanduser(save) + ".h5ad"
+    else:
+        pb_path = None
+
+    if is_pseudobulk:
+        pb = raw
+    elif pb_path is not None and os.path.exists(pb_path) and not overwrite:
+        print(f"Reusing existing pseudobulk: {pb_path}")
+        if isinstance(adata, str):
+            raw.file.close()
+        pb = anndata.read_h5ad(pb_path, backed="r")
+    else:
+        if isinstance(adata, str):
+            adata_path = os.path.expanduser(adata)
+        elif raw.isbacked:
+            adata_path = str(raw.filename)
+        else:
+            raise ValueError(
+                "Single-cell input must be an .h5ad path (or a backed AnnData): "
+                "pseudobulk reads cells from disk."
+            )
+        cell_obs = load_obs(obs) if obs is not None else raw.obs
+        if isinstance(adata, str):
+            raw.file.close()
+        key = next(
+            (k for k in (f"{row}{sep}{col}", f"{col}{sep}{row}") if k in cell_obs.columns),
+            None,
+        )
+        if key is None:
+            missing = [c for c in (row, col) if c not in cell_obs.columns]
+            if missing:
+                raise KeyError(f"columns {missing} not found in obs.")
+            key = f"{row}{sep}{col}"
+            valid = cell_obs[row].notna() & cell_obs[col].notna()
+            obs_arg = pd.DataFrame(index=cell_obs.index)
+            obs_arg[key] = (
+                cell_obs[row].astype(str) + sep + cell_obs[col].astype(str)
+            ).where(valid)
+        else:
+            obs_arg = None if obs is None else cell_obs.loc[:, [key]].copy()
+        kws = dict(
+            downsample=2000,
+            use_raw=True,
+            normalization="CPM",
+            expression_cutoff=0,
+            n_jobs=1,
+        )
+        kws.update(pseudobulk_kws or {})
+        print(f"Running pseudobulk with groupby={key!r} -> {pb_path or 'memory'}")
+        pb = pseudobulk(adata_path, obs_path=obs_arg, groupby=key, save=pb_path, **kws)
+        if pb_path is not None:
+            pb = anndata.read_h5ad(pb_path, backed="r")
+        if pb.obs.index.name is None:
+            pb.obs.index.name = key
+
+    gname = _resolve_gene(pb.var_names, gene)
+    key_name = pb.obs.index.name or f"{row}{sep}{col}"
+    sub = pb[:, [gname]]
+    sub = sub.to_memory() if getattr(pb, "isbacked", False) else sub.copy()
+    if getattr(pb, "isbacked", False) and pb is not adata:
+        pb.file.close()
+
+    if layer is None:
+        layer = "X" if sub.uns.get("Normalization") else "mean"
+    value_label = (
+        str(sub.uns.get("Normalization", "Expression")) if layer == "X" else layer
+    )
+    if standard_scale is not None:
+        value_label = f"{value_label} (scaled by {standard_scale})"
+    values = sub.to_df(layer=None if layer == "X" else layer)[gname]
+    frac = sub.to_df(layer="frac")[gname]
+
+    # Split "<a><sep><b>" labels back into the two variables.
+    labels = sub.obs_names.to_series()
+    n_sep = labels.str.count(re.escape(sep))
+    if (n_sep != 1).any():
+        bad = labels[n_sep != 1].tolist()[:5]
+        raise ValueError(
+            f"Cannot split group labels on {sep!r} into exactly two parts, e.g. {bad}. "
+            "Use a different `sep`."
+        )
+    key_parts = key_name.split(sep)
+    if len(key_parts) == 2 and set(key_parts) == {row, col}:
+        first, second = key_parts
+    else:
+        print(
+            f"pseudobulk groupby {key_name!r} does not match row/col; "
+            f"assuming labels are '<{row}>{sep}<{col}>'."
+        )
+        first, second = row, col
+    split = labels.str.split(sep, n=1, expand=True)
+    long_df = pd.DataFrame(
+        {
+            first: split[0].values,
+            second: split[1].values,
+            "Value": values.values,
+            "frac": frac.values,
+        },
+        index=labels.index,
+    )
+    if min_cells and "cell_count" in sub.obs.columns:
+        long_df = long_df.loc[sub.obs.loc[long_df.index, "cell_count"] >= min_cells]
+    long_df = long_df.dropna(subset=["Value"])
+    if long_df.empty:
+        raise ValueError("No groups left to plot (check min_cells / data).")
+
+    mat = long_df.pivot(index=row, columns=col, values="Value")
+    fmat = long_df.pivot(index=row, columns=col, values="frac")
+    rows = (
+        [str(r) for r in row_order if str(r) in mat.index]
+        if row_order is not None
+        else sorted(mat.index, key=_natural_sort_key)
+    )
+    cols = (
+        [str(c) for c in col_order if str(c) in mat.columns]
+        if col_order is not None
+        else sorted(mat.columns, key=_natural_sort_key)
+    )
+    mat, fmat = mat.loc[rows, cols], fmat.loc[rows, cols]
+    if standard_scale is not None:
+        ax_ = 1 if standard_scale == "row" else 0
+        mn, mx = mat.min(axis=ax_), mat.max(axis=ax_)
+        rng = (mx - mn).replace(0, np.nan)
+        scaled = mat.sub(mn, axis=1 - ax_).div(rng, axis=1 - ax_)
+        # Constant rows/columns (zero range) become 0 instead of NaN.
+        mat = scaled.where(~(scaled.isna() & mat.notna()), 0.0)
+    plot_data = (
+        mat.rename_axis(index=row, columns=col)
+        .reset_index()
+        .melt(id_vars=row, var_name=col, value_name="Value")
+        .merge(
+            fmat.rename_axis(index=row, columns=col)
+            .reset_index()
+            .melt(id_vars=row, var_name=col, value_name="frac"),
+            on=[row, col],
+        )
+        .dropna(subset=["Value"])
+    )
+
+    def _colors(var, cats) -> dict:
+        pal = palette.get(var) if isinstance(palette, Mapping) else palette
+        return resolve_palette(pal, cats, sheet_name=var)
+
+    left_ha = HeatmapAnnotation(
+        axis=0,
+        verbose=0,
+        **{
+            row: anno_simple(
+                pd.Series(rows, index=rows),
+                colors=_colors(row, rows),
+                add_text=False,
+                legend=False,
+                height=3,
+                label=row,
+            )
+        },
+    )
+    top_ha = HeatmapAnnotation(
+        axis=1,
+        verbose=0,
+        **{
+            col: anno_simple(
+                pd.Series(cols, index=cols),
+                colors=_colors(col, cols),
+                add_text=False,
+                legend=False,
+                height=3,
+                label=col,
+            )
+        },
+    )
+
+    if legend_kws is None:
+        legend_kws = dict(extendfrac=0.1, extend="both", label=value_label)
+    if figsize is None:
+        figsize = (max(4.0, 0.30 * len(cols) + 3.5), max(3.0, 0.24 * len(rows) + 2.0))
+    if title is None:
+        title = gname
+
+    defaults = dict(
+        marker=marker,
+        grid=None,
+        dot_legend_marker=marker,
+        cmap_legend_kws=legend_kws,
+        row_cluster=row_cluster,
+        col_cluster=col_cluster,
+        row_cluster_method="ward",
+        row_cluster_metric="euclidean",
+        col_cluster_method="ward",
+        col_cluster_metric="euclidean",
+        col_names_side="bottom",
+        row_names_side="right",
+        show_rownames=True,
+        show_colnames=True,
+        row_dendrogram=False,
+        col_dendrogram=False,
+        xticklabels_kws=dict(labelrotation=-45, labelsize=8, bottom=True),
+        yticklabels_kws=dict(labelsize=8, right=True),
+        legend_hpad=4,
+        legend_side="right",
+        legend_anchor="ax_heatmap",
+        spines=False,
+        # Size proportional to frac (no floor), so missing / filtered groups
+        # (filled with frac=0 by PyComplexHeatmap) draw no dot.
+        min_s=0,
+    )
+    for k, v in defaults.items():
+        plot_kws.setdefault(k, v)
+    if title:
+        plot_kws.setdefault("xlabel", title)
+        plot_kws.setdefault("xlabel_side", "top")
+
+    fig = plt.figure(figsize=figsize)
+    cm = DotClustermapPlotter(
+        data=plot_data,
+        top_annotation=top_ha,
+        left_annotation=left_ha,
+        x_order=None if col_cluster else cols,
+        y_order=None if row_cluster else rows,
+        x=col,
+        y=row,
+        value="Value",
+        c="Value",
+        s="frac",
+        cmap=cmap,
+        verbose=0,
+        **plot_kws,
+    )
+    for ax in cm.heatmap_axes.ravel():
+        ax.grid(
+            axis="both",
+            which="minor",
+            color="grey",
+            linestyle="--",
+            alpha=0.6,
+            zorder=0,
+        )
+    if outline:
+        cm.ax_heatmap.set_axis_on()
+        for side in ["top", "right", "left", "bottom"]:
+            cm.ax_heatmap.spines[side].set_visible(True)
+            cm.ax_heatmap.spines[side].set_color(outline_kws.get("color", "black"))
+            cm.ax_heatmap.spines[side].set_linewidth(outline_kws.get("linewidth", 1))
     save_or_show(fig, save, show=show)
     return cm
 
